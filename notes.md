@@ -1,6 +1,6 @@
 # Notes
 
-**Stability AI**
+**Installing packages behind corpo firewall**
 	- Fix SLS issue when downloading model from hugging face: "downgrade 'requests' to '2.27.1'", "import os", "os.environ['CURL_CA_BUNDLE'] = ''".
     	- More info can be found on the open issue on GitHub: https://github.com/huggingface/transformers/issues/25552
 
