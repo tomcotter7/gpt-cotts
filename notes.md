@@ -169,11 +169,17 @@ In this repo is Tiny Chat - which using quantization to produce super fast LLMs.
 
 ## Other Useful LLM Stuff
 
-**Medium Articles**
+### Medium Articles
 
 	- https://medium.com/@onkarmishra/using-langchain-for-question-answering-on-own-data-3af0a82789ed
 
 This condenses down this course - https://learn.deeplearning.ai/langchain-chat-with-your-data/lesson/1/introduction - is a pretty cool implementation of Q&A with your own data.
+
+### LLM Utilization
+
+	- https://python.langchain.com/docs/get_started/introduction.html
+
+LangChain is a library for interacting with LLMs. One useful concept I've found so far
 
 # NLP
 
