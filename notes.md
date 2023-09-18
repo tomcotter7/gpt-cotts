@@ -3,6 +3,13 @@
 ----
 ----
 
+# Neovim
+
+## Plugins
+
+	- https://www.2n.pl/blog/how-to-write-neovim-plugins-in-lua
+
+Useful article on how to write plugins. TODO: neovim-ai -> built in AI plugin to handle documentation / tests
 
 # Federated Learning
 
@@ -53,14 +60,35 @@ It could also be required that the model doesn't exploit certain features (such 
 
 	- https://wattenberger.com/thoughts/boo-chatbots
 
-Chatbots are not the future of AI. TODO: Make some notes on this.
+*Good tools make it clear how they should be used*. 
+
+Also, people want to interact with tools in different ways. The only current way to do that with LLMs is to add context via text.
+
+Perhaps, we could think about adding "sliders". This shows your competency with the topic, how verbose a response, etc...
+
+There is a spectrum of how much human input is required for a task - we want to stay human input > 50% of the total input.
+	- This keeps the human engaged.
+
 
 ## ML Papers
 
 	- https://github.com/dair-ai/ML-Papers-of-the-Week
+
+A list of ML papers worth reading - updated every week. I think I should dedicate some time every week to reading and understanding one of these.
+
 	- https://gist.github.com/veekaybee/be375ab33085102f9027853128dc5f0e
 
-A updated list of ML papers worth reading. Will make more notes on these. TODO:
+Another list of AI foundational basics - should take some time to read through these.
+
+### RLAIF
+
+	- https://arxiv.org/pdf/2309.00267.pdf
+
+This paper shows the comparision between RLHF and RLAIF. They seem to produce comparative results statistically - although from some of the results in the paper (cherry picked too) - the RLHF is clearly slightly better.
+
+One interesting point of note - They used chain of thought reasoning to compare the two summaries. So first they ask the model - "Given these two summaries - explain which is better". Then, using the response they ask "Which is better?".
+They don't even use the response for this - they just looked at the probabilties of the tokens for "1" and "2" - so you don't have to determine the answer from the model response.
+
 
 ## Foundational LLM Concepts
 
@@ -133,6 +161,8 @@ In fp16/bf16, $memory_{model} = (2 bytes/param) \cdot (No.params)$.
 In fp32 we require more memory: $memory_{model} = (4 bytes/param) \cdot (No.params)$.
 
 There is also memory required for inference: $TotalMemory_{Inference} \approx (1.2) \cdot ModelMemory$.
+
+So for example, Llama2-70b at fp16/bf16 requires around 168GB of RAM (most likely slightly more - so 200GB of RAM).
 
 	- [LLM Inference Math](https://kipp.ly/transformer-inference-arithmetic/)
 
