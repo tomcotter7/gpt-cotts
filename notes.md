@@ -1,5 +1,25 @@
 # Notes
 
+## Networking
+
+### FastAPI
+
+A python framework for building APIs. Homepage is [here](https://fastapi.tiangolo.com/).
+
+Once the app is set up - following the documentation - you can run it with: `uvicorn main:app --host 0.0.0.0 --port 8001`, to serve it externally.
+
+### IPs
+
+Find IP address on Linux: `ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
+
+## Jupyter
+
+### Notebook
+
+Serving the notebook externally: `jupyter notebook --ip 0.0.0.0 --port 8888`
+
+Adding a password to notebook: `jupyter notebook password`
+
 ## Docker
 
 ### Other Issues
@@ -44,7 +64,7 @@ More info can be found on the open issue on GitHub [here](https://github.com/hug
 
 ### WebApps
 
-    - https://knowledge.dataiku.com/latest/data-viz/webapps/tutorial-standard-html.html
+[WebApp Tutorial](https://knowledge.dataiku.com/latest/data-viz/webapps/tutorial-standard-html.html)
 
 ---
 
@@ -56,9 +76,7 @@ More info can be found on the open issue on GitHub [here](https://github.com/hug
 
 Allows you to train "glass-box" models and explainability for black-box models. **Glass-Box**: ML Models designed for interpretability.
 
-Private data explainability here too - could definitely be useful.
-
-    - https://arxiv.org/pdf/1602.04938.pdf
+Private data explainability here too - could definitely be useful. [link](https://arxiv.org/pdf/1602.04938.pdf)
 
 LIME learns an interpretable model locally around the prediction of the black box model. This means it is model agnostic, although quite slow when performing this on 1000s of records.
 
@@ -189,65 +207,50 @@ Most interesting thing from here was *Inference Quantization*. The essentially m
 
 ### Serving LLMs
 
-    - https://github.com/flexflow/FlexFlow/
+[FlexFlow](https://github.com/flexflow/FlexFlow/). Uses speculative inference to improve the inference speed.
 
-Uses speculative inference to improve the inference speed.
+[Medus](https://github.com/FasterDecoding/Medusa). Improves the inference speed without using speculative inference.
 
-    - https://github.com/FasterDecoding/Medusa
+[FastChat](https://github.com/lm-sys/FastChat). Python library to easily serve LLMs -> also useful for training and fine-tuning.
 
-Improves the inference speed without using speculative inference.
-
-    - https://github.com/lm-sys/FastChat
-
-Python library to easily serve LLMs -> also useful for training and fine-tuning.
-
-    - https://github.com/mit-han-lab/llm-awq/tree/main
-
-In this repo is Tiny Chat - which using quantization to produce super fast LLMs.
+[TinyChat](https://github.com/mit-han-lab/llm-awq/tree/main). In this repo is Tiny Chat - which uses quantization to produce super fast LLMs.
 
 ### LLM Training
 
-    - [ReST for Language Modelling](https://arxiv.org/pdf/2308.08998.pdf)
+[ReST for Language Modelling](https://arxiv.org/pdf/2308.08998.pdf)
 
-    - **Enforcing Outputs**
-        - https://shreyar.github.io/guardrails/
+#### Enforcing Outputs
+
+[Guardrails](https://shreyar.github.io/guardrails/)
+
+[Magnetic](https://github.com/jackmpcollins/magentic#magentic)
 
 ### Other Useful LLM Stuff
 
 #### Medium Articles
 
-    - https://medium.com/@onkarmishra/using-langchain-for-question-answering-on-own-data-3af0a82789ed
-
-This condenses down this course - https://learn.deeplearning.ai/langchain-chat-with-your-data/lesson/1/introduction - is a pretty cool implementation of Q&A with your own data.
+[Basic Langchain Rag](https://medium.com/@onkarmishra/using-langchain-for-question-answering-on-own-data-3af0a82789ed). This condenses down this [course](https://learn.deeplearning.ai/langchain-chat-with-your-data/lesson/1/introduction) - is a pretty cool implementation of Q&A with your own data.
 
 #### LLM Utilization
 
-    - https://python.langchain.com/docs/get_started/introduction.html
-
-LangChain is a library for interacting with LLMs. One useful concept I've found so far
+[LangChain](https://python.langchain.com/docs/get_started/introduction.html). LangChain is a library for interacting with LLMs. One useful concept I've found so far
 
 ## NLP
 
 ### Preprocessing
 
-    - https://python-docx.readthedocs.io/en/latest/index.html
+[python-docx](https://python-docx.readthedocs.io/en/latest/index.html). This python library is useful for handling .docx files. Used previously for handling poorly formatted tables inside .docx files.
 
-This python library is useful for handling .docx files. Used previously for handling poorly formatted tables inside .docx files.
-
-
-    - https://regex101.com/
-
-Website for testing regex.
-
-
+[regex101](https://regex101.com/). Useful website for testing regex.
 
 ### Text Summarization
 
-    - https://github.com/miso-belica/sumy
+[sumy](https://github.com/miso-belica/sumy)
 
 ### Topic Modelling
 
-    - Latent Dirichlet Allocation (LDA)
+#### Latent Dirichlet Allocation (LDA)
+
 An unsupervised ML model that can be used to discover topics in a corpus of documents.
 
     - https://www.youtube.com/watch?v=T05t-SqKArY
@@ -260,32 +263,24 @@ Gibbs Sampling LDA is more suited to short form text (i.e Tweets)
 
 ### Conciousness
 
-    - [Consciousness in AI](https://arxiv.org/abs/2308.08708)
-TODO: Fill out some notes on this
-    - Galileo's Error
-TODO: Fill out some notes on this
+[Consciousness in AI](https://arxiv.org/abs/2308.08708). TODO: Fill out some notes on this
+
+Galileo's Error. TODO: Fill out some notes on this
 
 ## Image Classification
 
-    - [ViT](https://arxiv.org/pdf/2010.11929.pdf)
-
-Comparable to ResNet when trained on large amounts of data. Turns the 2-D image into a 1-D encoding to feed into the encoder of a transformer (similar to BERT).
+[ViT](https://arxiv.org/pdf/2010.11929.pdf): Comparable to ResNet when trained on large amounts of data. Turns the 2-D image into a 1-D encoding to feed into the encoder of a transformer (similar to BERT).
 Once you have this, a classification head is trained -> but you can remove this and retrain it when fine-tuning
 
-    - [Swin Transformer](https://arxiv.org/abs/2103.14030)
+[Swin Transformer](https://arxiv.org/abs/2103.14030): This improves on the original ViT by using Shifted WINdows (SWIN) -> i.e convolutions, which mean it has a better potential to be suited towards more computer vision tasks, not just image classification.
 
-This improves on the original ViT by using Shifted WINdows (SWIN) -> i.e convolutions, which mean it has a better potential to be suited towards more computer vision tasks, not just image classification.
-
-There are also other methods produced that further combine convolutions and transformer (https://arxiv.org/pdf/2201.03545.pdf).
+There are also other methods produced that further combine convolutions and transformer (found [here](https://arxiv.org/pdf/2201.03545.pdf)).
 
 These methods are modern image classification techniques, that perform on par with ResNet (with better scalability), if not better than ResNet.
 
 ### Image Recognition / Labelling
 
-AWS has a good off-the-shelf service:
-
-    - https://aws.amazon.com/rekognition/resources/?nc=sn&loc=6
-    - https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html
+AWS has a good off-the-shelf service, found [here](https://aws.amazon.com/rekognition/resources/?nc=sn&loc=6) and [here](https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html).
 
 The second link especially is very interesting - picking out objects in an image and returning them as multiple bounding boxes.
 
