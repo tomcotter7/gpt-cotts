@@ -3,3 +3,9 @@ refresh:
 
 run:
 	flask --app frontend\app run
+
+run-debug:
+	flask --app frontend\app run --debugger --reload
+
+reqs:
+	pip freeze > requirements.txt

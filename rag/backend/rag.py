@@ -1,4 +1,8 @@
-class RAG:
+from .querying.openai import query
+
+def rag(input_query: str) -> str:
     
-    def __init__():
-        pass
+    chunks = []
+    model_response = query(input_query, chunks)
+    return model_response, chunks
+
