@@ -1,11 +1,11 @@
 refresh:
-	py -m rag.refresh --weaviate "http://localhost:8080"
+	py -m rag.refresh --weaviate localhost
 
 run:
-	flask --app frontend\app run
+	flask --app frontend\app.py run
 
 run-debug:
-	flask --app frontend\app run --debugger --reload
+	flask --app frontend\app.py run --debugger --reload
 
 reqs:
 	pip freeze > requirements.txt

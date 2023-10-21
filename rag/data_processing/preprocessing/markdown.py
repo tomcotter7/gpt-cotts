@@ -1,7 +1,7 @@
 from pathlib import Path
 
 HERE = Path(__file__).parent
-notes_file = HERE.parent.parent / "notes.md"
+notes_file = HERE.parent.parent.parent / "notes.md"
 
 
 def read_as_str(path: Path) -> str:
