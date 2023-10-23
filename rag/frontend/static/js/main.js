@@ -1,15 +1,15 @@
-function addChat(data) {
+function addChat(data, color) {
   var new_row = document.createElement("div");
   new_row.classList.add("row", "pt-2", "px-4")
-  new_row.innerHTML = "";
+  new_row.textContent = "";
   var new_col = document.createElement("div");
-  new_col.classList.add("col", "mx-auto", "border", "bg-info", "rounded");
-  var new_p = document.createElement("p");
-  new_p.classList.add("text-light");
-  new_p.innerHTML = data;
+  new_col.classList.add("col", "mx-auto", "border", "bg-" + color, "rounded", "border-light", "border-3");
+  var new_p = document.createElement("md-block");
+  new_p.classList.add("text-white")
+  new_p.textContent = data;
   new_col.appendChild(new_p);
   new_row.appendChild(new_col);
-  document.getElementById("responses").appendChild(new_row);
+  document.getElementById("responses").prepend(new_row);
 }
 
 document.getElementById("clear").addEventListener("click", function(event) {
@@ -20,7 +20,7 @@ document.getElementById("clear").addEventListener("click", function(event) {
 document.getElementById("rag-form").addEventListener("submit", function(event) {
     event.preventDefault();
     var query = document.getElementById("query-input").value;
-    addChat(query);
+    addChat(query, 'info');
     $.ajax({
         url: "/rag",
         type: "POST",
@@ -30,7 +30,7 @@ document.getElementById("rag-form").addEventListener("submit", function(event) {
             var model_response = data['model_response'];
             var chunks = data['chunks'];
             console.log(chunks);
-            addChat(model_response);
+            addChat(model_response, 'success');
         }
     });
 });

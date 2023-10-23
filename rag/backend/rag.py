@@ -1,9 +1,22 @@
-from .querying.openai import query
-from ..data_processing.database.weaviate import query_weaviate
+from .querying.openai import ModelQueryHandler
+from ..data_processing import query_weaviate
 
 
-def rag(input_query: str) -> tuple[str, list[str]]:
+class RAG:
 
-    chunks = query_weaviate(input_query, "localhost")
-    model_response = query(input_query, chunks)
-    return model_response, chunks
+    def __init__(self):
+        self.mqh = ModelQueryHandler()
+        self.query_calls = 0
+
+    def reset_context(self) -> None:
+        self.mqh.reset_context()
+
+    def query(self, input_query: str) -> tuple[str, list[str]]:
+        chunks = query_weaviate(input_query, "localhost")
+        model_response = self.mqh.query(input_query, chunks)
+        self.query_calls += 1
+        if self.query_calls > 2:
+            self.reset_context()
+            self.query_calls = 0
+
+        return model_response, chunks
