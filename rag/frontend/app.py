@@ -10,19 +10,20 @@ from flask import (
 )
 from ..backend.rag import RAG
 from flask_bcrypt import Bcrypt
+import os
 
-app = Flask(__name__)
-bcrypt = Bcrypt(app)
-app.secret_key = "super secret key"
 rag = RAG()
+app = Flask(__name__)
 
-user = "admin"
-hashed_password = bcrypt.generate_password_hash("admin").decode("utf-8")
+bcrypt = Bcrypt(app)
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
+user = os.environ.get("GPTCOTTS_USERNAME")
+password = os.environ.get("GPTCOTTS_PASSWORD")
+hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    print("Hello, World")
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
@@ -32,8 +33,8 @@ def login():
             session["username"] = username
             return redirect(url_for('index'))
         else:
-            return "Invalid login credentials"
-    return render_template("login.html")
+            return render_template("login.html", error="Invalid username or password")
+    return render_template("login.html", error="")
 
 
 @app.route("/", methods=["GET", "POST"])

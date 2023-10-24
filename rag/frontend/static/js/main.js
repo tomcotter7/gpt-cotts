@@ -15,6 +15,15 @@ function addChat(data, color) {
 document.getElementById("clear").addEventListener("click", function(event) {
     event.preventDefault();
     document.getElementById("responses").innerHTML = "";
+    $.ajax({
+      url: "/reset",
+      type: "POST",
+      data: JSON.stringify({}),
+      contentType: "application/json; charset=utf-8",
+      success: function(data) {
+        console.log(data['status']);
+      }     
+  });
 });
 
 document.getElementById("rag-form").addEventListener("submit", function(event) {
