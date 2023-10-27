@@ -1,7 +1,7 @@
 from pathlib import Path
 
 HERE = Path(__file__).parent
-notes_file = HERE.parent.parent / "notes.md"
+notes_file = HERE.parent.parent.parent / "notes.md"
 
 
 def read_as_str(path: Path) -> str:
@@ -20,13 +20,20 @@ def convert_to_chunks(text: str) -> list[str]:
             level = line.count("#")
             if level in headers:
                 headers[level] = line.replace("#", "").strip()
+                for i in range(level + 1, 5):
+                    try:
+                        headers[i] = ""
+                    except KeyError:
+                        break
 
         elif line.startswith("-") or len(line) == 0:
             pass
 
         else:
             new_line = f"{headers[2]}: {headers[3]}: {headers[4]}: {line}"
+            print(new_line)
             contextualized_lines.append(new_line)
+
 
     return contextualized_lines
 
