@@ -40,6 +40,6 @@ class ModelQueryHandler:
             frequency_penalty=0.2
         )
         model_response = response.choices[0].message.content  # type: ignore
-        self.context = self.context + [{"role": "assitant",
+        self.context = self.context + [{"role": "assistant",
                                         "content": model_response}]
         return model_response

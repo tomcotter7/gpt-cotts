@@ -31,7 +31,6 @@ def convert_to_chunks(text: str) -> list[str]:
 
         else:
             new_line = f"{headers[2]}: {headers[3]}: {headers[4]}: {line}"
-            print(new_line)
             contextualized_lines.append(new_line)
 
 
