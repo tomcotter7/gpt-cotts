@@ -129,6 +129,17 @@ This paper shows the comparision between RLHF and RLAIF. They seem to produce co
 One interesting point of note - They used chain of thought reasoning to compare the two summaries. So first they ask the model - "Given these two summaries - explain which is better". Then, using the response they ask "Which is better?".
 They don't even use the response for this - they just looked at the probabilties of the tokens for "1" and "2" - so you don't have to determine the answer from the model response.
 
+#### Eco-Assistant
+
+[Eco-Assistant - Paper](https://arxiv.org/pdf/2310.03046.pdf)
+
+Uses multiple calls to smaller language models (which are orders of magnitude cheaper) to interact with APIs. Only if the small model can't do it does it move on to more expensive models. Overall, this is cheaper. Results in a 5x cost reduction.
+
+### DSPy
+
+[DSPy](https://huggingface.co/papers/2310.03714)
+
+They argue that prompt engineering is brittle, and akin to manually finetuning weights on a classifier. This abstracts LM pipelines as *text transformation graphs*. These can be automatically optimised for better results. From the paper "DSPy contributes three abstractions toward automatic optimization: signatures, modules, and teleprompters. Signatures abstract the input/output behavior of a module; modules replace existing hand-prompting techniques and can be composed in arbitrary pipelines; and teleprompters optimize all modules in the pipeline to maximize a metric.". Prompts go from 'You are an AI assistant ....' to 'question -> answer'. Teleprompters are powerful optimizers (included in DSPy) that can learn to bootstrap and select effective prompts for the modules of any program. (The "tele-" in the name means "at a distance", i.e., automatic prompting at a distance.)
 
 ### Foundational LLM Concepts
 
@@ -224,6 +235,8 @@ Most interesting thing from here was *Inference Quantization*. The essentially m
 
 [TinyChat](https://github.com/mit-han-lab/llm-awq/tree/main). In this repo is Tiny Chat - which uses quantization to produce super fast LLMs.
 
+[Petals](https://petals.dev/). This is a library for running LLMs in the style of bit-torrent. This means other people run different parts of the model. Llama2 runs at 6 tokens/sec.
+
 ### LLM Training
 
 [ReST for Language Modelling](https://arxiv.org/pdf/2308.08998.pdf)
@@ -242,7 +255,7 @@ Most interesting thing from here was *Inference Quantization*. The essentially m
 
 #### LLM Utilization
 
-[LangChain](https://python.langchain.com/docs/get_started/introduction.html). LangChain is a library for interacting with LLMs. One useful concept I've found so far
+[LangChain](https://python.langchain.com/docs/get_started/introduction.html). LangChain is a library for interacting with LLMs. I have found this to be rather bloated - it's often better to just interact with the LLM yourself.
 
 ## NLP
 
@@ -306,3 +319,17 @@ The second link especially is very interesting - picking out objects in an image
 #### Examples & Cheatsheets
 
 [Mojo Cheatsheet](https://github.com/czheo/mojo-cheatsheet/blob/main/README.md)
+
+## Lectures
+
+### Stanford NLP
+
+[Youtube](https://www.youtube.com/watch?v=rmVRLeJRkl4&list=PLoROMvodv4rMFqRtEuo6SGjY4XbRIVRd4&index=1)
+
+### MIT - Efficient ML
+
+[Youtube](https://www.youtube.com/watch?v=rCFvPEQTxKI&list=PL80kAHvQbh-pT4lCkDT53zT8DKmhE0idB)
+
+### AI Engineer Summit 2023
+
+[YouTube](https://www.youtube.com/@aiDotEngineer)
