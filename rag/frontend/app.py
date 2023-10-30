@@ -57,6 +57,8 @@ def get_model_response() -> Response:
     query = request.json["query"]  # type: ignore
     app.logger.info(f"Query {query} received from {request.remote_addr}")
     model_response, chunks = rag.query(query)
+    app.logger.info(f"Obtained {chunks} from {query}")
+    app.logger.info(f"Response {model_response} sent to {request.remote_addr}")
     return jsonify({"model_response": model_response, "chunks": chunks})
 
 
