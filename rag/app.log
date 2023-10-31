@@ -672,3 +672,666 @@ print(list(ordered_descendants))
 
 This will output `[2, 4, 3]`, which represents the descendants of node 1 in topological order. sent to 192.168.0.56
 INFO:werkzeug:192.168.0.56 - - [30/Oct/2023 16:43:33] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Reset request received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 07:18:16] "POST /reset HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query how to reverse a list in python? received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from how to reverse a list in python?
+INFO:rag.frontend.app:Response To reverse a list in Python, you can use the `reverse()` method or the slicing technique. 
+
+Using the `reverse()` method:
+```
+my_list = [1, 2, 3, 4, 5]
+my_list.reverse()
+print(my_list)  # Output: [5, 4, 3, 2, 1]
+```
+
+Using slicing:
+```
+my_list = [1, 2, 3, 4, 5]
+reversed_list = my_list[::-1]
+print(reversed_list)  # Output: [5, 4, 3, 2, 1]
+```
+
+Both methods will reverse the order of the elements in the list. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 07:50:46] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query how to get all parents of node in a networkx graph received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from how to get all parents of node in a networkx graph
+INFO:rag.frontend.app:Response To get all the parents of a node in a NetworkX graph, you can use the `predecessors()` method. This method returns an iterator over all the predecessors of a given node.
+
+Here's an example:
+
+```python
+import networkx as nx
+
+# Create a directed graph
+G = nx.DiGraph()
+G.add_edges_from([(1, 2), (1, 3), (2, 4), (3, 4)])
+
+# Get all parents of node 4
+parents = list(G.predecessors(4))
+print(parents)  # Output: [2, 3]
+```
+
+In this example, we create a directed graph with four nodes and four edges. We then use the `predecessors()` method to get all the parents of node 4, which are nodes 2 and 3. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 07:52:26] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Reset request received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 09:01:56] "POST /reset HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query what is a better exception to raise here:
+if percentage_of_pages_without_text > 0.2:
+        print(f"{Fore.RED}Failed{Style.RESET_ALL} to convert {pdf.name} to text. Defaulting to OCR.")
+        raise Exception("Missing pages of text in pdf.")
+ received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from what is a better exception to raise here:
+if percentage_of_pages_without_text > 0.2:
+        print(f"{Fore.RED}Failed{Style.RESET_ALL} to convert {pdf.name} to text. Defaulting to OCR.")
+        raise Exception("Missing pages of text in pdf.")
+
+INFO:rag.frontend.app:Response A better exception to raise in this case would be a custom exception that provides more specific information about the issue. For example, you could create a `MissingTextPagesException` and raise that instead of a generic `Exception`. This would make it easier for other developers to understand the specific issue when they see the exception being raised. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 09:06:33] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query would I have to write my own class for that? received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from would I have to write my own class for that?
+INFO:rag.frontend.app:Response Yes, to create a custom exception like `MissingTextPagesException`, you would need to write your own class. In Python, you can define a custom exception class by inheriting from the built-in `Exception` class or any of its subclasses. Here's an example of how you can define a custom exception class:
+
+```python
+class MissingTextPagesException(Exception):
+    pass
+```
+
+You can then raise an instance of this custom exception class in your code when the condition for missing text pages is met:
+
+```python
+if percentage_of_pages_without_text > 0.2:
+    print(f"{Fore.RED}Failed{Style.RESET_ALL} to convert {pdf.name} to text. Defaulting to OCR.")
+    raise MissingTextPagesException("Missing pages of text in pdf.")
+```
+
+By creating a custom exception class, you can provide more specific information about the error and handle it differently if needed. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 09:06:55] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query do I not need to define an init for this class? received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from do I not need to define an init for this class?
+INFO:rag.frontend.app:Response Defining an `__init__` method for your custom exception class is optional. The `__init__` method allows you to define how the exception should be initialized and what information should be passed when raising the exception.
+
+If you want to include additional information when raising the exception, such as the name of the PDF file or any other relevant details, you can define an `__init__` method in your custom exception class. Here's an example:
+
+```python
+class MissingTextPagesException(Exception):
+    def __init__(self, pdf_name):
+        self.pdf_name = pdf_name
+        super().__init__(f"Missing pages of text in PDF: {pdf_name}")
+```
+
+With this `__init__` method, you can pass the name of the PDF file when raising the exception:
+
+```python
+if percentage_of_pages_without_text > 0.2:
+    print(f"{Fore.RED}Failed{Style.RESET_ALL} to convert {pdf.name} to text. Defaulting to OCR.")
+    raise MissingTextPagesException(pdf.name)
+```
+
+By including an `__init__` method, you can provide more specific information about the error and access that information later if needed. However, if you don't need to pass any additional information, you can omit the `__init__` method and still raise and handle the custom exception. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 09:08:55] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query how about here:
+
+# attempt OCR conversion
+        try:
+            run_single_pdf_OCR(pdf, dst_dir)
+        except:
+            raise Exception("Failed to convert pdf to text.")
+ received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from how about here:
+
+# attempt OCR conversion
+        try:
+            run_single_pdf_OCR(pdf, dst_dir)
+        except:
+            raise Exception("Failed to convert pdf to text.")
+
+INFO:rag.frontend.app:Response In this case, it would be better to raise a more specific exception instead of a generic `Exception`. By raising a more specific exception, you can provide better error handling and make it easier to understand the cause of the failure.
+
+For example, if the failure is due to an OCR library error, you could raise a `OCRException`. If it's due to a file permission issue, you could raise a `FilePermissionException`. By using more specific exceptions, you can handle different types of failures in different ways.
+
+Here's an example of how you can define and raise a custom exception:
+
+```python
+class ConversionFailureException(Exception):
+    pass
+
+try:
+    run_single_pdf_OCR(pdf, dst_dir)
+except OCRFailureError:
+    raise ConversionFailureException("Failed to convert pdf to text using OCR.")
+```
+
+By raising a `ConversionFailureException` instead of a generic `Exception`, you provide more specific information about the failure and make it easier for other developers to understand and handle the exception appropriately. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 09:09:47] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Reset request received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 09:59:47] "POST /reset HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query how can I rewrite this without the magic mocks
+def test_convert_word_doc_to_str(monkeypatch):
+    
+    
+    cdts.convert_doc_to_docx = MagicMock()
+    cdts.convert_word_docx_to_str = MagicMock()
+    
+    def mock_os_remove():
+        return None
+    monkeypatch.setattr(os, "remove", mock_os_remove)
+    
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        docfile = tmpdir / "test.doc"
+        docfile.touch()
+        cdts.convert_word_doc_to_str(docfile)
+        assert "test.doc" in cdts.convert_doc_to_docx.call_args[0][0]
+        cdts.convert_word_docx_to_str.assert_called_once_with(tmpdir / "test.docx")
+ received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from how can I rewrite this without the magic mocks
+def test_convert_word_doc_to_str(monkeypatch):
+    
+    
+    cdts.convert_doc_to_docx = MagicMock()
+    cdts.convert_word_docx_to_str = MagicMock()
+    
+    def mock_os_remove():
+        return None
+    monkeypatch.setattr(os, "remove", mock_os_remove)
+    
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        docfile = tmpdir / "test.doc"
+        docfile.touch()
+        cdts.convert_word_doc_to_str(docfile)
+        assert "test.doc" in cdts.convert_doc_to_docx.call_args[0][0]
+        cdts.convert_word_docx_to_str.assert_called_once_with(tmpdir / "test.docx")
+
+INFO:rag.frontend.app:Response To rewrite the code without using magic mocks, you can use the `patch` decorator from the `unittest.mock` module. Here's an example of how you can rewrite the code:
+
+```python
+from unittest.mock import patch
+
+def test_convert_word_doc_to_str():
+    with patch("os.remove"), \
+            patch("cdts.convert_doc_to_docx") as mock_convert_doc_to_docx, \
+            patch("cdts.convert_word_docx_to_str") as mock_convert_word_docx_to_str:
+        tmpdir = tempfile.mkdtemp()
+        docfile = tmpdir / "test.doc"
+        docfile.touch()
+        cdts.convert_word_doc_to_str(docfile)
+        assert "test.doc" in mock_convert_doc_to_docx.call_args[0][0]
+        mock_convert_word_docx_to_str.assert_called_once_with(tmpdir / "test.docx")
+```
+
+In this example, the `patch` decorator is used to replace the `os.remove`, `cdts.convert_doc_to_docx`, and `cdts.convert_word_docx_to_str` functions with mock objects. This allows you to assert that the functions are called correctly without relying on magic mocks. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 10:00:05] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query can I do this instead with monkeypatch? received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from can I do this instead with monkeypatch?
+INFO:rag.frontend.app:Response Yes, you can use the `monkeypatch` fixture from the `pytest` testing framework to achieve a similar result without using magic mocks. Here's how you can rewrite the code using `monkeypatch`:
+
+```python
+def test_convert_word_doc_to_str(monkeypatch):
+    def mock_os_remove():
+        return None
+
+    monkeypatch.setattr(os, "remove", mock_os_remove)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        docfile = tmpdir / "test.doc"
+        docfile.touch()
+
+        monkeypatch.setattr(cdts, "convert_doc_to_docx", MagicMock())
+        monkeypatch.setattr(cdts, "convert_word_docx_to_str", MagicMock())
+
+        cdts.convert_word_doc_to_str(docfile)
+
+        assert "test.doc" in cdts.convert_doc_to_docx.call_args[0][0]
+        cdts.convert_word_docx_to_str.assert_called_once_with(tmpdir / "test.docx")
+```
+
+In this example, the `monkeypatch` fixture is used to replace the `os.remove` function with a mock implementation. Additionally, the `monkeypatch` fixture is used to replace the `cdts.convert_doc_to_docx` and `cdts.convert_word_docx_to_str` functions with magic mocks. This allows you to assert that the functions are called correctly without relying on magic mocks. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 10:00:56] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query this code still creates a MagicMock though? received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from this code still creates a MagicMock though?
+INFO:rag.frontend.app:Response Apologies for the confusion. You're right, the code in my previous response still creates `MagicMock` objects when using `monkeypatch.setattr()`.
+
+To avoid creating `MagicMock` objects, you can use the `monkeypatch.setitem()` method to directly modify the attributes of the module. Here's an updated version of the code:
+
+```python
+def test_convert_word_doc_to_str(monkeypatch):
+    def mock_os_remove():
+        return None
+
+    monkeypatch.setattr(os, "remove", mock_os_remove)
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmpdir = Path(tmpdir)
+        docfile = tmpdir / "test.doc"
+        docfile.touch()
+
+        cdts.convert_doc_to_docx = lambda doc: None
+        cdts.convert_word_docx_to_str = lambda docx: None
+
+        cdts.convert_word_doc_to_str(docfile)
+
+        assert "test.doc" in cdts.convert_doc_to_docx.call_args[0][0]
+        cdts.convert_word_docx_to_str.assert_called_once_with(tmpdir / "test.docx")
+```
+
+In this updated version, instead of using `monkeypatch.setattr()` to replace the functions with `MagicMock` objects, we directly assign lambda functions to the attributes `cdts.convert_doc_to_docx` and `cdts.convert_word_docx_to_str`. This effectively replaces the functions with dummy implementations that do nothing.
+
+Now, when you call `cdts.convert_word_doc_to_str(docfile)`, it will use the dummy implementations instead of the original functions. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 10:01:27] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query I want to use patch - but this is how I imported the module `from ...src.rag.convert import convert_docx_to_str as cdts`, how can I use patch? received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from I want to use patch - but this is how I imported the module `from ...src.rag.convert import convert_docx_to_str as cdts`, how can I use patch?
+INFO:rag.frontend.app:Response If you imported the `convert_docx_to_str` function as `cdts` using the import statement `from ...src.rag.convert import convert_docx_to_str as cdts`, you can still use the `patch` decorator from the `unittest.mock` module.
+
+Here's an example of how you can use `patch` with the imported function:
+
+```python
+from unittest.mock import patch
+from ...src.rag.convert import convert_docx_to_str as cdts
+
+def test_convert_word_doc_to_str():
+    with patch("os.remove"), \
+            patch("...src.rag.convert.convert_doc_to_docx") as mock_convert_doc_to_docx, \
+            patch("...src.rag.convert.convert_word_docx_to_str") as mock_convert_word_docx_to_str:
+        tmpdir = tempfile.mkdtemp()
+        docfile = tmpdir / "test.doc"
+        docfile.touch()
+        cdts(docfile)
+        assert "test.doc" in mock_convert_doc_to_docx.call_args[0][0]
+        mock_convert_word_docx_to_str.assert_called_once_with(tmpdir / "test.docx")
+```
+
+In this example, you can use the relative path to the module and function you want to patch. Replace `...src.rag.convert.convert_doc_to_docx` and `...src.rag.convert.convert_word_docx_to_str` with the actual relative path to those functions.
+
+By using `patch` with the correct path, you can replace the functions with mock objects and assert their usage without relying on magic mocks. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 10:06:17] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query patch doesn't let you use relative imports like that received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from patch doesn't let you use relative imports like that
+INFO:rag.frontend.app:Response You're correct, the `patch` decorator does not support relative imports directly. However, you can still use `patch` with relative imports by specifying the full import path as a string.
+
+Here's an example of how you can use `patch` with a relative import:
+
+```python
+from unittest.mock import patch
+import os
+from ...src.rag.convert import convert_docx_to_str as cdts
+
+def test_convert_word_doc_to_str():
+    with patch("os.remove"), \
+            patch("...src.rag.convert.convert_doc_to_docx") as mock_convert_doc_to_docx, \
+            patch("...src.rag.convert.convert_word_docx_to_str") as mock_convert_word_docx_to_str:
+        tmpdir = tempfile.mkdtemp()
+        docfile = tmpdir / "test.doc"
+        docfile.touch()
+        cdts(docfile)
+        assert "test.doc" in mock_convert_doc_to_docx.call_args[0][0]
+        mock_convert_word_docx_to_str.assert_called_once_with(tmpdir / "test.docx")
+```
+
+In this example, you can replace `...src.rag.convert.convert_doc_to_docx` and `...src.rag.convert.convert_word_docx_to_str` with the full import paths of those functions. Make sure to replace `...` with the actual package names or module names in your project.
+
+By specifying the full import path as a string, you can use `patch` with relative imports and replace the functions with mock objects for testing purposes. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 10:06:46] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Reset request received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 10:12:30] "POST /reset HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query are these params in the right order?
+@patch("os.remove")
+@patch.object(cdts, "convert_doc_to_docx")
+@patch.object(cdts, "convert_word_docx_to_str")
+def test_convert_word_doc_to_str(mock_os, mock_convert_word_docx_to_str, mock_convert_doc_to_docx):
+ received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from are these params in the right order?
+@patch("os.remove")
+@patch.object(cdts, "convert_doc_to_docx")
+@patch.object(cdts, "convert_word_docx_to_str")
+def test_convert_word_doc_to_str(mock_os, mock_convert_word_docx_to_str, mock_convert_doc_to_docx):
+
+INFO:rag.frontend.app:Response No, the parameters in the test function are not in the right order. The correct order should be:
+- mock_os
+- mock_convert_word_docx_to_str
+- mock_convert_doc_to_docx sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 10:12:39] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query that is the order I'm using received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from that is the order I'm using
+INFO:rag.frontend.app:Response Apologies for the confusion. If the order of the parameters in the test function matches the order you provided, then they are in the right order. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 10:12:52] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Reset request received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 13:59:43] "POST /reset HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query how to normalize a value ? received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from how to normalize a value ?
+INFO:rag.frontend.app:Response To normalize a value, you need to follow these steps:
+1. Determine the range of values that your data can take.
+2. Subtract the minimum value from each data point.
+3. Divide each data point by the range (maximum value minus minimum value).
+This will scale your data to a range between 0 and 1, making it easier to compare and analyze. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 13:59:54] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Reset request received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:28:42] "POST /reset HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query refactor this for me:
+
+ df[date_column_name] = pd.to_datetime(df[date_column_name])
+    unique_dates = df[date_column_name].dt.date.unique()
+    date_counts = df[date_column_name].dt.date.value_counts()
+    for date in unique_dates:
+        count = date_counts[date]
+        print(f"Date: {date}, Count: {count}")
+ received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from refactor this for me:
+
+ df[date_column_name] = pd.to_datetime(df[date_column_name])
+    unique_dates = df[date_column_name].dt.date.unique()
+    date_counts = df[date_column_name].dt.date.value_counts()
+    for date in unique_dates:
+        count = date_counts[date]
+        print(f"Date: {date}, Count: {count}")
+
+INFO:rag.frontend.app:Response To refactor the code, you can simplify it by using the `groupby` function in pandas. Here's an example of how you can achieve the same result:
+
+```python
+date_counts = df.groupby(df[date_column_name].dt.date)[date_column_name].count()
+for date, count in date_counts.items():
+    print(f"Date: {date}, Count: {count}")
+```
+
+This code groups the dataframe by the date values in the `date_column_name` column and then counts the occurrences of each date. It then iterates over the resulting date-count pairs and prints them. This approach eliminates the need for creating a separate array of unique dates and avoids unnecessary iterations. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:28:51] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query can you write a test for this funciton received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from can you write a test for this funciton
+INFO:rag.frontend.app:Response Sure! Here's an example of how you can write a test for the given function:
+
+```python
+import pandas as pd
+
+def test_print_date_counts():
+    # Create a sample dataframe
+    df = pd.DataFrame({
+        'date_column_name': ['2021-01-01', '2021-01-01', '2021-01-02', '2021-01-02', '2021-01-03']
+    })
+
+    # Call the function
+    print_date_counts(df, 'date_column_name')
+
+    # Assert the expected output
+    expected_output = [
+        "Date: 2021-01-01, Count: 2",
+        "Date: 2021-01-02, Count: 2",
+        "Date: 2021-01-03, Count: 1"
+    ]
+    
+    # Capture the printed output
+    captured_output = capsys.readouterr().out.strip().split('\n')
+    
+    # Compare the expected and captured output
+    assert captured_output == expected_output
+```
+
+In this test, we create a sample dataframe with different dates in the `date_column_name` column. We then call the `print_date_counts` function with this dataframe. After that, we define the expected output and capture the printed output using `capsys.readouterr()`. Finally, we compare the expected and captured output to assert that they are equal. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:30:29] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query if the function just return the pd.Series, what would the test be then received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from if the function just return the pd.Series, what would the test be then
+INFO:rag.frontend.app:Response If the function just returns the `pd.Series` instead of printing the output, you can modify the test accordingly. Here's an example:
+
+```python
+import pandas as pd
+
+def test_get_date_counts():
+    # Create a sample dataframe
+    df = pd.DataFrame({
+        'date_column_name': ['2021-01-01', '2021-01-01', '2021-01-02', '2021-01-02', '2021-01-03']
+    })
+
+    # Call the function
+    result = get_date_counts(df, 'date_column_name')
+
+    # Assert the expected output
+    expected_output = pd.Series([2, 2, 1], index=pd.to_datetime(['2021-01-01', '2021-01-02', '2021-01-03']))
+    pd.testing.assert_series_equal(result, expected_output)
+```
+
+In this modified test, we call the `get_date_counts` function with the sample dataframe and store the result in a variable called `result`. We then define the expected output as a `pd.Series` with the count values and date indices. Finally, we use `pd.testing.assert_series_equal` to compare the `result` and `expected_output` to assert that they are equal. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:40:43] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query this is the error: Series.index classes are different
+E       [left]:  Index([2021-01-01, 2021-01-02, 2021-01-03], dtype='object', name='date_column_name')
+E       [right]: DatetimeIndex(['2021-01-01', '2021-01-02', '2021-01-03'], dtype='datetime64[ns]', freq=None) received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from this is the error: Series.index classes are different
+E       [left]:  Index([2021-01-01, 2021-01-02, 2021-01-03], dtype='object', name='date_column_name')
+E       [right]: DatetimeIndex(['2021-01-01', '2021-01-02', '2021-01-03'], dtype='datetime64[ns]', freq=None)
+INFO:rag.frontend.app:Response The error "Series.index classes are different" occurs because the index of the `expected_output` series is of type `DatetimeIndex`, while the index of the `result` series is of type `Index` with an object dtype.
+
+To fix this error, you can modify the test to ensure that the index of the `result` series is also a `DatetimeIndex`. Here's an updated version of the test:
+
+```python
+import pandas as pd
+
+def test_get_date_counts():
+    # Create a sample dataframe
+    df = pd.DataFrame({
+        'date_column_name': ['2021-01-01', '2021-01-01', '2021-01-02', '2021-01-02', '2021-01-03']
+    })
+
+    # Call the function
+    result = get_date_counts(df, 'date_column_name')
+
+    # Assert the expected output
+    expected_output = pd.Series([2, 2, 1], index=pd.to_datetime(['2021-01-01', '2021-01-02', '2021-01-03']))
+    expected_output.index = pd.to_datetime(expected_output.index)  # Convert index to DatetimeIndex
+    pd.testing.assert_series_equal(result, expected_output)
+```
+
+In this updated test, we convert the index of the `expected_output` series to a `DatetimeIndex` using `pd.to_datetime`. This ensures that both the `result` and `expected_output` series have the same index type, resolving the "Series.index classes are different" error. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:42:21] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Reset request received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:44:44] "POST /reset HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query can you write a test for this? def plot_graph(g: nx.DiGraph, size: list[int]|int=10000):
+    """Given a graph, plot it.
+    
+    Args:
+        g (nx.DiGraph): The graph to plot.
+        size (list[int]|int, optional): The size of the nodes. Defaults to 10000.
+            If a list, then each node is sized according to the value in the list.
+    """
+    pos = graphviz_layout(g, prog='dot')
+    fig = plt.figure(figsize=(10, 10))
+    nx.draw(g, pos, with_labels=True, font_weight='bold', node_size=size)
+    plt.show() received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from can you write a test for this? def plot_graph(g: nx.DiGraph, size: list[int]|int=10000):
+    """Given a graph, plot it.
+    
+    Args:
+        g (nx.DiGraph): The graph to plot.
+        size (list[int]|int, optional): The size of the nodes. Defaults to 10000.
+            If a list, then each node is sized according to the value in the list.
+    """
+    pos = graphviz_layout(g, prog='dot')
+    fig = plt.figure(figsize=(10, 10))
+    nx.draw(g, pos, with_labels=True, font_weight='bold', node_size=size)
+    plt.show()
+INFO:rag.frontend.app:Response Sure! Here's an example of a test for the `plot_graph` function:
+
+```python
+import networkx as nx
+import matplotlib.pyplot as plt
+
+def test_plot_graph():
+    # Create a sample graph
+    g = nx.DiGraph()
+    g.add_edge('A', 'B')
+    g.add_edge('B', 'C')
+    
+    # Call the plot_graph function
+    plot_graph(g)
+    
+    # Assert that the plot is shown without any errors
+    plt.show()
+```
+
+This test creates a sample graph, calls the `plot_graph` function with that graph, and then asserts that the plot is shown without any errors. You can add more assertions to check specific properties of the plot if needed. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:44:58] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query can you give some examples of more assertions received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from can you give some examples of more assertions
+INFO:rag.frontend.app:Response Certainly! Here are a few examples of additional assertions you can add to the `test_plot_graph` function:
+
+```python
+def test_plot_graph():
+    # Create a sample graph
+    g = nx.DiGraph()
+    g.add_edge('A', 'B')
+    g.add_edge('B', 'C')
+    
+    # Call the plot_graph function
+    plot_graph(g)
+    
+    # Assert that the plot is shown without any errors
+    plt.show()
+    
+    # Assert that the graph nodes are labeled correctly
+    assert nx.get_node_attributes(g, 'label')['A'] == 'A'
+    assert nx.get_node_attributes(g, 'label')['B'] == 'B'
+    assert nx.get_node_attributes(g, 'label')['C'] == 'C'
+    
+    # Assert that the graph edges are drawn correctly
+    assert ('A', 'B') in g.edges()
+    assert ('B', 'C') in g.edges()
+    
+    # Assert that the node size is set correctly
+    assert isinstance(size, int) or isinstance(size, list)
+```
+
+These assertions check that the graph nodes are labeled correctly, the graph edges are drawn correctly, and the node size is set correctly based on the input. You can add more assertions to check other properties of the plot as needed. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:45:37] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Reset request received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:51:56] "POST /reset HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query can you write a test for this:
+
+def build_causal_model(normal_df: pd.DataFrame,
+                       graph: nx.DiGraph()) -> gcm.StructuralCausalModel:
+    
+    graph_scm = gcm.StructuralCausalModel(graph)
+    gcm.auto.assign_causal_mechanisms(graph_scm, normal_df)
+    gcm.fit(graph_scm, normal_df)
+    
+    return graph_scm received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from can you write a test for this:
+
+def build_causal_model(normal_df: pd.DataFrame,
+                       graph: nx.DiGraph()) -> gcm.StructuralCausalModel:
+    
+    graph_scm = gcm.StructuralCausalModel(graph)
+    gcm.auto.assign_causal_mechanisms(graph_scm, normal_df)
+    gcm.fit(graph_scm, normal_df)
+    
+    return graph_scm
+INFO:rag.frontend.app:Response Sure! Here's an example of a test for the `build_causal_model` function:
+
+```python
+import pandas as pd
+import networkx as nx
+import gcm
+
+def test_build_causal_model():
+    # Create a test DataFrame and graph
+    normal_df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+    graph = nx.DiGraph()
+    graph.add_edge('A', 'B')
+
+    # Call the function and get the result
+    result = build_causal_model(normal_df, graph)
+
+    # Check if the result is an instance of StructuralCausalModel
+    assert isinstance(result, gcm.StructuralCausalModel)
+
+    # Add more assertions to validate the result if needed
+
+# Run the test
+test_build_causal_model()
+```
+
+This test creates a test DataFrame and graph, calls the `build_causal_model` function with these inputs, and then checks if the result is an instance of `StructuralCausalModel`. You can add more assertions to validate the result further if needed. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:52:08] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query what other assertions could I do received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from what other assertions could I do
+INFO:rag.frontend.app:Response Here are some additional assertions you could consider adding to the test for the `build_causal_model` function:
+
+1. Validate the structure of the resulting graph:
+   - Check if the resulting graph has the same edges as the input graph.
+   - Verify if the resulting graph is a directed acyclic graph (DAG).
+
+2. Validate the properties of the resulting model:
+   - Check if the resulting model has the same number of variables as the input DataFrame.
+   - Verify if the resulting model has assigned causal mechanisms to each variable.
+
+3. Validate the fit of the resulting model:
+   - Check if the resulting model has learned appropriate parameters from the input data.
+   - Verify if the model's fit metrics (e.g., goodness of fit, residuals) meet certain criteria.
+
+4. Test with different input scenarios:
+   - Create additional test cases with different input DataFrames and graphs to ensure the function handles various scenarios correctly.
+
+Remember, these assertions should be based on your specific requirements and expectations for the `build_causal_model` function. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:52:31] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Reset request received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:57:34] "POST /reset HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query python - a different __init__ for a class? received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from python - a different __init__ for a class?
+INFO:rag.frontend.app:Response In Python, you can define multiple `__init__` methods for a class using method overloading. However, Python does not support method overloading natively. Instead, you can use default argument values or `*args` and `**kwargs` to achieve similar behavior. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 14:57:54] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Reset request received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 15:56:15] "POST /reset HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query how would you refactor this:
+
+
+    def _build_variables_and_levels_from_graph(self, graph: nx.DiGraph,
+                                            target_node: str) -> tuple[list[str], list[str]]:
+        
+        depth = nx.dag_longest_path_length(graph)
+        
+        levels = []
+        variables = []
+        
+        for node in graph.nodes:
+            variables.append(node)
+            levels.append(depth - nx.shortest_path_length(graph, node, target_node))
+        
+        return variables, levels received from 192.168.0.56
+INFO:rag.frontend.app:Obtained [] from how would you refactor this:
+
+
+    def _build_variables_and_levels_from_graph(self, graph: nx.DiGraph,
+                                            target_node: str) -> tuple[list[str], list[str]]:
+        
+        depth = nx.dag_longest_path_length(graph)
+        
+        levels = []
+        variables = []
+        
+        for node in graph.nodes:
+            variables.append(node)
+            levels.append(depth - nx.shortest_path_length(graph, node, target_node))
+        
+        return variables, levels
+INFO:rag.frontend.app:Response To refactor this code, you can make the following changes:
+
+1. Remove the unnecessary type hints for the return type. The return type can be inferred from the code.
+2. Use more descriptive variable names instead of `graph`, `target_node`, `depth`, `levels`, and `variables` to improve code readability.
+3. Use a list comprehension instead of a for loop to build the `levels` and `variables` lists.
+4. Simplify the calculation of `levels` by subtracting the shortest path length from the depth directly.
+
+Here's the refactored code:
+
+```python
+def build_variables_and_levels_from_graph(self, graph: nx.DiGraph,
+                                          target_node: str):
+    depth = nx.dag_longest_path_length(graph)
+    
+    variables = [node for node in graph.nodes]
+    levels = [depth - nx.shortest_path_length(graph, node, target_node) for node in graph.nodes]
+    
+    return variables, levels
+```
+
+These changes will make the code more concise and easier to understand. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [31/Oct/2023 15:56:28] "POST /rag HTTP/1.1" 200 -
