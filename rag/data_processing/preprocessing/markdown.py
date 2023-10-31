@@ -36,11 +36,7 @@ def convert_to_chunks(text: str) -> list[str]:
 
         else:
             current_section += line + "\n"
-
-    for line in contextualized_lines:
-        print(line)
-        print("-----------")
-    
+   
     return contextualized_lines
 
 
