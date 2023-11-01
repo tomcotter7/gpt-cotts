@@ -14,9 +14,14 @@ def convert_to_chunks(text: str) -> list[str]:
     headers = {2: "", 3: "", 4: ""}
 
     contextualized_lines = []
+    current_section = ""
 
     for line in text.splitlines():
         if line.startswith("#"):
+            if len(current_section) > 0:
+                chunk = f"{headers[2]}: {headers[3]}: {headers[4]}: {current_section}"
+                contextualized_lines.append(chunk)
+                current_section = ""
             level = line.count("#")
             if level in headers:
                 headers[level] = line.replace("#", "").strip()
@@ -30,10 +35,12 @@ def convert_to_chunks(text: str) -> list[str]:
             pass
 
         else:
-            new_line = f"{headers[2]}: {headers[3]}: {headers[4]}: {line}"
-            contextualized_lines.append(new_line)
+            current_section += line + "\n"
 
-
+    for line in contextualized_lines:
+        print(line)
+        print("-----------")
+    
     return contextualized_lines
 
 

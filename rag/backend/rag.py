@@ -12,7 +12,9 @@ class RAG:
         self.mqh.reset_context()
 
     def query(self, input_query: str) -> tuple[str, list[str]]:
-        chunks = query_weaviate(input_query, "localhost")
+        chunks = []
+        if self.query_calls == 0:
+            chunks = query_weaviate(input_query, "localhost")
         model_response = self.mqh.query(input_query, chunks)
         self.query_calls += 1
         if self.query_calls > 2:

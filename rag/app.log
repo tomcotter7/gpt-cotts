@@ -1,0 +1,36 @@
+
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.44:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.44:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:rag.frontend.app:Connection initiated by 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [30/Oct/2023 09:18:20] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.56 - - [30/Oct/2023 09:18:20] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+INFO:rag.frontend.app:Query Can you explain the DSPy paper? received from 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [30/Oct/2023 09:18:27] "POST /rag HTTP/1.1" 200 -
+INFO:werkzeug:[31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:5000
+ * Running on http://192.168.0.44:5000
+INFO:werkzeug:[33mPress CTRL+C to quit[0m
+INFO:rag.frontend.app:Connection initiated by 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [30/Oct/2023 09:21:06] "GET / HTTP/1.1" 200 -
+INFO:werkzeug:192.168.0.56 - - [30/Oct/2023 09:21:06] "[36mGET /static/js/main.js HTTP/1.1[0m" 304 -
+INFO:rag.frontend.app:Query Can you explain the DSPy paper? received from 192.168.0.56
+INFO:rag.frontend.app:Obtained ['Generative AI: DSPy: : They argue that prompt engineering is brittle, and akin to manually finetuning weights on a classifier. This abstracts LM pipelines as *text transformation graphs*. These can be automatically optimised for better results. From the paper "DSPy contributes three abstractions toward automatic optimization: signatures, modules, and teleprompters. Signatures abstract the input/output behavior of a module; modules replace existing hand-prompting techniques and can be composed in arbitrary pipelines; and teleprompters optimize all modules in the pipeline to maximize a metric.". Prompts go from \'You are an AI assistant ....\' to \'question -> answer\'. Teleprompters are powerful optimizers (included in DSPy) that can learn to bootstrap and select effective prompts for the modules of any program. (The "tele-" in the name means "at a distance", i.e., automatic prompting at a distance.)', 'Generative AI: DSPy: : [DSPy](https://huggingface.co/papers/2310.03714)'] from Can you explain the DSPy paper?
+INFO:rag.frontend.app:Response The DSPy paper introduces a framework for automatic optimization in generative AI called DSPy. It argues that prompt engineering, which involves manually fine-tuning weights on a classifier, is brittle. Instead, DSPy abstracts language model (LM) pipelines as text transformation graphs and provides three abstractions for automatic optimization: signatures, modules, and teleprompters.
+
+Signatures abstract the input/output behavior of a module, modules replace hand-prompting techniques and can be composed in arbitrary pipelines, and teleprompters optimize all modules in the pipeline to maximize a metric. Teleprompters are powerful optimizers included in DSPy that can learn to bootstrap and select effective prompts for the modules of any program.
+
+The term "tele-" in teleprompters signifies "at a distance," indicating automatic prompting at a distance. The paper provides further details and insights into the DSPy framework, which can be found in the provided link. sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [30/Oct/2023 09:21:16] "POST /rag HTTP/1.1" 200 -
+INFO:rag.frontend.app:Query what is the link for the paper? received from 192.168.0.56
+INFO:rag.frontend.app:Obtained ['Traditional ML: Interpretability: : Private data explainability here too - could definitely be useful. [link](https://arxiv.org/pdf/1602.04938.pdf)', 'Generative AI: ML Papers: RLAIF: This paper shows the comparision between RLHF and RLAIF. They seem to produce comparative results statistically - although from some of the results in the paper (cherry picked too) - the RLHF is clearly slightly better.'] from what is the link for the paper?
+INFO:rag.frontend.app:Response The link for the paper mentioned in the context is: [https://arxiv.org/pdf/1602.04938.pdf](https://arxiv.org/pdf/1602.04938.pdf) sent to 192.168.0.56
+INFO:werkzeug:192.168.0.56 - - [30/Oct/2023 09:21:44] "POST /rag HTTP/1.1" 200 -
