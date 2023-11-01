@@ -42,7 +42,7 @@ This is mainly useful when you have a computer without internet connection that 
 
 [How to write plugins in Lua](https://www.2n.pl/blog/how-to-write-neovim-plugins-in-lua)
 
-Useful article on how to write plugins. TODO: neovim-ai -> built in AI plugin to handle documentation / tests
+Useful article on how to write plugins.
 
 ### Useful Tools
 
@@ -92,8 +92,9 @@ It could also be required that the model doesn't exploit certain features (such 
 
 Let's say our loss function is $Residual^2 = (Observed - Predicted)^2$, and we are using linear regression to predict the value of $y$ given $x$. We can write this as $y = \beta_0 + \beta_1x$. Therefore, our loss function is $Residual^2 = (Observed - (\beta_0 + \beta_1x))^2$. However, we can also write $Residual^2 = (Inside)^2$, which means we can use the chain chain as $f(g(x)) = (Inside)^2$ and $g(x) = (Observed - (\beta_0 + \beta_1x))$. Therefore, $\frac{\partial Residual^2}{\partial \beta_1} = \frac{\partial Residual^2}{\partial Inside} \cdot \frac{\partial Inside}{\partial \beta_1}$.  We can do the same with $\beta_0$.
 
+#### Books
 
----
+[Linear Algebra Done Right](https://linear.axler.net/)
 
 ## Generative AI
 
@@ -135,11 +136,23 @@ They don't even use the response for this - they just looked at the probabilties
 
 Uses multiple calls to smaller language models (which are orders of magnitude cheaper) to interact with APIs. Only if the small model can't do it does it move on to more expensive models. Overall, this is cheaper. Results in a 5x cost reduction.
 
-### DSPy
+#### DSPy
 
 [DSPy](https://huggingface.co/papers/2310.03714)
 
 They argue that prompt engineering is brittle, and akin to manually finetuning weights on a classifier. This abstracts LM pipelines as *text transformation graphs*. These can be automatically optimised for better results. From the paper "DSPy contributes three abstractions toward automatic optimization: signatures, modules, and teleprompters. Signatures abstract the input/output behavior of a module; modules replace existing hand-prompting techniques and can be composed in arbitrary pipelines; and teleprompters optimize all modules in the pipeline to maximize a metric.". Prompts go from 'You are an AI assistant ....' to 'question -> answer'. Teleprompters are powerful optimizers (included in DSPy) that can learn to bootstrap and select effective prompts for the modules of any program. (The "tele-" in the name means "at a distance", i.e., automatic prompting at a distance.)
+
+#### CoVe - Chain of Verification
+
+[CoVe](https://arxiv.org/pdf/2309.11495.pdf)
+
+TODO: Read through this and make notes on it.
+
+#### QMoE: Sub 1-bit compression
+
+[QMoE](https://arxiv.org/pdf/2310.16795.pdf)
+
+TODO: Read through this and make notes on it.
 
 ### Foundational LLM Concepts
 
@@ -227,15 +240,29 @@ Most interesting thing from here was *Inference Quantization*. The essentially m
 
 ### Serving LLMs
 
+#### FlexFlow
+
 [FlexFlow](https://github.com/flexflow/FlexFlow/). Uses speculative inference to improve the inference speed.
+
+#### Medus
 
 [Medus](https://github.com/FasterDecoding/Medusa). Improves the inference speed without using speculative inference.
 
+#### FastChat
+
 [FastChat](https://github.com/lm-sys/FastChat). Python library to easily serve LLMs -> also useful for training and fine-tuning.
+
+#### TinyChat
 
 [TinyChat](https://github.com/mit-han-lab/llm-awq/tree/main). In this repo is Tiny Chat - which uses quantization to produce super fast LLMs.
 
+#### Petals
+
 [Petals](https://petals.dev/). This is a library for running LLMs in the style of bit-torrent. This means other people run different parts of the model. Llama2 runs at 6 tokens/sec.
+
+#### LlamaIndex
+
+[LlamaIndex](https://docs.llamaindex.ai/en/stable/) - this a library for performing RAG. TODO: Read through the docs & check this out.
 
 ### LLM Training
 
@@ -291,14 +318,20 @@ Galileo's Error. TODO: Fill out some notes on this
 
 ## Image Classification
 
-[ViT](https://arxiv.org/pdf/2010.11929.pdf): Comparable to ResNet when trained on large amounts of data. Turns the 2-D image into a 1-D encoding to feed into the encoder of a transformer (similar to BERT).
+### ViT
+
+[ViT](https://arxiv.org/pdf/2010.11929.pdf)
+
+Comparable to ResNet when trained on large amounts of data. Turns the 2-D image into a 1-D encoding to feed into the encoder of a transformer (similar to BERT).
 Once you have this, a classification head is trained -> but you can remove this and retrain it when fine-tuning
+
+### Swin
 
 [Swin Transformer](https://arxiv.org/abs/2103.14030): This improves on the original ViT by using Shifted WINdows (SWIN) -> i.e convolutions, which mean it has a better potential to be suited towards more computer vision tasks, not just image classification.
 
-There are also other methods produced that further combine convolutions and transformer (found [here](https://arxiv.org/pdf/2201.03545.pdf)).
+### Other Methods
 
-These methods are modern image classification techniques, that perform on par with ResNet (with better scalability), if not better than ResNet.
+There are also other methods produced that further combine convolutions and transformer (found [here](https://arxiv.org/pdf/2201.03545.pdf)).
 
 ### Image Recognition / Labelling
 
