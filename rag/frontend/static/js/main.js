@@ -15,6 +15,7 @@ function addChat(data, color) {
 document.getElementById("clear").addEventListener("click", function(event) {
     event.preventDefault();
     document.getElementById("responses").innerHTML = "";
+    document.getElementById("query-input").value = "";
     $.ajax({
       url: "/reset",
       type: "POST",
@@ -29,11 +30,13 @@ document.getElementById("clear").addEventListener("click", function(event) {
 document.getElementById("rag-form").addEventListener("submit", function(event) {
     event.preventDefault();
     var query = document.getElementById("query-input").value;
+    var rag = document.getElementById("useRag").checked;
+    document.getElementById("query-input").value = "";
     addChat(query, 'info');
     $.ajax({
         url: "/rag",
         type: "POST",
-        data: JSON.stringify({query: query}),
+        data: JSON.stringify({query: query, rag: rag}),
         contentType: "application/json; charset=utf-8",
         success: function(data) {
             var model_response = data['model_response'];
@@ -43,3 +46,21 @@ document.getElementById("rag-form").addEventListener("submit", function(event) {
         }
     });
 });
+
+document.getElementById("query-input").addEventListener("keypress", function(event) {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    document.get
+    document.getElementById("submit-query").click();
+  }
+})
+
+function expandTextarea(id) {
+    document.getElementById(id).addEventListener('keyup', function() {
+        this.style.overflow = 'hidden';
+        this.style.height = 0;
+        this.style.height = this.scrollHeight + 'px';
+    }, false);
+}
+
+expandTextarea('query-input');

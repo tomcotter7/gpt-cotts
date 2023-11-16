@@ -19,8 +19,12 @@
             </div>
         </div>
         <form class="row g-2" id="rag-form">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="useRag">
+              <label class="form-check-label text-light" for="useRag">Use RAG?</label>
+            </div>
             <div class="col-10 mx-auto form-group mb-3">
-                <input class="form-control" type="text" name="query-input" id="query-input", placeholder="Enter query">
+              <textarea class="form-control" name="query-input" id="query-input", placeholder="Enter query"></textarea>
             </div>
             <div class="col-2 ms-auto">
                 <input class="btn btn-outline-info rounded border float-end w-100" type="submit" value="Submit" id="submit-query">

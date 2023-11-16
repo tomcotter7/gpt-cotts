@@ -20,6 +20,10 @@ class ModelQueryHandler:
     def reset_context(self) -> None:
         self.context = [{"role": "system", "content": SYSTEM_PROMPT}]
 
+    def reduce_context_size(self) -> None:
+        if len([msg for msg in self.context if msg["role"] == "user"]) > 3:
+            self.context = [self.context[0]] + self.context[-6:]
+
     def build_user_input(self, prompt: str, chunks: list[str]) -> str:
         space = " "
         context = f"Potential Context: {space.join(chunks)} ### Question: {prompt}"
