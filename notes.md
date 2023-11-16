@@ -1,5 +1,9 @@
 # Notes
 
+## Bash
+
+You can run a bash script without forking it by prefixing it with a dot: `. ./script.sh`
+
 ## Networking
 
 ### FastAPI
