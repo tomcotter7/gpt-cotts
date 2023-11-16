@@ -60,6 +60,12 @@ More info can be found on the open issue on GitHub [here](https://github.com/hug
 
 ---
 
+## AWS
+
+### Sagemaker
+
+Sagemaker allows you to use / train modles on AWS, except that no data is sent to Amazon or leaves your VPC. TODO: Read [this](https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html)
+
 ## Dataiku
 
 ### WebApps
@@ -160,7 +166,7 @@ TODO: Read through this and make notes on it.
 
 [What are embeddings?](https://vickiboykis.com/what_are_embeddings/)
 
-TODO: Read through this and make notes on it
+[1 2 3] - this is a 3 dimensional vector.
 
 #### Attention
 
