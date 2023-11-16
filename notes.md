@@ -1,8 +1,5 @@
 # Notes
 
-## Bash
-
-You can run a bash script without forking it by prefixing it with a dot: `. ./script.sh`
 
 ## Networking
 
@@ -363,6 +360,16 @@ The second link especially is very interesting - picking out objects in an image
 
 [Mojo Cheatsheet](https://github.com/czheo/mojo-cheatsheet/blob/main/README.md)
 
+### Python
+
+#### Pip
+
+You can find the requirements for a package using the pypi json endpoint `https://pypi.org/pypi/<package>/<version>/json`.
+
+### Bash
+
+You can run a bash script without forking it by prefixing it with a dot: `. ./script.sh`
+
 ## Lectures
 
 ### Stanford NLP
@@ -376,3 +383,5 @@ The second link especially is very interesting - picking out objects in an image
 ### AI Engineer Summit 2023
 
 [YouTube](https://www.youtube.com/@aiDotEngineer)
+
+
