@@ -114,7 +114,7 @@ matplotlib-inline==0.1.6
 mccabe==0.7.0
 mdit-py-plugins==0.4.0
 mdurl==0.1.2
-mlflow==2.5.0
+mlflow==2.8.1
 more-itertools==8.10.0
 mpmath==0.0.0
 msgpack==1.0.5
@@ -165,7 +165,7 @@ psutil==5.9.5
 ptyprocess==0.7.0
 pure-eval==0.2.2
 py==1.10.0
-pyarrow==12.0.1
+pyarrow==14.0.1
 pycairo==1.20.1
 pycodestyle==2.10.0
 pycups==2.0.1
