@@ -6,10 +6,12 @@ from flask import (
     Response,
     redirect,
     url_for,
-    session
+    session,
+    send_file
 )
 from ..backend.rag import RAG
 from flask_bcrypt import Bcrypt
+from pathlib import Path
 import os
 import logging
 
@@ -56,8 +58,9 @@ def get_model_response() -> Response:
 
     query = request.json["query"]  # type: ignore
     use_rag = request.json["rag"]  # type: ignore
+    use_animalese = request.json["animalese"]  # type: ignore
     app.logger.info(f"Query {query} received from {request.remote_addr}")
-    model_response, chunks = rag.query(query, use_rag)
+    model_response, chunks = rag.query(query, use_rag, use_animalese)
     app.logger.info(f"Obtained {chunks} from {query}")
     app.logger.info(f"Response {model_response} sent to {request.remote_addr}")
     return jsonify({"model_response": model_response, "chunks": chunks})
@@ -70,6 +73,17 @@ def reset() -> Response:
     rag.reset_context()
     return jsonify({"status": "success"})
 
+
+@app.route("/wav")
+def streamwav():
+    def generate():
+        file_path = Path(__file__).parent.parent / "backend" / "tts" / "animalese.wav"
+        with open(file_path, "rb") as fwav:
+            data = fwav.read(1024)
+            while data:
+                yield data
+                data = fwav.read(1024)
+    return Response(generate(), mimetype="audio/x-wav")
 
 if __name__ == "__main__":
     app.run(debug=False)
