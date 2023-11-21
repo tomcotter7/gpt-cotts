@@ -21,6 +21,24 @@ Serving the notebook externally: `jupyter notebook --ip 0.0.0.0 --port 8888`
 
 Adding a password to notebook: `jupyter notebook password`
 
+## Git
+
+### Tips & Tricks
+
+*Get the email of the author of the last commit*: `git log --format="%ae" | head -1`
+
+## Jenkins
+
+### Groovy
+
+#### Useful Tips
+
+We can use `when` to only execute a stage given a certain condition. For example, we can define a function `def isPullRequest() { return env.CHANGE_ID != null}`, and then use a `when` clause like so: `stage('Stage A') { when { expression { return isPullRequest() } } steps { ... } }`. This will only execute the steps of the stage if the expression is true.
+
+### Environment Variables
+
+To view all environment variables available to you on a Jenkins instance, go to *jenkins-instance-url*/env-vars.html.
+
 ## Docker
 
 ### Other Issues
