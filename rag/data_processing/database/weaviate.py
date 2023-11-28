@@ -37,13 +37,13 @@ def upload_to_weaviate(data: list[str], weaviate_ip: str) -> None:
                 print(f"Uploaded {i} chunks.")
 
 
-def query_weaviate(query: str, weaviate_ip: str) -> list[str]:
+def query_weaviate(query: str, weaviate_ip: str, limit: int = 2) -> list[str]:
 
     client = auth(weaviate_ip)
     response = (
         client.query.get("Chunk", ["data"])
         .with_hybrid(query=query)
-        .with_limit(2)
+        .with_limit(limit)
         .do()
     )
 

@@ -1,6 +1,8 @@
-# Notes + RAG App
+# gpt-cotts
 
-## notes.md
+A extension of chatgpt for me. Currently allows me to query my notes with chatgpt.
+
+## research_notes/notes.md
 
 All my notes on any topic I find interesting
 
@@ -8,10 +10,8 @@ All my notes on any topic I find interesting
 
 A simple web app to allow me to query ChatGPT with my notes as context.
 
+## TODO: cal/
 
-## TODO
+I have a daily schedule that I build each month/week/day. I would like to build this in natural language.
 
-  - [ ] Add either a Weaviate DB connection or a in-memory vector store.
-  - [ ] Add a simple web interface to query the DB.
-  - [ ] Connect web interface & backend to return relevant notes
-  - [ ] Query ChatGPT with notes as context
+
