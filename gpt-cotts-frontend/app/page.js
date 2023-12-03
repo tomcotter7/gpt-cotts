@@ -1,5 +1,5 @@
 "use client";
-import {ChatForm} from '@/components/Chat'
+import Chat from '@/components/Chat'
 import { Settings } from '@/components/Settings'
 import { useState } from "react"
 
@@ -16,18 +16,20 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex items-center justify-between p-6">
-        <div className="mx-auto text-center">
+      <div className="flex items-center justify-between m-4">
+        <div>
           <h1 className="text-4xl text-black">
             <u><b>gpt-cotts</b></u>
           </h1>
           <h2 className="text-fuchsia-500"> skill issues? use me </h2>
         </div>
-        <Settings
-          onSettingsChange={handleSettingsChange}
-        />
+        <div className="ml-auto">
+          <Settings
+            onSettingsChange={handleSettingsChange}
+          />
+        </div>
       </div>
-      <ChatForm settings={settings}/>
+      <Chat settings={settings}/>
     </>
   )
 }
