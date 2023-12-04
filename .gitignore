@@ -1,6 +1,5 @@
 .vscode/*
-.rag/
-.env
+venv/
 **/__pycache__/
 **/*.exe
 **/*.log

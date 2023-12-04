@@ -40,7 +40,7 @@ def convert_to_chunks(text: str) -> list[str]:
     return contextualized_lines
 
 
-def load_and_convert() -> list[str]:
+def load_and_convert(notes_file: Path) -> list[str]:
     text = read_as_str(notes_file)
     chunks = convert_to_chunks(text)
     return chunks

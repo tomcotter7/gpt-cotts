@@ -9,13 +9,13 @@ from flask import (
     session,
     send_file
 )
-from ..backend.rag import RAG
+from rag.rag import RAGOrchestrator
 from flask_bcrypt import Bcrypt
 from pathlib import Path
 import os
 import logging
 
-rag = RAG()
+rag = RAGOrchestrator()
 app = Flask(__name__)
 
 bcrypt = Bcrypt(app)

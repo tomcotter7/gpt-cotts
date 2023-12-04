@@ -23,7 +23,7 @@ function addChat(data, color, stream=false) {
       if (index == data.length) {
         clearInterval(myInterval);
       }
-    }, 75);
+    }, 50);
   }
 }
 
@@ -62,7 +62,7 @@ document.getElementById("rag-form").addEventListener("submit", function(event) {
             var model_response = data['model_response'];
             var chunks = data['chunks'];
             console.log(chunks);
-            addChat(model_response, 'success', true);
+            addChat(model_response, 'success', animalse);
           if (animalese) {
             var audio = document.createElement("audio");
             audio.src = "/wav"

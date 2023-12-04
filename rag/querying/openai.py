@@ -1,24 +1,23 @@
 import openai
 import os
 from dotenv import load_dotenv
+from pathlib import Path
+import json
 
 load_dotenv()
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-SYSTEM_PROMPT = """
-You are an extension of an AI assistant who uses my notes as additional context.
-You should answer questions using both your own knowledge as an AI, as well as my notes.
-You will be passed a prompt of the form "Potential Context: <context> ### Question: <question>.
-The context may or may not contain the answer to the question.
-Your job is to answer concisely, and act as a Software Craftsmanship assistant.
-"""
 
 class ModelQueryHandler:
-    def __init__(self):
-        self.context = [{"role": "system", "content": SYSTEM_PROMPT}]
+    def __init__(self, type: str = "rag"):
+        with open(Path(__file__).parent / "prompts.json", "r") as f:
+            self.prompts = json.load(f)
+
+        self.system_prompt = self.prompts[type]
+        self.context = [{"role": "system", "content": self.system_prompt}]
 
     def reset_context(self) -> None:
-        self.context = [{"role": "system", "content": SYSTEM_PROMPT}]
+        self.context = [{"role": "system", "content": self.system_prompt}]
 
     def reduce_context_size(self) -> None:
         if len([msg for msg in self.context if msg["role"] == "user"]) > 3:
@@ -26,7 +25,9 @@ class ModelQueryHandler:
 
     def build_user_input(self, prompt: str, chunks: list[str]) -> str:
         space = " "
-        context = f"Potential Context: {space.join(chunks)} ### Question: {prompt}"
+        context = (
+            f"Potential Context: {space.join(chunks)} ### Question: {prompt}"
+        )
         return context
 
     def build_messages(self, user_input: str) -> list[dict]:

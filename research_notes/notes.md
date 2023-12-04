@@ -378,6 +378,14 @@ The second link especially is very interesting - picking out objects in an image
 
 [Mojo Cheatsheet](https://github.com/czheo/mojo-cheatsheet/blob/main/README.md)
 
+### Go (Golang)
+
+#### Creating a Go Module
+
+`go mod init <module-name>`.
+
+If you want to use that folder (module) in a different folder you can do `go mod edit -replace <module-name>=<path-to-module>`. Finally, run `go mod tidy` to clean up any imports.
+
 ### Python
 
 #### Pip

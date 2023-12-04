@@ -1,9 +1,9 @@
 from .querying.openai import ModelQueryHandler
-from ..data_processing import query_weaviate
+from .data_processing import query_weaviate
 from .tts.animalese import animalese
 
 
-class RAG:
+class RAGOrchestrator:
 
     def __init__(self):
         self.mqh = ModelQueryHandler()
