@@ -123,6 +123,14 @@ Let's say our loss function is $Residual^2 = (Observed - Predicted)^2$, and we a
 
 ## Generative AI
 
+### RAG
+
+#### Techniques
+
+Sentence Window Retrieval - Additional context around the retrieved sentence is pass to the LLM.
+
+Auto Merging Retrieval - The document is structured as a tree, and if enough of the 'child nodes' are returned by the retrieval, the parent node is returned. Imagine the child nodes as sentences in a paragraph, and the parent node is the entire paragraph.
+
 ### Opinion Blog Posts
 
 [Chatbots / HCI](https://wattenberger.com/thoughts/boo-chatbots)
