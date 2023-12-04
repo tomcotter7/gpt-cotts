@@ -25,7 +25,7 @@ def upload_to_weaviate(data: list[str], weaviate_ip: str) -> None:
     client = auth(weaviate_ip)
     refresh_schema(client)
 
-    data_objects = [{"data": chunk} for chunk in data]
+    data_objects = [{"data": chunk, "position": i} for chunk, i in enumerate(data)]
     client.batch.configure(batch_size=100)
     print(f"Uploading {len(data_objects)} chunks.")
     i = 0
@@ -41,10 +41,36 @@ def query_weaviate(query: str, weaviate_ip: str) -> list[str]:
 
     client = auth(weaviate_ip)
     response = (
-        client.query.get("Chunk", ["data"])
+        client.query.get("Chunk", ["data", "position"])
         .with_hybrid(query=query)
         .with_limit(2)
         .do()
     )
+    
+    data = [(chunk["data"], chunk["position"]) for chunk in response["data"]["Get"]["Chunk"]]
+    
+    for _, position in data:
+        response = (
+            client.query.get("Chunk", ["data"])
+            .with_where({
+                "operator": "And",
+                "operands": [
+                    {
+                        "path": ["position"],
+                        "operator": "LessThan",
+                        "valueInt": position+2
+                    },
+                    {
+                        "path": ["position"],
+                        "operator": "GreaterThan",
+                        "valueInt": position-2
+                    }
+                ]
+            })
+            .with_limit(2)
+            .do()
+        )
+        
+    
 
     return [chunk["data"] for chunk in response["data"]["Get"]["Chunk"]]

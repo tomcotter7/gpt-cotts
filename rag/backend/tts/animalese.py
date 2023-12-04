@@ -66,7 +66,11 @@ def animalese(input_text: str, pitch: str) -> Path:
         combined_sound = combined_sound + new_sound
     
     file_path = Path(__file__).parent / "animalese.wav"
+    combined_sound = combined_sound.speedup(playback_speed=1.25)
     file_handler = combined_sound.export(file_path, format="wav")
     file_handler.close()
 
     return file_path
+
+if __name__ == "__main__":
+    animalese("Hello, my name is Rag!", "low")
