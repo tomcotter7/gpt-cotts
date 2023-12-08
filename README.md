@@ -21,3 +21,5 @@ Both of these will be hosted on some cloud service provider - most likely AWS an
         - [ ] Endpoint to add notes (EOY 2023)
     - Deployment
         - [ ] Deploy to AWS (EOY 2023)
+
+Anything with a * will also require a backend to be built, which will be done in FastAPI. I haven't thought about exactly how I'd do that yet.
