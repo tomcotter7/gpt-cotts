@@ -39,6 +39,12 @@ We can use `when` to only execute a stage given a certain condition. For example
 
 To view all environment variables available to you on a Jenkins instance, go to *jenkins-instance-url*/env-vars.html.
 
+## PowerBI
+
+### Slicers
+
+[Video](https://www.youtube.com/watch?v=c_MjL1Cngbs) on default value for slicers.
+
 ## Docker
 
 ### Other Issues
@@ -125,11 +131,19 @@ Let's say our loss function is $Residual^2 = (Observed - Predicted)^2$, and we a
 
 ### RAG
 
+#### Courses
+
+[Andrew Ng's Course](https://www.deeplearning.ai/short-courses/building-evaluating-advanced-rag/)
+
 #### Techniques
 
-Sentence Window Retrieval - Additional context around the retrieved sentence is pass to the LLM.
+Sentence Window Retrieval - Additional context around the retrieved sentence is pass to the LLM. Embed super small sentences, and then add context to the retrieved sentence when passing it to the LLM. Increasing the sentence window retrieval can increase the context relevant & groundedness up to a point.
 
-Auto Merging Retrieval - The document is structured as a tree, and if enough of the 'child nodes' are returned by the retrieval, the parent node is returned. Imagine the child nodes as sentences in a paragraph, and the parent node is the entire paragraph.
+Auto Merging Retrieval - The document is structured as a tree, and if enough of the 'child nodes' are returned by the retrieval, the parent node is returned. Imagine the child nodes as sentences in a paragraph, and the parent node is the entire paragraph. In this, we want to only embed the leaf nodes. 
+
+#### Evaluation
+
+A "RAG Triad" exists for evaluation, which is "Groundedness", "Answer Relevance" and "Context Relevance". "Groundedness" means 'Is the response supported by the context?', "Answer Relevance" means 'Is the response relevant to the query?", and "Context Relevance" means 'Is the retrieved context relevant to the query?'.
 
 ### Opinion Blog Posts
 
