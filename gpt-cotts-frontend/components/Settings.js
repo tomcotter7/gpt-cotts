@@ -29,12 +29,12 @@ export function Settings({onSettingsChange}) {
   return (
     <>
       <button
-        className="border-fuchsia-500 border border-2 rounded hover:bg-fuchsia-500 py-2 px-4 text-black"
+        className="border-fuchsia-500 border border-2 rounded hover:bg-fuchsia-300 bg-fuchsia-500 py-2 px-4 text-black"
         onClick={handleToggle}
         aria-haspopup="true"
         aria-expanded="true"
       >
-      Settings
+      <b>Settings</b>
       </button>
       { isOpen && ( 
         <div className="absolute right-5 top-20 py-2 px-4 space-y-2 shadow-lg bg-white border border-gray-300 rounded-md ">
