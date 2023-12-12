@@ -16,7 +16,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex m-4">
+      <div className="flex m-2">
         <div>
           <h1 className="text-4xl text-black">
             <u><b>gpt-cotts</b></u>
