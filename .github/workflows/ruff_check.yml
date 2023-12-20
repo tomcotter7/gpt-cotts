@@ -6,5 +6,7 @@ jobs:
     steps:
       - name: check out repo
         uses: actions/checkout@v4
+      - name: install reqs
+        run: pip install requirements_dev.txt
       - name: run ruff check
         run: ruff check .
