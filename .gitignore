@@ -4,3 +4,4 @@ venv/
 **/*.exe
 **/*.log
 **/*.mp3
+*.env
