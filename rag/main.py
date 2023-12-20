@@ -5,7 +5,7 @@ from querying.openai import query_openai
 
 rag = FastAPI()
 
-origins = ["http://localhost:3000"]
+origins = ["*"]
 
 rag.add_middleware(
         CORSMiddleware,
@@ -22,3 +22,7 @@ async def get_response(user_input: dict):
             query_openai(user_input['message'], "regular"),  # type: ignore
             media_type="text/event-stream"
     )
+
+@rag.post("/rag")
+async def get_response_with_context(user_input: dict):
+    pass

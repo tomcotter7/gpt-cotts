@@ -1,19 +1,20 @@
+import logging
+import os
+from pathlib import Path
+
 from flask import (
     Flask,
+    Response,
+    jsonify,
+    redirect,
     render_template,
     request,
-    jsonify,
-    Response,
-    redirect,
-    url_for,
     session,
-    send_file
+    url_for,
 )
-from rag.rag import RAGOrchestrator
 from flask_bcrypt import Bcrypt
-from pathlib import Path
-import os
-import logging
+
+from rag.rag import RAGOrchestrator
 
 rag = RAGOrchestrator()
 app = Flask(__name__)
@@ -68,7 +69,7 @@ def get_model_response() -> Response:
 
 @app.route("/reset", methods=["POST"])
 def reset() -> Response:
-    
+
     app.logger.info(f"Reset request received from {request.remote_addr}")
     rag.reset_context()
     return jsonify({"status": "success"})

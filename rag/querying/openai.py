@@ -1,6 +1,7 @@
-from openai import OpenAI
-from pathlib import Path
 import json
+from pathlib import Path
+
+from openai import OpenAI
 
 client = OpenAI()
 
@@ -26,5 +27,4 @@ def query_openai(prompt: str, query_type: str) -> str:
 
     for chunk in stream:
         if chunk.choices[0].delta.content is not None:
-            print(chunk.choices[0].delta.content)
             yield chunk.choices[0].delta.content  # type: ignore

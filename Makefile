@@ -1,5 +1,5 @@
 refresh:
-	python3 -m rag.data_processing.refresh --weaviate localhost --notes research_notes/notes.md
+	python3 -m rag.data_processing.refresh --notes=notes.md
 
 run:
 	flask --app app.py run --host 0.0.0.0

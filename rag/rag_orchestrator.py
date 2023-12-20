@@ -1,5 +1,5 @@
-from .querying.openai import ModelQueryHandler
 from .data_processing import query_weaviate
+from .querying.openai import ModelQueryHandler
 from .tts.animalese import animalese
 
 

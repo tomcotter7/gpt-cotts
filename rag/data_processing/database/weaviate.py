@@ -46,9 +46,9 @@ def query_weaviate(query: str, weaviate_ip: str, limit: int = 2) -> list[str]:
         .with_limit(limit)
         .do()
     )
-    
+
     data = [(chunk["data"], chunk["position"]) for chunk in response["data"]["Get"]["Chunk"]]
-    
+
     for _, position in data:
         response = (
             client.query.get("Chunk", ["data"])
@@ -70,7 +70,7 @@ def query_weaviate(query: str, weaviate_ip: str, limit: int = 2) -> list[str]:
             .with_limit(2)
             .do()
         )
-        
-    
+
+
 
     return [chunk["data"] for chunk in response["data"]["Get"]["Chunk"]]
