@@ -4,8 +4,8 @@ refresh:
 fastapi:
 	uvicorn rag.main:rag --reload
 
-reqs:
-	pip freeze > requirements.txt
-
 setup:
 	pip install -r requirements.txt
+
+web:
+	cd gpt-cotts-frontend && bun dev
