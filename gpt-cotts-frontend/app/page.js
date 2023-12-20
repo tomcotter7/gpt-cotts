@@ -10,8 +10,9 @@ export default function Home() {
     animalese: false
   })
 
-  function handleSettingsChange(settings) {
-    setSettings(settings)
+  function handleSettingsChange(newSettings) {
+    console.log("Received new settings", newSettings)
+    setSettings(newSettings)
   }
 
   return (

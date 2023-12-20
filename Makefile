@@ -1,14 +1,11 @@
 refresh:
-	python3 -m rag.data_processing.refresh --notes=notes.md
+	python3 -m rag.refresh --notes=rag/notes.md
 
-run:
-	flask --app app.py run --host 0.0.0.0
-
-run-debug:
-	flask --app app.py run --debugger --reload
-
-reqs:
-	pip freeze > requirements.txt
+fastapi:
+	uvicorn rag.main:rag --reload
 
 setup:
 	pip install -r requirements.txt
+
+web:
+	cd gpt-cotts-frontend && bun dev
