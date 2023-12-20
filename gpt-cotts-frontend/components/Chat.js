@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react"
-import { PacmanLoader } from "react-spinners";
+import { useState, useRef } from "react"
 import Markdown from 'react-markdown'
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -28,53 +27,63 @@ const sendMessage = async (message, animalese, url) => {
 export default function Chat({settings}) {
 
   const [chats, setChats] = useState([])
-  const [stop, setStop] = useState(false)
-
-  useEffect(() => {
-    console.log("Received settings", settings)
-  }, [settings])
-
+  const stop = useRef(false)
 
   async function makeLLMRequest(message, settings) {
     let stream;
-    console.log(settings)
-    console.log(settings.rag)
     if (settings.rag) {
-      stream = await sendMessage(message, settings.animalese, "http://localhost:8000/rag")
+      stream =  await sendMessage(message, settings.animalese, "http://localhost:8000/rag")
     } else {
       stream = await sendMessage(message, settings.animalese, "http://localhost:8000/llm")
     }
+    
     let response = ""
-    let first = true
+    let { value, done } = await stream.read();
+    if (done | stop.current) {
+      return response;
+    }
+    response += value;
+    setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now()},
+      ...prevChats]) 
+
     while (true) {
       let { value, done } = await stream.read();
-      if (done|stop) break;
-      response += value;
-      if (!first) { 
-        setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now(), loading: false},
-        ...prevChats.slice(1, prevChats.length)]) 
-      } else {
-        setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now(), loading: false},
-        ...prevChats]);
+      if (done | stop.current) {
+        stop.current = false
+        break;
       }
-      first = false;
+      response += value;
+      setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now()},
+        ...prevChats.slice(1, prevChats.length)])
     }
   }
 
   function onChatSubmit(e) {
     e.preventDefault();
     const chatInput = document.getElementById('chat-input');
-    const chatBox = {role: 'user', text: chatInput.value, id: Date.now(), loading: false};
+    const chatBox = {role: 'user', text: chatInput.value, id: Date.now()};
     setChats((prevChats) => [chatBox, ...prevChats]);
     makeLLMRequest(chatInput.value, settings);
+  }
+
+  function onStopButtonClick(e) {
+    stop.current = true
   }
 
   return (
     <>
       <ChatForm onChatSubmit={onChatSubmit} />
+      <div className="flex items-center justify-center w-100">
+        <button
+          className="px-4 mt-2 bg-black hover:bg-gray-400 rounded border border-fuchsia-500 border-2 text-white"
+          onClick={onStopButtonClick}
+        >
+          <b>stop generating</b>
+        </button>
+      </div>
       <div className="flex flex-col py-2 px-20 mt-2" id="chat-boxes">
         {chats.map((chat) => (
-          <ChatBox key={chat.id} role={chat.role} text={chat.text} loading={chat.loading} />
+          <ChatBox key={chat.id} role={chat.role} text={chat.text}/>
         ))}
       </div>
     </>
@@ -108,24 +117,17 @@ function ChatForm({onChatSubmit}) {
   )
 }
 
-function ChatBox({role, text, loading}) {
-  var containerClasses = `text-left border rounded border-2 mb-2 w-3/4 p-2`
+function ChatBox({role, text}) {
+  var containerClasses = `border rounded border-2 mb-2 w-3/4 p-2`
 
   if (role === 'user') {
     containerClasses += ` bg-white border-fuchsia-500`
   } else {
     containerClasses += ` ml-auto bg-fuchsia-500 border-white`
   }
-  
-  if (loading) {
-    return (
-      <div className={containerClasses}>
-        <PacmanLoader size={10} color="black" />
-      </div>
-    )
-  } else {
-    return (
-      <div className={containerClasses}>
+
+  return (
+    <div className={containerClasses}>
         <Markdown
           className="text-black"
           children={text}
@@ -148,7 +150,6 @@ function ChatBox({role, text, loading}) {
           }
         }}
         />
-      </div>
-    )
-  }
+    </div>
+  )
 }

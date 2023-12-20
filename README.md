@@ -17,7 +17,7 @@ Both of these will be hosted on some cloud service provider - most likely AWS an
         - [ ] *Note Taking - A page to take notes, would look like a real-life notepad. Notes can be dragged into the storage for querying later (Feb 2024)
         - [ ] *Study Buddy - AI Powered (March 2024)
     - FastAPI
-        - [ ] Endpoint to query notes (EOY 2023)
+        - [X] Endpoint to query notes (EOY 2023)
         - [ ] Endpoint to add notes (EOY 2023)
     - Deployment
         - [ ] Deploy to AWS (EOY 2023)
