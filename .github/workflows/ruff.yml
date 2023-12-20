@@ -7,6 +7,6 @@ jobs:
       - name: check out repo
         uses: actions/checkout@v4
       - name: install reqs
-        run: pip install -r requirements_dev.txt
+        run: pip install ruff==0.1.8
       - name: run ruff check
         run: ruff check .
