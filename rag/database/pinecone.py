@@ -1,3 +1,4 @@
+# noqa: D100
 import os
 
 import numpy as np
@@ -5,7 +6,6 @@ import pinecone
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 
-from ..utils import load_config
 from ..data_processing.embedding import embed
 
 load_dotenv()
@@ -17,7 +17,13 @@ def upload_to_pinecone(
         pincone_index: str,
         namespace: str = "tcotts-notes"
 ) -> None:
-    """Upload embeddings to Pinecone."""
+    """Upload embeddings to Pinecone.
+
+    Args:
+        embeddings: List of embeddings to upload.
+        pincone_index: Name of the Pinecone index to upload to.
+        namespace: Namespace to upload to.
+    """
     index = pinecone.Index(pincone_index)
     index.delete(delete_all=True, namespace=namespace)
     vectors = []
@@ -38,7 +44,14 @@ def query_pinecone(
         embedding_model: str,
         namespace: str = "tcotts-notes"
 ) -> dict[str, list]:
-    """Query Pinecone with a single query string."""
+    """Query Pinecone with a single query string.
+
+    Args:
+        query: Query string to search for.
+        pincone_index: Name of the Pinecone index to query.
+        embedding_model: Name of the model to use for embedding.
+        namespace: Namespace to query.
+    """
     model = SentenceTransformer(embedding_model)
     embedding = embed(query, model)
     index = pinecone.Index(pincone_index)

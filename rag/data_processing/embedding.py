@@ -1,3 +1,4 @@
+# noqa: D100
 import time
 
 import numpy as np
@@ -7,12 +8,29 @@ from ..utils import load_config
 
 
 def embed(doc: str, model: SentenceTransformer) -> np.ndarray:
+    """Embed a single document (string).
+
+    Args:
+        doc: Document to embed.
+        model: SentenceTransformer model to use for embedding.
+
+    Returns:
+        The embedding of the document as a numpy array.
+    """
     embedding = model.encode(doc)
     # get dimensions of embedding
     return embedding  # type: ignore
 
 
 def embed_docs(docs: list[str]) -> list[np.ndarray]:
+    """Embed a list of documents (strings).
+
+    Args:
+        docs: List of documents to embed.
+
+    Returns:
+        List of embeddings of the documents as numpy arrays.
+    """
     print(f'Total to embed: {len(docs)}')
     model = SentenceTransformer(load_config()['embedding_model'])
     embeddings = []

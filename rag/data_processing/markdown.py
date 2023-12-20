@@ -1,16 +1,21 @@
+# noqa: D100
 from pathlib import Path
 
 HERE = Path(__file__).parent
 notes_file = HERE.parent.parent.parent / "notes.md"
 
-
-def read_as_str(path: Path) -> str:
-    with open(path, "r") as f:
-        return f.read()
-
-
 def convert_to_chunks(text: str) -> list[str]:
+    """Convert a notes file (as a string) to a list of chunks.
 
+    This function works best with markdown files that are highly structured.
+    Use headers to defined the sections, and limit each section in size.
+
+    Args:
+        text: The text of the notes file.
+
+    Returns:
+        List of chunks (strings).
+    """
     headers = {2: "", 3: "", 4: ""}
 
     contextualized_lines = []
@@ -41,6 +46,15 @@ def convert_to_chunks(text: str) -> list[str]:
 
 
 def load_and_convert(notes_file: Path) -> list[str]:
-    text = read_as_str(notes_file)
+    """Load the notes file and convert it to a list of chunks.
+
+    Args:
+        notes_file: Path to the notes file.
+
+    Returns:
+        List of chunks (strings).
+    """
+    with open(notes_file, "r") as f:
+        text = f.read()
     chunks = convert_to_chunks(text)
     return chunks

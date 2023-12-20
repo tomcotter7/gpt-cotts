@@ -16,8 +16,7 @@ class Orchestrator:
         context (list[dict[str, str]]): List of dictionaries containing the context of the conversation.
         client (OpenAI): OpenAI client.
     """
-    def __init__(self):
-        """Initialize the Orchestrator."""
+    def __init__(self): # noqa: D107
         self.query_calls = 0
         config = load_config()
         self.prompts = config['prompts']
@@ -27,14 +26,25 @@ class Orchestrator:
         self.client = OpenAI()
 
     def clear_context(self) -> None:
+        """Clears the context and resets the query calls."""
         self.query_calls = 0
         self.context = [{"role": "system", "content": self.prompts["regular"]}]
 
     def reduce_context_size(self) -> None:
+        """Reduces the context size to 3 pairs of messages."""
         self.query_calls = 3
         self.context = self.context[-6:]
 
     def setup_rag(self, input_query: str, details: dict) -> str:
+        """Queries the database and sets up the context for RAG.
+
+        Args:
+            input_query: The query to be used.
+            details: dictionary containing the index and namespace to query.
+
+        Returns:
+            The query to be used for RAG, with the context prepended.
+        """
         self.context[0] = {"role": "system", "content": self.prompts["rag"]}
         vector_db_result = query_pinecone(input_query, details["index"], self.embedding_model, details["namespace"])
         chunks = []
@@ -45,6 +55,17 @@ class Orchestrator:
         return f'Potential Context: {chunks} ### Question: {input_query}'
 
     def query(self, input_query: str, use_rag: bool, details: dict = {}) -> str:
+        """Queries the model and returns the response.
+
+        Args:
+            input_query: The query to be used.
+            use_rag: Whether to use RAG or not.
+            details: dictionary containing the index and namespace to query.
+                Only used if use_rag is True.
+
+        Returns:
+            The response from the model.
+        """
         if self.query_calls > 3:
             self.reduce_context_size()
         if use_rag:

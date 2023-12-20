@@ -2,6 +2,7 @@ fastapi==0.105.1
 numpy==1.26.2
 openai==1.6.0
 pinecone_client==2.2.4
+pydub==0.25.1
 python_dotenv==1.0.0
 sentence_transformers==2.2.2
 uvicorn==0.24.0
