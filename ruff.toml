@@ -1,0 +1,23 @@
+exclude = [
+  ".git",
+  "venv",
+  "gpt-cotts-frontend"
+]
+
+line-length = 88
+indent-width = 4
+
+[lint]
+select = ["E4", "E7", "E9", "F", "W", "I", "N", "D"]
+ignore = []
+
+fixable = ["ALL"]
+unfixable = []
+
+[lint.pydocstyle]
+
+convention = "google"
+
+[format]
+quote-style = "double"
+

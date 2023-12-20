@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { PacmanLoader } from "react-spinners";
 import Markdown from 'react-markdown'
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
@@ -7,9 +7,9 @@ import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 const USERCOLOR = '#FFFFFF'
 const AICOLOR = '#d946ef'
 
-const sendMessage = async (message) => {
-  console.log(JSON.stringify({message}))
-  const response = await fetch('http://localhost:8000/llm', {
+const sendMessage = async (message, animalese, url) => {
+  console.log(url)
+  const response = await fetch(url, {
     method: 'POST',
     body: JSON.stringify({message}),
     headers: {
@@ -24,20 +24,32 @@ const sendMessage = async (message) => {
   return stream
 }
 
+
 export default function Chat({settings}) {
 
   const [chats, setChats] = useState([])
   const [stop, setStop] = useState(false)
 
+  useEffect(() => {
+    console.log("Received settings", settings)
+  }, [settings])
+
+
   async function makeLLMRequest(message, settings) {
-    const stream = await sendMessage(message)
+    let stream;
+    console.log(settings)
+    console.log(settings.rag)
+    if (settings.rag) {
+      stream = await sendMessage(message, settings.animalese, "http://localhost:8000/rag")
+    } else {
+      stream = await sendMessage(message, settings.animalese, "http://localhost:8000/llm")
+    }
     let response = ""
     let first = true
     while (true) {
       let { value, done } = await stream.read();
       if (done|stop) break;
       response += value;
-      console.log(response)
       if (!first) { 
         setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now(), loading: false},
         ...prevChats.slice(1, prevChats.length)]) 
@@ -77,7 +89,7 @@ function ChatForm({onChatSubmit}) {
   }
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center w-100">
       <form className="flex space-x-4">
         <input
           className="p-2 border border-gray-300 rounded text-black"
@@ -97,7 +109,7 @@ function ChatForm({onChatSubmit}) {
 }
 
 function ChatBox({role, text, loading}) {
-  var containerClasses = `text-left border rounded border-2 mb-2 w-1/2 p-2`
+  var containerClasses = `text-left border rounded border-2 mb-2 w-3/4 p-2`
 
   if (role === 'user') {
     containerClasses += ` bg-white border-fuchsia-500`
@@ -125,10 +137,9 @@ function ChatBox({role, text, loading}) {
               <SyntaxHighlighter
                 {...rest}
                 PreTag="div"
-                children={String(children).replace(/\n$/, '')}
                 language={match[1]}
                 style={dark}
-              />
+              >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
             ) : (
               <code {...rest} className={className}>
                 {children}

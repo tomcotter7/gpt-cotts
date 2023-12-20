@@ -1,10 +1,21 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 
 export function Settings({onSettingsChange}) {
   
   const [isOpen, setIsOpen] = useState(false)
-  const [rag, setRag] = useState(false)
-  const [animalese, setAnimalese] = useState(false)
+  const [settings, setSettings] = useState({
+    rag: true,
+    animalese: false
+  })
+  const didMount = useRef(false);
+
+  useEffect(() => {
+    if ( !didMount.current ) {
+      didMount.current = true;
+      return;
+    }
+    onSettingsChange(settings)
+  }, [settings])
 
   function handleToggle() {
     setIsOpen(!isOpen)
@@ -12,16 +23,11 @@ export function Settings({onSettingsChange}) {
 
   function handleCheckboxChange(setting) {
     if (setting === "RAG") {
-      setRag(!rag)
+      setSettings({...settings, rag: !settings.rag})
     }
     if (setting === "Animalese") {
-      setAnimalese(!animalese)
+      setSettings({...settings, animalese: !settings.animalese})
     }
-
-    onSettingsChange({
-      rag,
-      animalese
-    })
   
   }
 
@@ -43,7 +49,7 @@ export function Settings({onSettingsChange}) {
             <label className="inline-flex items-center">
               <input
                 type="checkbox"
-                checked={rag}
+                checked={settings.rag}
                 className="form-checkbox"
                 onChange={() => handleCheckboxChange('RAG')}
               />
@@ -54,7 +60,7 @@ export function Settings({onSettingsChange}) {
             <label className="inline-flex items-center">
               <input
                 type="checkbox"
-                checked={animalese}
+                checked={settings.animalese}
                 className="form-checkbox"
                 onChange={() => handleCheckboxChange('Animalese')}
               />

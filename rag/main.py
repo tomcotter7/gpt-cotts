@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
-from querying.openai import query_openai
+
+from .orchestrator import Orchestrator
 
 rag = FastAPI()
 
@@ -16,13 +17,25 @@ rag.add_middleware(
 )
 
 
+# hardcoding index / namespace for now, will be done by authentification later
+
+index = "main-notes"
+namespace = "tcotts-notes"
+
+orchestrator = Orchestrator()
+
 @rag.post("/llm")
-async def get_response(user_input: dict):
+async def get_response(user_input: dict) -> StreamingResponse:
+    """Get response from the model based on the user input."""
     return StreamingResponse(
-            query_openai(user_input['message'], "regular"),  # type: ignore
+            orchestrator.query(user_input['message'], False),
             media_type="text/event-stream"
     )
 
 @rag.post("/rag")
-async def get_response_with_context(user_input: dict):
-    pass
+async def get_response_with_context(user_input: dict) -> StreamingResponse:
+    """Get response from the model based on the user input. Use their notes as context."""
+    return StreamingResponse(
+            orchestrator.query(user_input['message'], True, {"index": index, "namespace": namespace}),
+            media_type="text/event-stream"
+    )
