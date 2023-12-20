@@ -23,8 +23,8 @@ const sendMessage = async (message, animalese, url) => {
   return stream
 }
 
-const clearMessagesOnServer = async () => {
-  await fetch("http://localhost:8000/clear", {
+const pingServer = async (url) => {
+  await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -34,7 +34,6 @@ const clearMessagesOnServer = async () => {
     body: JSON.stringify({})
   })
 }
-
 
 export default function Chat({settings}) {
 
@@ -86,7 +85,7 @@ export default function Chat({settings}) {
   function onClearButtonClick(e) {
     stop.current = true
     setChats([])
-    clearMessagesOnServer()
+    pingServer("http://localhost:8000/clear")
   }
 
   return (

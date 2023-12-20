@@ -1,5 +1,5 @@
 refresh:
-	python3 -m rag.data_processing.refresh --notes=notes.md
+	python3 -m rag.refresh --notes=rag/notes.md
 
 fastapi:
 	uvicorn rag.main:rag --reload

@@ -1,7 +1,7 @@
 """Orchestrator module."""
 from openai import OpenAI
 
-from .data_processing.database.pinecone import query_pinecone
+from .database.pinecone import query_pinecone
 from .utils import load_config
 
 

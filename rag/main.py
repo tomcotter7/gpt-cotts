@@ -44,3 +44,4 @@ async def get_response_with_context(user_input: dict) -> StreamingResponse:
 def clear_context() -> None:
     """Clear the context of the model."""
     orchestrator.clear_context()
+

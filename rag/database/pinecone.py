@@ -5,8 +5,8 @@ import pinecone
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 
-from ...utils import load_config
-from ..preprocessing.embedding import embed
+from ..utils import load_config
+from ..data_processing.embedding import embed
 
 load_dotenv()
 

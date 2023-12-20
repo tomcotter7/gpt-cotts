@@ -11,7 +11,7 @@ Both of these will be hosted on some cloud service provider - most likely AWS an
 ## Roadmap
 
     - React App
-        - [ ] Home page to query notes (EOY 2023)
+        - [X] Home page to query notes (EOY 2023)
         - [ ] Page to add notes (EOY 2023)
         - [ ] *AI-Calendar - A calendar which can allow you in input in natural language and it'll populate your calendar for you. This will act more like a schedule, but can access your outlook cal (Jan 2024)
         - [ ] *Note Taking - A page to take notes, would look like a real-life notepad. Notes can be dragged into the storage for querying later (Feb 2024)
