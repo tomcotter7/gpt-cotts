@@ -39,3 +39,8 @@ async def get_response_with_context(user_input: dict) -> StreamingResponse:
             orchestrator.query(user_input['message'], True, {"index": index, "namespace": namespace}),
             media_type="text/event-stream"
     )
+
+@rag.post("/clear")
+def clear_context() -> None:
+    """Clear the context of the model."""
+    orchestrator.clear_context()

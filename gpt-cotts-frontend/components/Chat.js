@@ -23,6 +23,18 @@ const sendMessage = async (message, animalese, url) => {
   return stream
 }
 
+const clearMessagesOnServer = async () => {
+  await fetch("http://localhost:8000/clear", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive'
+    },
+    body: JSON.stringify({})
+  })
+}
+
 
 export default function Chat({settings}) {
 
@@ -30,6 +42,7 @@ export default function Chat({settings}) {
   const stop = useRef(false)
 
   async function makeLLMRequest(message, settings) {
+    stop.current = false
     let stream;
     if (settings.rag) {
       stream =  await sendMessage(message, settings.animalese, "http://localhost:8000/rag")
@@ -70,15 +83,21 @@ export default function Chat({settings}) {
     stop.current = true
   }
 
+  function onClearButtonClick(e) {
+    stop.current = true
+    setChats([])
+    clearMessagesOnServer()
+  }
+
   return (
     <>
       <ChatForm onChatSubmit={onChatSubmit} />
       <div className="flex items-center justify-center w-100">
-        <button
-          className="px-4 mt-2 bg-black hover:bg-gray-400 rounded border border-fuchsia-500 border-2 text-white"
-          onClick={onStopButtonClick}
-        >
+        <button className="px-4 mt-2 bg-black hover:bg-gray-400 rounded border border-fuchsia-500 border-2 text-white" onClick={onStopButtonClick}>
           <b>stop generating</b>
+        </button>
+        <button className="px-4 mt-2 bg-black hover:bg-gray-400 rounded border border-fuchsia-500 border-2 text-white ml-2" onClick={onClearButtonClick}>
+          <b>clear</b>
         </button>
       </div>
       <div className="flex flex-col py-2 px-20 mt-2" id="chat-boxes">

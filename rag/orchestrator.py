@@ -26,9 +26,9 @@ class Orchestrator:
         self.context = [{"role": "system", "content": self.prompts["regular"]}]
         self.client = OpenAI()
 
-    def reset_context(self) -> None:
+    def clear_context(self) -> None:
         self.query_calls = 0
-        self.context = []
+        self.context = [{"role": "system", "content": self.prompts["regular"]}]
 
     def reduce_context_size(self) -> None:
         self.query_calls = 3
@@ -64,5 +64,5 @@ class Orchestrator:
 
         for chunk in stream:
             if chunk.choices[0].delta.content is not None:
-                self.context[-1]["content"] = chunk.choices[0].delta.content
+                self.context[-1]["content"] += chunk.choices[0].delta.content
                 yield chunk.choices[0].delta.content
