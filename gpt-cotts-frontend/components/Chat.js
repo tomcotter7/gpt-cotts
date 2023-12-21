@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Markdown from 'react-markdown'
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -111,25 +111,36 @@ export default function Chat({settings}) {
 
 function ChatForm({onChatSubmit}) {
 
+
   function onGoButtonClick(e) {
     onChatSubmit(e)
+    const chatInput = document.getElementById('chat-input');
+    chatInput.value = ""
+    chatInput.style.height = "50px"
+  }
+
+  function adjustHeight(el){
+      el.style.height = (el.scrollHeight > el.clientHeight) ? (el.scrollHeight)+"px" : "60px";
   }
 
   return (
-    <div className="flex items-center justify-center w-100">
-      <form className="flex space-x-4">
-        <input
-          className="p-2 border border-gray-300 rounded text-black"
-          type="text"
-          id="chat-input"
-          placeholder="What's the issue?"
-        />
+    <div className="flex justify-center">
+      <form>
+        <div className="flex space-x-4 justify-center" style={{"width": "75vh"}}>
+          <textarea
+            className="p-2 border border-gray-300 rounded text-black h-10 w-3/4"
+            type="text"
+            id="chat-input"
+            placeholder="What's the issue?"
+            onKeyUp={(e) => adjustHeight(e.target)}
+          />
         <button
           className="px-4 bg-lime-300 hover:bg-lime-200 rounded border border-lime-300 border-2 text-black"
           onClick={onGoButtonClick}
         >
           <b>Go!</b>
         </button>
+        </div>
       </form>
     </div>
   )
