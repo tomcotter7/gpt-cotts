@@ -1,8 +1,50 @@
 # noqa: D100
 from pathlib import Path
 
-HERE = Path(__file__).parent
-notes_file = HERE.parent.parent.parent / "notes.md"
+
+def convert_to_sections(text: str, max_depth: int = 5) -> dict:
+    """Convert a notes file (as a string) to a dictionary of sections.
+
+    This function works best with markdown files that are highly structured.
+    Use headers to defined the sections, and limit each section in size.
+
+    Args:
+        text: The text of the notes file.
+        max_depth: The maximum depth of the sections.
+            This is the maximum number of '#' characters at the start of a line.
+            If None, there is no limit, the program will calculate the depth.
+
+    Returns:
+        Dictionary of sections (strings).
+    """
+    
+    split_text = text.splitlines()
+    
+    headers = {2: "", 3: "", 4: ""}
+    sections = {}
+
+    for line in split_text:
+        if line.startswith("#"):
+            level = line.count("#")
+            line = line.replace("#", "").strip()
+            headers[level] = line
+        else:
+            # headers = {2: "Header 1", 3: "", 4: ""}
+            keys = [key for key in headers.keys() if headers[key] != ""]
+            reversed_keys = keys[::-1]
+            
+            full_section = {reversed_keys[0]: line}
+            for i in range(1, len(reversed_keys)):
+                full_section = {reversed_keys[i]: full_section}
+
+            sections = {**sections, **full_section}
+
+
+
+                
+    return sections
+
+
 
 def convert_to_chunks(text: str) -> list[str]:
     """Convert a notes file (as a string) to a list of chunks.
@@ -58,3 +100,10 @@ def load_and_convert(notes_file: Path) -> list[str]:
         text = f.read()
     chunks = convert_to_chunks(text)
     return chunks
+
+if __name__ == "__main__":
+    notes_file = "../../notes.md"
+    with open(notes_file, "r") as f:
+        text = f.read()
+        convert_to_sections(text)
+

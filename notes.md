@@ -1,6 +1,5 @@
 # Notes
 
-
 ## Networking
 
 ### FastAPI
@@ -160,6 +159,8 @@ There is a spectrum of how much human input is required for a task - we want to 
 
 ### ML Papers
 
+#### Resources for accessing papers
+
 [ML Papers of Week](https://github.com/dair-ai/ML-Papers-of-the-Week)
 
 A list of ML papers worth reading - updated every week. I think I should dedicate some time every week to reading and understanding one of these.
@@ -313,6 +314,8 @@ Most interesting thing from here was *Inference Quantization*. The essentially m
 
 ### LLM Training
 
+#### ReST
+
 [ReST for Language Modelling](https://arxiv.org/pdf/2308.08998.pdf)
 
 #### Enforcing Outputs
@@ -389,6 +392,8 @@ The second link especially is very interesting - picking out objects in an image
 ## Programming Languages
 
 ### Mojo
+
+#### Resources
 
 [The mojo homepage](https://www.modular.com/)
 

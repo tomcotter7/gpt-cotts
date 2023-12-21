@@ -3,10 +3,13 @@
 Usage:
     uvicorn main:rag --reload
 """
+from pathlib import Path
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
+from .data_processing.markdown import convert_to_sections
 from .orchestrator import Orchestrator
 
 rag = FastAPI()
@@ -50,3 +53,10 @@ def clear_context() -> None:
     """Clear the context of the model."""
     orchestrator.clear_context()
 
+@rag.post("/notes")
+def get_notes() -> dict:
+    """Return the notes of the user."""
+    notes_file = Path(__file__).parent.parent / "notes.md"
+    with open(notes_file, "r") as f:
+        notes = f.read()
+        return convert_to_sections(notes)

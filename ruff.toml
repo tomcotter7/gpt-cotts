@@ -2,6 +2,7 @@ exclude = [
   ".git",
   "venv",
   "gpt-cotts-frontend"
+  "**/tests/"
 ]
 
 line-length = 88
