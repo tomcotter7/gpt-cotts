@@ -92,10 +92,10 @@ export default function Chat({settings}) {
     <>
       <ChatForm onChatSubmit={onChatSubmit} />
       <div className="flex items-center justify-center w-100">
-        <button className="px-4 mt-2 bg-black hover:bg-gray-400 rounded border border-fuchsia-500 border-2 text-white" onClick={onStopButtonClick}>
+        <button className="px-4 mt-2 bg-fuchsia-500 hover:bg-fuchsia-400 rounded border border-fuchsia-500 border-2 text-white" onClick={onStopButtonClick}>
           <b>stop generating</b>
         </button>
-        <button className="px-4 mt-2 bg-black hover:bg-gray-400 rounded border border-fuchsia-500 border-2 text-white ml-2" onClick={onClearButtonClick}>
+        <button className="px-4 mt-2 bg-fuchsia-500 hover:bg-fuchsia-400 rounded border border-fuchsia-500 border-2 text-white ml-2" onClick={onClearButtonClick}>
           <b>clear</b>
         </button>
       </div>
@@ -125,7 +125,7 @@ function ChatForm({onChatSubmit}) {
           placeholder="What's the issue?"
         />
         <button
-          className="px-4 bg-fuchsia-500 hover:bg-fuchsia-300 rounded border border-fuchsia-500 border-2 text-black"
+          className="px-4 bg-lime-300 hover:bg-lime-200 rounded border border-lime-300 border-2 text-black"
           onClick={onGoButtonClick}
         >
           <b>Go!</b>

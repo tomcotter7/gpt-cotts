@@ -35,7 +35,7 @@ export function Settings({onSettingsChange}) {
   return (
     <>
       <button
-        className={`border-fuchsia-500 border border-2 rounded p-2 mt-2 text-black hover:bg-fuchsia-300 ${ isOpen ? 'bg-fuchsia-300' : 'bg-fuchsia-500'}`}
+        className={`border-fuchsia-500 border border-2 rounded p-2 mt-2 text-white hover:bg-fuchsia-400 ${ isOpen ? 'bg-fuchsia-400' : 'bg-fuchsia-500'}`}
         onClick={handleToggle}
         aria-haspopup="true"
         aria-expanded="true"
