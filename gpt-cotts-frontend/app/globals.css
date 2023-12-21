@@ -11,8 +11,8 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 175, 175, 175;
-    --background-end-rgb: 175, 175, 175;
+    --background-start-rgb: 156, 163, 175;
+    --background-end-rgb: 156, 163, 175;
   }
 }
 
