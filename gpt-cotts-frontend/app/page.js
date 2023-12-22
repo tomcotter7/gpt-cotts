@@ -11,7 +11,6 @@ export default function Home() {
   })
 
   function handleSettingsChange(newSettings) {
-    console.log("Received new settings", newSettings)
     setSettings(newSettings)
   }
 

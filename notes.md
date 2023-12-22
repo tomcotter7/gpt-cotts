@@ -212,6 +212,8 @@ TODO: Read through this and make notes on it.
 
 #### Attention
 
+##### Attention & Transformers - Explained
+
 [Attention - Explained](https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/)
 
 Seq-2-Seq models were the first to use Attention. In a typical Seq-2-Seq, RNNs are used to encode the original input sentence into a context vector. However, since this context vector is a 'pipeline' in a sense, it struggles with long contexts.

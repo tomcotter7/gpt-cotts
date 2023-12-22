@@ -2,7 +2,6 @@ exclude = [
   ".git",
   "venv",
   "gpt-cotts-frontend"
-  "**/tests/"
 ]
 
 line-length = 88
@@ -18,6 +17,10 @@ unfixable = []
 [lint.pydocstyle]
 
 convention = "google"
+
+[line.per-file-ignores]
+"__init__.py" = ["F401", "E402", "D"]
+"test_*.py" = ["D"]
 
 [format]
 quote-style = "double"
