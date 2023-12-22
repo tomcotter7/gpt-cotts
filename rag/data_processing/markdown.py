@@ -52,39 +52,21 @@ def convert_to_sections(text: str, max_depth: int = 5) -> dict:
     
     split_text = text.splitlines()
     
-    headers = {2: "", 3: "", 4: ""}
+    header = ""
     sections = {}
 
     for line in split_text:
-        if line.startswith("#"):
-            level = line.count("#")
-            if level > max_depth:
-                raise ValueError(f"Line has too many '#' characters: {line}")
-            line = line.replace("#", "").strip()
-            if level == 1:
-                continue
+        level = line.count("#")
+        if line.startswith("#") and level == 1:
+            continue
+        if line.startswith("#") and level == 2:
+            header = line.replace("#", "").strip()
 
-            if level in headers:
-                headers[level] = line
-                for i in range(level + 1, max_depth + 1):
-                    try:
-                        headers[i] = ""
-                    except KeyError:
-                        break
         elif line.startswith("-") or len(line) == 0:
             continue
         else:
-            # headers = {2: "Header 1", 3: "", 4: ""}
-            keys = [headers[key] for key in headers.keys() if headers[key] != ""]
-            reversed_keys = keys[::-1]
-            
-            full_section = {reversed_keys[0]: line}
-            for i in range(1, len(reversed_keys)):
-                full_section = {reversed_keys[i]: full_section}
-
-
-            sections = update_sections(sections, full_section)
-                
+            sections[header] = sections.get(header, "") + line + "\n"
+               
     return sections
 
 
