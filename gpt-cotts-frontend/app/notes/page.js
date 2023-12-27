@@ -90,8 +90,14 @@ export default function Notes() {
 
   const onSectionSave = (updatedSection) => {
     var newNotes = notes
-    delete newNotes[Object.keys(updatedSection)[0]]
-    newNotes[Object.values(updatedSection)[0][0]] = Object.values(updatedSection)[0][1]
+    const newTitle = Object.values(updatedSection)[0][0]
+    const newContent = Object.values(updatedSection)[0][1]
+    if (Object.keys(updatedSection)[0] !== newTitle) {
+      delete newNotes[Object.keys(updatedSection)[0]]
+      newNotes[Object.values(updatedSection)[0][0]] = Object.values(updatedSection)[0][1]
+    } else {
+      newNotes[newTitle] = newContent
+    }
     setNotes(newNotes)
   }
 
