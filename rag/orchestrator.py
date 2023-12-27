@@ -35,8 +35,8 @@ class Orchestrator:
         self.query_calls = 3
         self.context = self.context[-6:]
 
-    def setup_rag(self, input_query: str, details: dict) -> str:
-        """Queries the database and sets up the context for RAG.
+    def build_rag_input_prompt(self, input_query: str, details: dict) -> str:
+        """Builds the input prompt for RAG.
 
         Args:
             input_query: The query to be used.
@@ -45,13 +45,11 @@ class Orchestrator:
         Returns:
             The query to be used for RAG, with the context prepended.
         """
-        self.context[0] = {"role": "system", "content": self.prompts["rag"]}
         vector_db_result = query_pinecone(input_query, details["index"], self.embedding_model, details["namespace"])
         chunks = []
         for chunk in vector_db_result["matches"]:
             chunks.append(chunk["metadata"]["doc"])
         chunks = "\n".join(chunks)
-        print(chunks)
         return f'Potential Context: {chunks} ### Question: {input_query}'
 
     def query(self, input_query: str, use_rag: bool, details: dict = {}) -> str:
@@ -68,18 +66,21 @@ class Orchestrator:
         """
         if self.query_calls > 3:
             self.reduce_context_size()
-        if use_rag:
-            input_query = self.setup_rag(input_query, details)
 
+        if use_rag:
+            self.context[0] = {"role": "system", "content": self.prompts["rag"]}
+            input_query = self.build_rag_input_prompt(input_query, details)
+        else:
+            self.context[0] = {"role": "system", "content": self.prompts["regular"]}
+        
         self.context.append({"role": "user", "content": input_query})
         self.query_calls += 1
-
         stream = self.client.chat.completions.create(
                 messages=self.context,
                 model=self.gen_model,
                 stream=True,
         )
-
+        
         self.context.append({"role": "assistant", "content": ""})
 
 

@@ -3,7 +3,7 @@ import Markdown from 'react-markdown'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 function EditingSection({ title, content, id }) {
 
@@ -46,7 +46,6 @@ function Section({ title, content, onSectionSave, id }) {
       const editingDiv = document.getElementById(id)
       setNewTitle(editingDiv.children[0].value)
       setNewContent(editingDiv.children[1].value)
-      console.log(title)
       onSectionSave({ [title]: [editingDiv.children[0].value, editingDiv.children[1].value] })
     }
     setEditing(!editing)
@@ -70,7 +69,7 @@ function Section({ title, content, onSectionSave, id }) {
 export default function Notes() {
 
   const [notes, setNotes] = useState({})
-
+  
   useEffect(() => {
     const getNotes = async () => {
       const response = await fetch('http://localhost:8000/notes', {
@@ -83,13 +82,29 @@ export default function Notes() {
       })
 
       const data = await response.json()
-      setNotes(data)
+      const sortedKeys = Object.keys(data).sort()
+      const sortedData = {}
+      sortedKeys.forEach(key => {
+        sortedData[key] = data[key]
+      })
+      setNotes(sortedData)
     }
     getNotes()
   }, [])
+  
+  function saveNotes(newNotes) {
+      fetch('http://localhost:8000/notes/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache'
+          },
+          body: JSON.stringify(newNotes)
+        }).then(response => console.log(response))
+  }
 
   const onSectionSave = (updatedSection) => {
-    var newNotes = notes
+    var newNotes = { ...notes }
     const newTitle = Object.values(updatedSection)[0][0]
     const newContent = Object.values(updatedSection)[0][1]
     if (Object.keys(updatedSection)[0] !== newTitle) {
@@ -98,7 +113,14 @@ export default function Notes() {
     } else {
       newNotes[newTitle] = newContent
     }
-    setNotes(newNotes)
+    
+    const sortedKeys = Object.keys(newNotes).sort()
+    const sortedData = {}
+    sortedKeys.forEach(key => {
+      sortedData[key] = newNotes[key]
+    })
+    setNotes(sortedData)
+    saveNotes(sortedData)
   }
 
   return (

@@ -60,3 +60,17 @@ def get_notes() -> dict:
     with open(notes_file, "r") as f:
         notes = f.read()
         return convert_to_sections(notes)
+
+@rag.post("/notes/save")
+def save_notes(newNotes: dict) -> str:
+    """Save the notes of the user."""
+    notes_file = Path(__file__).parent.parent / "notes.md"
+    update_notes(newNotes, notes_file)
+    return "Saved notes successfully!"
+
+def update_notes(newNotes: dict, notes_file: Path) -> None:
+    """Update the notes file with the new notes."""
+    with open(notes_file, "w") as f:
+        for key, value in newNotes.items():
+            f.write(f"## {key}\n")
+            f.write(f"{value}\n")
