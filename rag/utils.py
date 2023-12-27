@@ -14,6 +14,6 @@ def load_config(file: Path = config) -> dict:
     Returns:
         A dict containing the config data.
     """
-    with open(file, 'r') as f:
+    with open(file, "r") as f:
         config = yaml.safe_load(f)
     return config

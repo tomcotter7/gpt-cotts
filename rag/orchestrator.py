@@ -16,12 +16,13 @@ class Orchestrator:
         context (list[dict[str, str]]): List of dictionaries containing the context of the conversation.
         client (OpenAI): OpenAI client.
     """
-    def __init__(self): # noqa: D107
+
+    def __init__(self):  # noqa: D107
         self.query_calls = 0
         config = load_config()
-        self.prompts = config['prompts']
-        self.gen_model = config['gen_model']
-        self.embedding_model = config['embedding_model']
+        self.prompts = config["prompts"]
+        self.gen_model = config["gen_model"]
+        self.embedding_model = config["embedding_model"]
         self.context = [{"role": "system", "content": self.prompts["regular"]}]
         self.client = OpenAI()
 
@@ -45,12 +46,14 @@ class Orchestrator:
         Returns:
             The query to be used for RAG, with the context prepended.
         """
-        vector_db_result = query_pinecone(input_query, details["index"], self.embedding_model, details["namespace"])
+        vector_db_result = query_pinecone(
+            input_query, details["index"], self.embedding_model, details["namespace"]
+        )
         chunks = []
         for chunk in vector_db_result["matches"]:
             chunks.append(chunk["metadata"]["doc"])
         chunks = "\n".join(chunks)
-        return f'Potential Context: {chunks} ### Question: {input_query}'
+        return f"Potential Context: {chunks} ### Question: {input_query}"
 
     def query(self, input_query: str, use_rag: bool, details: dict = {}) -> str:
         """Queries the model and returns the response.
@@ -72,17 +75,16 @@ class Orchestrator:
             input_query = self.build_rag_input_prompt(input_query, details)
         else:
             self.context[0] = {"role": "system", "content": self.prompts["regular"]}
-        
+
         self.context.append({"role": "user", "content": input_query})
         self.query_calls += 1
         stream = self.client.chat.completions.create(
-                messages=self.context,
-                model=self.gen_model,
-                stream=True,
+            messages=self.context,
+            model=self.gen_model,
+            stream=True,
         )
-        
-        self.context.append({"role": "assistant", "content": ""})
 
+        self.context.append({"role": "assistant", "content": ""})
 
         for chunk in stream:
             if chunk.choices[0].delta.content is not None:

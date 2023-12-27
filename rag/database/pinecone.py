@@ -12,10 +12,9 @@ load_dotenv()
 
 pinecone.init(api_key=os.getenv("PINECONE_API_KEY"), environment="gcp-starter")
 
+
 def upload_to_pinecone(
-        embeddings: list[np.ndarray],
-        pincone_index: str,
-        namespace: str = "tcotts-notes"
+    embeddings: list[np.ndarray], pincone_index: str, namespace: str = "tcotts-notes"
 ) -> None:
     """Upload embeddings to Pinecone.
 
@@ -29,20 +28,18 @@ def upload_to_pinecone(
     vectors = []
     i = 0
     for doc, embedding in embeddings:
-        vectors.append({
-            "id": str(i),
-            "metadata": {"doc": doc},
-            "values": embedding.tolist()
-        })
+        vectors.append(
+            {"id": str(i), "metadata": {"doc": doc}, "values": embedding.tolist()}
+        )
         i += 1
     index.upsert(vectors=vectors, namespace=namespace)
 
 
 def query_pinecone(
-        query: str,
-        pincone_index: str,
-        embedding_model: str,
-        namespace: str = "tcotts-notes"
+    query: str,
+    pincone_index: str,
+    embedding_model: str,
+    namespace: str = "tcotts-notes",
 ) -> dict[str, list]:
     """Query Pinecone with a single query string.
 
@@ -56,9 +53,6 @@ def query_pinecone(
     embedding = embed(query, model)
     index = pinecone.Index(pincone_index)
     results = index.query(
-            namespace=namespace,
-            vector=embedding.tolist(),
-            top_k=5,
-            include_metadata=True
+        namespace=namespace, vector=embedding.tolist(), top_k=5, include_metadata=True
     )
     return results

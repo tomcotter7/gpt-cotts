@@ -1,7 +1,8 @@
 # noqa: D100
 from pathlib import Path
 
-def update_sections(sections: dict|str, new_section: dict|str) -> dict|str:
+
+def update_sections(sections: dict | str, new_section: dict | str) -> dict | str:
     """Update the sections dictionary with a new section.
 
     Args:
@@ -13,7 +14,6 @@ def update_sections(sections: dict|str, new_section: dict|str) -> dict|str:
     Returns:
         The updated sections dictionary, or a string if the section is a leaf.
     """
-
     if isinstance(sections, str) and isinstance(new_section, str):
         return sections + "\n" + new_section
 
@@ -41,7 +41,6 @@ def convert_to_sections(text: str, max_depth: int = 5) -> dict:
     Returns:
         Dictionary of sections (strings).
     """
-
     if max_depth is None:
         max_depth = 0
         for line in text.splitlines():
@@ -49,9 +48,9 @@ def convert_to_sections(text: str, max_depth: int = 5) -> dict:
                 level = line.count("#")
                 if level > max_depth:
                     max_depth = level
-    
+
     split_text = text.splitlines()
-    
+
     header = ""
     sections = {}
 
@@ -66,9 +65,8 @@ def convert_to_sections(text: str, max_depth: int = 5) -> dict:
             continue
         else:
             sections[header] = sections.get(header, "") + line + "\n"
-               
-    return sections
 
+    return sections
 
 
 def convert_to_chunks(text: str) -> list[str]:
@@ -126,9 +124,9 @@ def load_and_convert(notes_file: Path) -> list[str]:
     chunks = convert_to_chunks(text)
     return chunks
 
+
 if __name__ == "__main__":
     notes_file = "../../notes.md"
     with open(notes_file, "r") as f:
         text = f.read()
         convert_to_sections(text)
-
