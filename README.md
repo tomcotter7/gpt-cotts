@@ -12,14 +12,14 @@ Both of these will be hosted on some cloud service provider - most likely AWS an
 
     - React App
         - [X] Home page to query notes (EOY 2023)
-        - [ ] Page to add notes (EOY 2023)
-        - [ ] *AI-Calendar - A calendar which can allow you in input in natural language and it'll populate your calendar for you. This will act more like a schedule, but can access your outlook cal (Jan 2024)
-        - [ ] *Note Taking - A page to take notes, would look like a real-life notepad. Notes can be dragged into the storage for querying later (Feb 2024)
-        - [ ] *Study Buddy - AI Powered (March 2024)
+        - [X] Page to edit notes (EOY 2023)
+        - [ ] Add notes (EOY 2023)
+        - [ ] Notes database (EOY 2023)
+        - [ ] Edit notes from own laptop - push to db via git (Jan 2024)
     - FastAPI
         - [X] Endpoint to query notes (EOY 2023)
-        - [ ] Endpoint to add notes (EOY 2023)
+        - [X] Endpoint to edit notes (EOY 2023)
+        - [] Endpoint to add notes (EOY 2023)
     - Deployment
-        - [ ] Deploy to AWS (EOY 2023)
+        - [ ] Deploy to AWS/Vercel (EOY 2023)
 
-Anything with a * will also require a backend to be built, which will be done in FastAPI. I haven't thought about exactly how I'd do that yet.
