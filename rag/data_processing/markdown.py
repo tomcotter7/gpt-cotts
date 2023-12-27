@@ -1,8 +1,73 @@
 # noqa: D100
 from pathlib import Path
 
-HERE = Path(__file__).parent
-notes_file = HERE.parent.parent.parent / "notes.md"
+
+def update_sections(sections: dict | str, new_section: dict | str) -> dict | str:
+    """Update the sections dictionary with a new section.
+
+    Args:
+        sections: The current sections dictionary.
+            Could be a string if the section is a leaf.
+        new_section: The new section to add to the dictionary.
+            Could be a string if the section is a leaf.
+
+    Returns:
+        The updated sections dictionary, or a string if the section is a leaf.
+    """
+    if isinstance(sections, str) and isinstance(new_section, str):
+        return sections + "\n" + new_section
+
+    for key in new_section:
+        if key in sections:
+            sections[key] = update_sections(sections[key], new_section[key])
+        else:
+            sections[key] = new_section[key]
+
+    return sections
+
+
+def convert_to_sections(text: str, max_depth: int = 5) -> dict:
+    """Convert a notes file (as a string) to a dictionary of sections.
+
+    This function works best with markdown files that are highly structured.
+    Use headers to defined the sections, and limit each section in size.
+
+    Args:
+        text: The text of the notes file.
+        max_depth: The maximum depth of the sections.
+            This is the maximum number of '#' characters at the start of a line.
+            If None, there is no limit, the program will calculate the depth.
+
+    Returns:
+        Dictionary of sections (strings).
+    """
+    if max_depth is None:
+        max_depth = 0
+        for line in text.splitlines():
+            if line.startswith("#"):
+                level = line.count("#")
+                if level > max_depth:
+                    max_depth = level
+
+    split_text = text.splitlines()
+
+    header = ""
+    sections = {}
+
+    for line in split_text:
+        level = line.count("#")
+        if line.startswith("#") and level == 1:
+            continue
+        if line.startswith("#") and level == 2:
+            header = line.replace("#", "").strip()
+
+        elif line.startswith("-") or len(line) == 0:
+            continue
+        else:
+            sections[header] = sections.get(header, "") + line + "\n"
+
+    return sections
+
 
 def convert_to_chunks(text: str) -> list[str]:
     """Convert a notes file (as a string) to a list of chunks.
@@ -58,3 +123,10 @@ def load_and_convert(notes_file: Path) -> list[str]:
         text = f.read()
     chunks = convert_to_chunks(text)
     return chunks
+
+
+if __name__ == "__main__":
+    notes_file = "../../notes.md"
+    with open(notes_file, "r") as f:
+        text = f.read()
+        convert_to_sections(text)

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Markdown from 'react-markdown'
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
@@ -38,9 +38,42 @@ const pingServer = async (url) => {
 export default function Chat({settings}) {
 
   const [chats, setChats] = useState([])
+  const [generating, setGenerating] = useState(false)
   const stop = useRef(false)
 
+  function setDisabled(button) {
+    button.classList.add('hidden')
+  }
+
+  function setEnabled(button) {
+    button.classList.remove('hidden')
+  }
+
+  useEffect(() => {
+    const clearButton = document.getElementById('clearButton');
+    if (chats.length === 0) {
+      setDisabled(clearButton)
+    }
+    else {
+      setEnabled(clearButton)
+    }
+  }, [chats])
+
+  useEffect(() => {
+    console.log("generating", generating)
+    const generateButton = document.getElementById('stopGenerateButton');
+    if (!generating) {
+      setDisabled(generateButton)
+    } else {
+      setEnabled(generateButton)
+    }
+  }, [generating])
+
+
+
   async function makeLLMRequest(message, settings) {
+    console.log(generating)
+    setGenerating(true)
     stop.current = false
     let stream;
     if (settings.rag) {
@@ -62,6 +95,7 @@ export default function Chat({settings}) {
       let { value, done } = await stream.read();
       if (done | stop.current) {
         stop.current = false
+        setGenerating(false)
         break;
       }
       response += value;
@@ -92,10 +126,10 @@ export default function Chat({settings}) {
     <>
       <ChatForm onChatSubmit={onChatSubmit} />
       <div className="flex items-center justify-center w-100">
-        <button className="px-4 mt-2 bg-black hover:bg-gray-400 rounded border border-fuchsia-500 border-2 text-white" onClick={onStopButtonClick}>
+        <button id="stopGenerateButton" className="px-4 mt-2 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white hidden" onClick={onStopButtonClick}>
           <b>stop generating</b>
         </button>
-        <button className="px-4 mt-2 bg-black hover:bg-gray-400 rounded border border-fuchsia-500 border-2 text-white ml-2" onClick={onClearButtonClick}>
+        <button id="clearButton" className="px-4 mt-2 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white ml-2 hidden" onClick={onClearButtonClick}>
           <b>clear</b>
         </button>
       </div>
@@ -110,26 +144,49 @@ export default function Chat({settings}) {
 
 
 function ChatForm({onChatSubmit}) {
+  
+  function resetChatInput() {
+    const chatInput = document.getElementById('chat-input');
+    chatInput.value = ""
+    chatInput.style.height = "50px"
+  }
 
   function onGoButtonClick(e) {
     onChatSubmit(e)
+    resetChatInput()
+  }
+
+  function adjustHeight(el){
+      el.style.height = (el.scrollHeight > el.clientHeight) ? (el.scrollHeight)+"px" : "60px";
+  }
+
+  function onEnterPress(e) {
+    if(e.keyCode == 13 && e.shiftKey == false) {
+      e.preventDefault();
+      onChatSubmit(e)
+      resetChatInput()
+    }
   }
 
   return (
-    <div className="flex items-center justify-center w-100">
-      <form className="flex space-x-4">
-        <input
-          className="p-2 border border-gray-300 rounded text-black"
-          type="text"
-          id="chat-input"
-          placeholder="What's the issue?"
-        />
+    <div className="flex justify-center">
+      <form>
+        <div className="flex space-x-4 justify-center" style={{"width": "75vh"}}>
+          <textarea
+            className="p-2 border border-gray-300 rounded text-black h-10 w-3/4"
+            type="text"
+            id="chat-input"
+            placeholder="What's the issue?"
+            onKeyUp={(e) => adjustHeight(e.target)}
+            onKeyDown={(e) => onEnterPress(e)}
+          />
         <button
-          className="px-4 bg-fuchsia-500 hover:bg-fuchsia-300 rounded border border-fuchsia-500 border-2 text-black"
+          className="px-4 bg-lime-300 hover:bg-lime-200 rounded border border-lime-300 border-2 text-black"
           onClick={onGoButtonClick}
         >
           <b>Go!</b>
         </button>
+        </div>
       </form>
     </div>
   )

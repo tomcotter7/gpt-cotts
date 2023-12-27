@@ -26,16 +26,13 @@ def main(notes_path: Path, pinecone_index: str) -> None:
 if __name__ == "__main__":
     arg_parser = argparse.ArgumentParser()
     arg_parser.add_argument(
-            "--notes",
-            help="The path to the notes file",
-            required=True,
-            type=str
+        "--notes", help="The path to the notes file", required=True, type=str
     )
     arg_parser.add_argument(
-            "--pinecone_index",
-            help="The name of the pinecone index",
-            default="main-notes",
-            type=str
+        "--pinecone_index",
+        help="The name of the pinecone index",
+        default="main-notes",
+        type=str,
     )
     args = arg_parser.parse_args()
     main(Path(args.notes), args.pinecone_index)
