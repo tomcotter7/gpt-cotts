@@ -25,9 +25,6 @@ export function Settings({onSettingsChange}) {
     if (setting === "RAG") {
       setSettings({...settings, rag: !settings.rag})
     }
-    if (setting === "Animalese") {
-      setSettings({...settings, animalese: !settings.animalese})
-    }
   
   }
 
@@ -43,8 +40,8 @@ export function Settings({onSettingsChange}) {
       <b>Settings</b>
       </button>
       { isOpen && ( 
-        <div className="absolute right-5 top-20 py-2 px-4 space-y-2 shadow-lg bg-white border border-gray-300 rounded-md ">
-          <b className="text-black">Settings!</b>
+        <div className="absolute right-5 top-40 py-2 px-4 space-y-2 shadow-lg bg-white border border-gray-300 rounded-md ">
+          <b className="text-black"><u>Settings</u></b>
           <div className="p-2">
             <label className="inline-flex items-center">
               <input
@@ -53,18 +50,7 @@ export function Settings({onSettingsChange}) {
                 className="form-checkbox"
                 onChange={() => handleCheckboxChange('RAG')}
               />
-              <span className="ml-2 text-black">RAG</span>
-            </label>
-          </div>
-          <div className="p-2">
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={settings.animalese}
-                className="form-checkbox"
-                onChange={() => handleCheckboxChange('Animalese')}
-              />
-              <span className="ml-2 text-black">Animalese</span>
+              <span className="ml-2 text-black">Use RAG?</span>
             </label>
           </div>
         </div>

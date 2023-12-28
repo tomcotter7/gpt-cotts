@@ -112,33 +112,33 @@ export default function Chat({settings}) {
     makeLLMRequest(chatInput.value, settings);
   }
 
-  function onStopButtonClick(e) {
+  function onStopButtonClick() {
     stop.current = true
   }
 
-  function onClearButtonClick(e) {
+  function onClearButtonClick() {
     stop.current = true
     setChats([])
     pingServer("http://localhost:8000/clear")
   }
 
   return (
-    <>
-      <ChatForm onChatSubmit={onChatSubmit} />
-      <div className="flex items-center justify-center w-100">
-        <button id="stopGenerateButton" className="px-4 mt-2 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white hidden" onClick={onStopButtonClick}>
-          <b>stop generating</b>
-        </button>
-        <button id="clearButton" className="px-4 mt-2 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white ml-2 hidden" onClick={onClearButtonClick}>
-          <b>clear</b>
-        </button>
-      </div>
+    <div className="fixed inset-x-0 bottom-0">
       <div className="flex flex-col py-2 px-20 mt-2" id="chat-boxes">
         {chats.map((chat) => (
           <ChatBox key={chat.id} role={chat.role} text={chat.text}/>
         ))}
       </div>
-    </>
+      <div className="flex items-center justify-center w-100">
+        <button id="stopGenerateButton" className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white hidden" onClick={onStopButtonClick}>
+          <b>stop generating</b>
+        </button>
+        <button id="clearButton" className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white ml-2 hidden" onClick={onClearButtonClick}>
+          <b>clear</b>
+        </button>
+      </div>
+      <ChatForm onChatSubmit={onChatSubmit} />
+    </div>
   )
 }
 
@@ -167,9 +167,9 @@ function ChatForm({onChatSubmit}) {
       resetChatInput()
     }
   }
-
+ 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center m-4">
       <form>
         <div className="flex space-x-4 justify-center" style={{"width": "75vh"}}>
           <textarea
