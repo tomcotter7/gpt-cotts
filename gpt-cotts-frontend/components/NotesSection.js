@@ -33,7 +33,7 @@ function MarkdownSection({ title, content }) {
   )
 }
 
-export default function Section({ title, content, onSectionSave, id }) {
+export function Section({ title, content, onSectionSave, id }) {
   
   const [editing, setEditing] = useState(false)
   const [newTitle, setNewTitle] = useState(title)

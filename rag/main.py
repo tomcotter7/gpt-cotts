@@ -72,7 +72,7 @@ def save_notes(new_notes: dict) -> str:
     """Save the notes of the user."""
     notes_file = Path(__file__).parent.parent / "notes.md"
     update_notes(new_notes, notes_file)
-    return "Saved notes successfully!"
+    return "success"
 
 
 def update_notes(new_notes: dict, notes_file: Path) -> None:

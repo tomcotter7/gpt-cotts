@@ -2,12 +2,17 @@
 import 'katex/dist/katex.min.css'
 import { useState, useEffect, useRef } from 'react'
 import { Section } from '@/components/NotesSection'
-
+import { ToastBox } from '@/components/Toast'
+import ModalSectionForm from '@/components/ModalSectionForm';
 
 
 export default function Notes() {
 
   const [notes, setNotes] = useState({})
+  const [toasts, setToasts] = useState({})
+  const [modalOpen, setModalOpen] = useState(false)
+
+  const handleModalClose = () => setModalOpen(false)
   
   useEffect(() => {
     const getNotes = async () => {
@@ -30,7 +35,7 @@ export default function Notes() {
     }
     getNotes()
   }, [])
-  
+ 
   function saveNotes(newNotes) {
       fetch('http://localhost:8000/notes/save', {
           method: 'POST',
@@ -39,7 +44,19 @@ export default function Notes() {
             'Cache-Control': 'no-cache'
           },
           body: JSON.stringify(newNotes)
-        }).then(response => console.log(response))
+      }).then(response => response.json())
+      .then(response => {
+        if (response === "success") {
+          setToasts({...toasts, [Date.now()]: {message: "Notes saved successfully!", success: true}})
+        } else {
+          setToasts({...toasts, [Date.now()]: {message: "Notes failed to save!", success: false}})
+        }
+
+      })
+  }
+
+  function onAddNewSectionClick() {
+    setModalOpen(true)
   }
 
   const onSectionSave = (updatedSection) => {
@@ -63,8 +80,18 @@ export default function Notes() {
   }
 
   return (
-    <div className="m-2">
-      <h1 className="text-center text-4xl">Notes</h1>
+    <>
+      <div className="m-2 flex flex-col items-center">
+        <ModalSectionForm open={modalOpen} onClose={handleModalClose} onSave={() => console.log("Saving")}/>
+        <ToastBox toasts={toasts} setToasts={setToasts}/>
+        <h1 className="text-center text-4xl mb-2"><u>Notes</u></h1>
+        <button 
+          className="px-4 bg-purple-600 hover:bg-purple-500 rounded border border-purple-600 border-2 text-black"
+          onClick={onAddNewSectionClick}
+        >
+        <b>Add new section</b>
+      </button>
+      </div>
       <div className="flex flex-col border items-center">
         {Object.entries(notes).map(([key, value]) => (
           <div key={Date.now() + key} className="border w-full text-center prose max-w-none">
@@ -72,6 +99,6 @@ export default function Notes() {
           </div>
         ))}
       </div>
-    </div>
+    </>
   )
 }
