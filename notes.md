@@ -1,17 +1,17 @@
-## AWS
+# AWS
 ## Sagemaker
 Sagemaker allows you to use / train modles on AWS, except that no data is sent to Amazon or leaves your VPC. TODO: Read [this](https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html)
 
-## Corporate Stuff
+# Corporate Stuff
 ## Issue with Corporate Firewall
 Fix SLS issue when downloading model from hugging face: "downgrade 'requests' to '2.27.1'", "import os", "os.environ['CURL_CA_BUNDLE'] = ''".
 More info can be found on the open issue on GitHub [here](https://github.com/huggingface/transformers/issues/25552).
 
-## Dataiku
+# Dataiku
 ## WebApps
 [WebApp Tutorial](https://knowledge.dataiku.com/latest/data-viz/webapps/tutorial-standard-html.html)
 
-## Docker
+# Docker
 ## Other Issues
 ### Uploading Docker Images to other Computers
 Save the docker image to a tar file: `docker save -o <path for generated tar file> <image name>`
@@ -19,7 +19,7 @@ Copy the tar file to the other computer and load it: `docker load -i <path to im
 Run the compose file: `docker-compose up -d`, this should be run in the same directory as the compose file.
 This is mainly useful when you have a computer without internet connection that can't download the images / images aren't available on Docker Hub.
 
-## Generative AI
+# Generative AI
 ## RAG
 ### Courses
 [Andrew Ng's Course](https://www.deeplearning.ai/short-courses/building-evaluating-advanced-rag/)
@@ -126,11 +126,11 @@ Most interesting thing from here was *Inference Quantization*. The essentially m
 ### LLM Utilization
 [LangChain](https://python.langchain.com/docs/get_started/introduction.html). LangChain is a library for interacting with LLMs. I have found this to be rather bloated - it's often better to just interact with the LLM yourself.
 
-## Git
+# Git
 ## Tips & Tricks
 *Get the email of the author of the last commit*: `git log --format="%ae" | head -1`
 
-## Image Classification
+# Image Classification
 ## ViT
 [ViT](https://arxiv.org/pdf/2010.11929.pdf)
 Comparable to ResNet when trained on large amounts of data. Turns the 2-D image into a 1-D encoding to feed into the encoder of a transformer (similar to BERT).
@@ -143,19 +143,19 @@ There are also other methods produced that further combine convolutions and tran
 AWS has a good off-the-shelf service, found [here](https://aws.amazon.com/rekognition/resources/?nc=sn&loc=6) and [here](https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html).
 The second link especially is very interesting - picking out objects in an image and returning them as multiple bounding boxes.
 
-## Jenkins
+# Jenkins
 ## Groovy
 ### Useful Tips
 We can use `when` to only execute a stage given a certain condition. For example, we can define a function `def isPullRequest() { return env.CHANGE_ID != null}`, and then use a `when` clause like so: `stage('Stage A') { when { expression { return isPullRequest() } } steps { ... } }`. This will only execute the steps of the stage if the expression is true.
 ## Environment Variables
 To view all environment variables available to you on a Jenkins instance, go to *jenkins-instance-url*/env-vars.html.
 
-## Jupyter
+# Jupyter
 ## Notebook
 Serving the notebook externally: `jupyter notebook --ip 0.0.0.0 --port 8888`
 Adding a password to notebook: `jupyter notebook password`
 
-## Lectures
+# Lectures
 ## Stanford NLP
 [Youtube](https://www.youtube.com/watch?v=rmVRLeJRkl4&list=PLoROMvodv4rMFqRtEuo6SGjY4XbRIVRd4&index=1)
 ## MIT - Efficient ML
@@ -163,7 +163,7 @@ Adding a password to notebook: `jupyter notebook password`
 ## AI Engineer Summit 2023
 [YouTube](https://www.youtube.com/@aiDotEngineer)
 
-## NLP
+# NLP
 ## Preprocessing
 [python-docx](https://python-docx.readthedocs.io/en/latest/index.html). This python library is useful for handling .docx files. Used previously for handling poorly formatted tables inside .docx files.
 [regex101](https://regex101.com/). Useful website for testing regex.
@@ -177,30 +177,30 @@ An unsupervised ML model that can be used to discover topics in a corpus of docu
     - https://github.com/rwalk/gsdmm
 Gibbs Sampling LDA is more suited to short form text (i.e Tweets)
 
-## Neovim
+# Neovim
 ## Plugins
 [How to write plugins in Lua](https://www.2n.pl/blog/how-to-write-neovim-plugins-in-lua)
 Useful article on how to write plugins.
 ## Useful Tools
 find & replace: `:%s/old/new/g`
 
-## Networking
+# Networking
 ## FastAPI
 A python framework for building APIs. Homepage is [here](https://fastapi.tiangolo.com/).
 Once the app is set up - following the documentation - you can run it with: `uvicorn main:app --host 0.0.0.0 --port 8001`, to serve it externally.
 ## IPs
 Find IP address on Linux: `ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
 
-## Other Topics
+# Other Topics
 ## Conciousness
 [Consciousness in AI](https://arxiv.org/abs/2308.08708). TODO: Fill out some notes on this
 Galileo's Error. TODO: Fill out some notes on this
 
-## PowerBI
+# PowerBI
 ## Slicers
 [Video](https://www.youtube.com/watch?v=c_MjL1Cngbs) on default value for slicers.
 
-## Programming Languages
+# Programming Languages
 ## Mojo
 ### Resources
 [The mojo homepage](https://www.modular.com/)
@@ -218,7 +218,7 @@ You can find the requirements for a package using the pypi json endpoint `https:
 ## Bash
 You can run a bash script without forking it by prefixing it with a dot: `. ./script.sh`
 
-## Traditional ML
+# Traditional ML
 ## Interpretability
 [Interpretability Python Package](https://github.com/interpretml/interpret)
 Allows you to train "glass-box" models and explainability for black-box models. **Glass-Box**: ML Models designed for interpretability.
@@ -233,7 +233,3 @@ Let's say our loss function is $Residual^2 = (Observed - Predicted)^2$, and we a
 ### Books
 [Linear Algebra Done Right](https://linear.axler.net/)
 
-## Web Development
-## Tailwind
-
-Here are the tailwind [docs](https://tailwindcss.com/docs/installation)

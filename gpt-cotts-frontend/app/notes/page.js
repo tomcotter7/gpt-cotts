@@ -31,6 +31,7 @@ export default function Notes() {
       sortedKeys.forEach(key => {
         sortedData[key] = data[key]
       })
+      console.log(sortedData)
       setNotes(sortedData)
     }
     getNotes()
@@ -66,6 +67,14 @@ export default function Notes() {
     console.log(newNotes)
     saveNotes(newNotes)
     setNotes(newNotes)
+  }
+
+  function onSectionDelete(sectionToDelete) {
+    const newNotes = {...notes}
+    const titleToDelete = Object.keys(sectionToDelete)[0]
+    delete newNotes[titleToDelete]
+    setNotes(newNotes)
+    saveNotes(newNotes)
   }
 
   const onSectionSave = (updatedSection) => {
@@ -104,7 +113,7 @@ export default function Notes() {
       <div className="flex flex-col border items-center">
         {Object.entries(notes).map(([key, value]) => (
           <div key={Date.now() + key} className="border w-full text-center prose max-w-none">
-            <Section key={key} id={key} title={key} content={value} onSectionSave={(updatedSection) => onSectionSave(updatedSection)}/>
+            <Section key={key} id={key} title={key} content={value} onSectionSave={(updatedSection) => onSectionSave(updatedSection)} onSectionDelete={(sectionToDelete) => onSectionDelete(sectionToDelete)}/>
           </div>
         ))}
       </div>

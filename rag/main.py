@@ -79,5 +79,5 @@ def update_notes(new_notes: dict, notes_file: Path) -> None:
     """Update the notes file with the new notes."""
     with open(notes_file, "w") as f:
         for key, value in new_notes.items():
-            f.write(f"## {key}\n")
+            f.write(f"# {key}\n")
             f.write(f"{value}\n")
