@@ -2,9 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import Markdown from 'react-markdown'
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
-
-const USERCOLOR = '#FFFFFF'
-const AICOLOR = '#d946ef'
+import Image from 'next/image'
 
 const sendMessage = async (message, animalese, url) => {
   console.log(url)
@@ -51,20 +49,19 @@ export default function Chat({settings}) {
 
   useEffect(() => {
     const clearButton = document.getElementById('clearButton');
-    if (chats.length === 0) {
+    if (chats.length === 0 && clearButton) {
       setDisabled(clearButton)
     }
-    else {
+    else if (chats.length > 0 && clearButton) {
       setEnabled(clearButton)
     }
   }, [chats])
 
   useEffect(() => {
-    console.log("generating", generating)
     const generateButton = document.getElementById('stopGenerateButton');
-    if (!generating) {
+    if (!generating && generateButton) {
       setDisabled(generateButton)
-    } else {
+    } else if (generating && generateButton) {
       setEnabled(generateButton)
     }
   }, [generating])
@@ -112,34 +109,45 @@ export default function Chat({settings}) {
     makeLLMRequest(chatInput.value, settings);
   }
 
-  function onStopButtonClick(e) {
+  function onStopButtonClick() {
     stop.current = true
   }
 
-  function onClearButtonClick(e) {
+  function onClearButtonClick() {
     stop.current = true
     setChats([])
     pingServer("http://localhost:8000/clear")
   }
 
-  return (
-    <>
-      <ChatForm onChatSubmit={onChatSubmit} />
-      <div className="flex items-center justify-center w-100">
-        <button id="stopGenerateButton" className="px-4 mt-2 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white hidden" onClick={onStopButtonClick}>
-          <b>stop generating</b>
-        </button>
-        <button id="clearButton" className="px-4 mt-2 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white ml-2 hidden" onClick={onClearButtonClick}>
-          <b>clear</b>
-        </button>
+  if (chats.length === 0) {
+    return (
+      <div className="flex flex-col items-center">
+        <Image className="pt-52" src="/imgs/for_valued_member.png" alt="logo" width="500" height="500" />
+        <div className="fixed inset-x-0 bottom-5">
+          <ChatForm onChatSubmit={onChatSubmit} />
+        </div>
       </div>
-      <div className="flex flex-col py-2 px-20 mt-2" id="chat-boxes">
-        {chats.map((chat) => (
-          <ChatBox key={chat.id} role={chat.role} text={chat.text}/>
-        ))}
+    )
+  } else {
+    return (
+      <div className="fixed inset-x-0 bottom-5">
+        <div className="flex flex-col py-2 px-20 mt-2" id="chat-boxes">
+          {chats.map((chat) => (
+            <ChatBox key={chat.id} role={chat.role} text={chat.text}/>
+          ))}
+        </div>
+        <div className="flex items-center justify-center w-100">
+          <button id="stopGenerateButton" className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white hidden" onClick={onStopButtonClick}>
+            <b>stop generating</b>
+          </button>
+          <button id="clearButton" className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white ml-2 hidden" onClick={onClearButtonClick}>
+            <b>clear</b>
+          </button>
+        </div>
+        <ChatForm onChatSubmit={onChatSubmit} />
       </div>
-    </>
-  )
+    )  
+  }
 }
 
 
@@ -167,9 +175,9 @@ function ChatForm({onChatSubmit}) {
       resetChatInput()
     }
   }
-
+ 
   return (
-    <div className="flex justify-center">
+    <div className="flex justify-center m-4">
       <form>
         <div className="flex space-x-4 justify-center" style={{"width": "75vh"}}>
           <textarea
@@ -181,7 +189,7 @@ function ChatForm({onChatSubmit}) {
             onKeyDown={(e) => onEnterPress(e)}
           />
         <button
-          className="px-4 bg-lime-300 hover:bg-lime-200 rounded border border-lime-300 border-2 text-black"
+          className="px-4 bg-purple-600 hover:bg-purple-500 rounded border border-purple-600 border-2 text-black"
           onClick={onGoButtonClick}
         >
           <b>Go!</b>

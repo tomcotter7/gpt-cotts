@@ -1,74 +1,18 @@
 "use client";
-import Markdown from 'react-markdown'
-import remarkMath from 'remark-math'
-import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import { useState, useEffect, useRef } from 'react'
+import { Section } from '@/components/NotesSection'
+import { ToastBox } from '@/components/Toast'
+import ModalSectionForm from '@/components/ModalSectionForm';
 
-function EditingSection({ title, content, id }) {
-
-  const height = content.split('\n').length * 30
-
-  return (
-    <div className="flex flex-col" id={id}>
-      <input
-        className="border border-2 rounded px-2"
-        defaultValue={title}
-      />
-      <textarea
-        className='border border-2 rounded px-2'
-        style={{ height: `${height}px` }}
-        defaultValue={content}
-      />
-    </div>
-  )
-}
-
-function MarkdownSection({ title, content }) {
-  return (
-    <div>
-      <h1 className="text-fuchsia-500 text-center"><b> {title} </b></h1>
-      <Markdown remarkPlugins={remarkMath} rehypePlugins={rehypeKatex}>
-        {content}
-      </Markdown>
-    </div>
-  )
-}
-
-function Section({ title, content, onSectionSave, id }) {
-  
-  const [editing, setEditing] = useState(false)
-  const [newTitle, setNewTitle] = useState(title)
-  const [newContent, setNewContent] = useState(content)
-
-  const onEditButtonClick = () => {
-    if (editing) {
-      const editingDiv = document.getElementById(id)
-      setNewTitle(editingDiv.children[0].value)
-      setNewContent(editingDiv.children[1].value)
-      onSectionSave({ [title]: [editingDiv.children[0].value, editingDiv.children[1].value] })
-    }
-    setEditing(!editing)
-  }
-
-  return (
-    <div>
-      <div className="flex justify-end">
-        <button
-          className="px-4 mr-2 mt-2 bg-fuchsia-500 hover:bg-fuchsia-400 rounded border border-2 text-white"
-          onClick={onEditButtonClick}
-        >
-        {editing ? 'Save' : 'Edit'}
-        </button>
-      </div>
-      {editing ? <EditingSection id={id} title={newTitle} content={newContent}/> : <MarkdownSection title={newTitle} content={newContent} />}
-    </div>
-  )
-}
 
 export default function Notes() {
 
   const [notes, setNotes] = useState({})
+  const [toasts, setToasts] = useState({})
+  const [modalOpen, setModalOpen] = useState(false)
+
+  const handleModalClose = () => setModalOpen(false)
   
   useEffect(() => {
     const getNotes = async () => {
@@ -87,12 +31,13 @@ export default function Notes() {
       sortedKeys.forEach(key => {
         sortedData[key] = data[key]
       })
+      console.log(sortedData)
       setNotes(sortedData)
     }
     getNotes()
   }, [])
-  
-  function saveNotes(newNotes) {
+ 
+  async function saveNotes(newNotes, successfulMessage, failureMessage) {
       fetch('http://localhost:8000/notes/save', {
           method: 'POST',
           headers: {
@@ -100,7 +45,33 @@ export default function Notes() {
             'Cache-Control': 'no-cache'
           },
           body: JSON.stringify(newNotes)
-        }).then(response => console.log(response))
+      }).then(response => response.json())
+      .then(response => {
+        if (response === "success") {
+          setToasts({...toasts, [Date.now()]: {message: successfulMessage, success: true}})
+          setNotes(newNotes)
+        } else {
+          setToasts({...toasts, [Date.now()]: {message: failureMessage, success: false}})  
+        }
+      })
+  }
+
+  function onAddNewSectionClick() {
+    setModalOpen(true)
+  }
+
+  function onNewSectionSave(e) {
+    e.preventDefault()
+    setModalOpen(false)
+    const newNotes = {...notes, [e.target.title.value]: e.target.content.value}
+    saveNotes(newNotes, "Section added successfully", "Section failed to add. Try again later.")
+  }
+
+  function onSectionDelete(sectionToDelete) {
+    const newNotes = {...notes}
+    const titleToDelete = Object.keys(sectionToDelete)[0]
+    delete newNotes[titleToDelete]
+    saveNotes(newNotes, "Section deleted successfully", "Section failed to delete. Try again later.")
   }
 
   const onSectionSave = (updatedSection) => {
@@ -119,20 +90,29 @@ export default function Notes() {
     sortedKeys.forEach(key => {
       sortedData[key] = newNotes[key]
     })
-    setNotes(sortedData)
-    saveNotes(sortedData)
+    saveNotes(sortedData, "Section saved successfully", "Section failed to save. Try again later.")
   }
 
   return (
-    <div className="m-2">
-      <h1 className="text-center text-4xl">Notes</h1>
+    <>
+      <div className="m-2 flex flex-col items-center">
+        <ModalSectionForm open={modalOpen} onClose={handleModalClose} onSave={onNewSectionSave}/>
+        <ToastBox toasts={toasts} setToasts={setToasts}/>
+        <h1 className="text-center text-4xl mb-2"><u>Notes</u></h1>
+        <button 
+          className="px-4 bg-purple-600 hover:bg-purple-500 rounded border border-purple-600 border-2 text-black"
+          onClick={onAddNewSectionClick}
+        >
+        <b>Add new section</b>
+      </button>
+      </div>
       <div className="flex flex-col border items-center">
         {Object.entries(notes).map(([key, value]) => (
           <div key={Date.now() + key} className="border w-full text-center prose max-w-none">
-            <Section key={key} id={key} title={key} content={value} onSectionSave={(updatedSection) => onSectionSave(updatedSection)}/>
+            <Section key={key} id={key} title={key} content={value} onSectionSave={(updatedSection) => onSectionSave(updatedSection)} onSectionDelete={(sectionToDelete) => onSectionDelete(sectionToDelete)}/>
           </div>
         ))}
       </div>
-    </div>
+    </>
   )
 }

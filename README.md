@@ -13,7 +13,7 @@ Both of these will be hosted on some cloud service provider - most likely AWS an
     - React App
         - [X] Home page to query notes (EOY 2023)
         - [X] Page to edit notes (EOY 2023)
-        - [ ] Add notes (EOY 2023)
+        - [X] Add notes (EOY 2023)
         - [ ] Notes database (EOY 2023)
         - [ ] Edit notes from own laptop - push to db via git (Jan 2024)
     - FastAPI

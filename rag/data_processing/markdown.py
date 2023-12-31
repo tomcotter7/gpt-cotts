@@ -57,8 +57,6 @@ def convert_to_sections(text: str, max_depth: int = 5) -> dict:
     for line in split_text:
         level = line.count("#")
         if line.startswith("#") and level == 1:
-            continue
-        if line.startswith("#") and level == 2:
             header = line.replace("#", "").strip()
 
         elif line.startswith("-") or len(line) == 0:
@@ -81,7 +79,7 @@ def convert_to_chunks(text: str) -> list[str]:
     Returns:
         List of chunks (strings).
     """
-    headers = {2: "", 3: "", 4: ""}
+    headers = {1: "", 2: "", 3: "", 4: ""}
 
     contextualized_lines = []
     current_section = ""
@@ -89,7 +87,8 @@ def convert_to_chunks(text: str) -> list[str]:
     for line in text.splitlines():
         if line.startswith("#"):
             if len(current_section) > 0:
-                chunk = f"{headers[2]}: {headers[3]}: {headers[4]}: {current_section}"
+                chunk = [val for val in headers.values() if len(val) > 0].join(": ") + ": " + current_section
+                # chunk = f"{headers[1]}: {headers[2]}: {headers[3]}: {headers[4]}: {current_section}"
                 contextualized_lines.append(chunk)
                 current_section = ""
             level = line.count("#")
