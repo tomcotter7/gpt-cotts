@@ -63,7 +63,7 @@ def convert_to_sections(text: str, max_depth: int = 5) -> dict:
             continue
         else:
             sections[header] = sections.get(header, "") + line + "\n"
-    
+
     return sections
 
 
