@@ -1,7 +1,6 @@
 export function ToastBox({ toasts, setToasts }) {
 
   function deleteToast(key) {
-    console.log(key)
     var newToasts = { ...toasts }
     delete newToasts[key]
     setToasts(newToasts)

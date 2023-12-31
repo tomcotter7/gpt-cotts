@@ -37,7 +37,7 @@ export default function Notes() {
     getNotes()
   }, [])
  
-  function saveNotes(newNotes) {
+  async function saveNotes(newNotes, successfulMessage, failureMessage) {
       fetch('http://localhost:8000/notes/save', {
           method: 'POST',
           headers: {
@@ -48,11 +48,11 @@ export default function Notes() {
       }).then(response => response.json())
       .then(response => {
         if (response === "success") {
-          setToasts({...toasts, [Date.now()]: {message: "Notes saved successfully!", success: true}})
+          setToasts({...toasts, [Date.now()]: {message: successfulMessage, success: true}})
+          setNotes(newNotes)
         } else {
-          setToasts({...toasts, [Date.now()]: {message: "Notes failed to save!", success: false}})
+          setToasts({...toasts, [Date.now()]: {message: failureMessage, success: false}})  
         }
-
       })
   }
 
@@ -64,17 +64,14 @@ export default function Notes() {
     e.preventDefault()
     setModalOpen(false)
     const newNotes = {...notes, [e.target.title.value]: e.target.content.value}
-    console.log(newNotes)
-    saveNotes(newNotes)
-    setNotes(newNotes)
+    saveNotes(newNotes, "Section added successfully", "Section failed to add. Try again later.")
   }
 
   function onSectionDelete(sectionToDelete) {
     const newNotes = {...notes}
     const titleToDelete = Object.keys(sectionToDelete)[0]
     delete newNotes[titleToDelete]
-    setNotes(newNotes)
-    saveNotes(newNotes)
+    saveNotes(newNotes, "Section deleted successfully", "Section failed to delete. Try again later.")
   }
 
   const onSectionSave = (updatedSection) => {
@@ -93,8 +90,7 @@ export default function Notes() {
     sortedKeys.forEach(key => {
       sortedData[key] = newNotes[key]
     })
-    setNotes(sortedData)
-    saveNotes(sortedData)
+    saveNotes(sortedData, "Section saved successfully", "Section failed to save. Try again later.")
   }
 
   return (
