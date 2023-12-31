@@ -121,8 +121,8 @@ export default function Chat({settings}) {
 
   if (chats.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center pt-96">
-        <Image src="/imgs/for_valued_member.png" alt="logo" width="500" height="500" />
+      <div className="flex flex-col items-center">
+        <Image className="pt-52" src="/imgs/for_valued_member.png" alt="logo" width="500" height="500" />
         <div className="fixed inset-x-0 bottom-5">
           <ChatForm onChatSubmit={onChatSubmit} />
         </div>

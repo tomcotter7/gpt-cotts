@@ -59,6 +59,15 @@ export default function Notes() {
     setModalOpen(true)
   }
 
+  function onNewSectionSave(e) {
+    e.preventDefault()
+    setModalOpen(false)
+    const newNotes = {...notes, [e.target.title.value]: e.target.content.value}
+    console.log(newNotes)
+    saveNotes(newNotes)
+    setNotes(newNotes)
+  }
+
   const onSectionSave = (updatedSection) => {
     var newNotes = { ...notes }
     const newTitle = Object.values(updatedSection)[0][0]
@@ -82,7 +91,7 @@ export default function Notes() {
   return (
     <>
       <div className="m-2 flex flex-col items-center">
-        <ModalSectionForm open={modalOpen} onClose={handleModalClose} onSave={() => console.log("Saving")}/>
+        <ModalSectionForm open={modalOpen} onClose={handleModalClose} onSave={onNewSectionSave}/>
         <ToastBox toasts={toasts} setToasts={setToasts}/>
         <h1 className="text-center text-4xl mb-2"><u>Notes</u></h1>
         <button 
