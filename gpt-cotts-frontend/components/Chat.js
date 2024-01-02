@@ -85,8 +85,7 @@ export default function Chat({settings}) {
       return response;
     }
     response += value;
-    setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now()},
-      ...prevChats]) 
+    setChats((prevChats) => [...prevChats, {role: 'assistant', text: response, id: Date.now()}])
 
     while (true) {
       let { value, done } = await stream.read();
@@ -96,8 +95,7 @@ export default function Chat({settings}) {
         break;
       }
       response += value;
-      setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now()},
-        ...prevChats.slice(1, prevChats.length)])
+      setChats((prevChats) => [...prevChats.slice(0, prevChats.length - 1), {role: 'assistant', text: response, id: Date.now()}])
     }
   }
 
@@ -105,7 +103,7 @@ export default function Chat({settings}) {
     e.preventDefault();
     const chatInput = document.getElementById('chat-input');
     const chatBox = {role: 'user', text: chatInput.value, id: Date.now()};
-    setChats((prevChats) => [chatBox, ...prevChats]);
+    setChats((prevChats) => [...prevChats, chatBox]);
     makeLLMRequest(chatInput.value, settings);
   }
 

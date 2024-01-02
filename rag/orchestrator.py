@@ -3,6 +3,11 @@ from openai import OpenAI
 
 from .database.pinecone import query_pinecone
 from .utils import load_config
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+print(os.getenv("OPENAI_API_KEY"))
 
 
 class Orchestrator:
