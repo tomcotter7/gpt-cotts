@@ -74,9 +74,9 @@ export default function Chat({settings}) {
     stop.current = false
     let stream;
     if (settings.rag) {
-      stream =  await sendMessage(message, settings.animalese, "/api/rag")
+      stream =  await sendMessage(message, settings.animalese, "http://localhost:8000/rag")
     } else {
-      stream = await sendMessage(message, settings.animalese, "/api/llm")
+      stream = await sendMessage(message, settings.animalese, "http://localhost:8000/llm")
     }
     
     let response = ""
@@ -114,7 +114,7 @@ export default function Chat({settings}) {
   function onClearButtonClick() {
     stop.current = true
     setChats([])
-    pingServer("api/clear")
+    pingServer("http://localhost:8000/clear")
   }
 
   if (chats.length === 0) {
