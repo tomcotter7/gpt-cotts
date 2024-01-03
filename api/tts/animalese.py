@@ -103,7 +103,7 @@ def animalese(input_text: str, pitch: str) -> Path:
         new_sound = new_sound.set_frame_rate(44100)
         combined_sound = combined_sound + new_sound
 
-    file_path = Path(__file__).parent / "animalese.wav"
+    file_path = Path(__file__).parent / "animalese_speech.wav"
     combined_sound = combined_sound.speedup(playback_speed=1.25)
     file_handler = combined_sound.export(file_path, format="wav")
     file_handler.close()
