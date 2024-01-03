@@ -16,7 +16,7 @@ export default function Notes() {
   
   useEffect(() => {
     const getNotes = async () => {
-      const response = await fetch('http://13.48.5.66:8000/notes', {
+      const response = await fetch('/api/notes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export default function Notes() {
   }, [])
  
   async function saveNotes(newNotes, successfulMessage, failureMessage) {
-      fetch('http://13.48.5.66:8000/notes/save', {
+      fetch('/api/notes/save', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
