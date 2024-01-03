@@ -2,13 +2,13 @@ refresh:
 	python3 -m rag.refresh --notes=rag/notes.md
 
 fastapi:
-	uvicorn rag.main:rag --reload
+	uvicorn api.main:rag --reload
 
 setup:
 	pip install -r requirements.txt
 
 web:
-	cd gpt-cotts && bun dev
+	npm run next-dev
 
 docker:
 	docker build -t gptcotts-fastapi .
