@@ -22,6 +22,8 @@ This is mainly useful when you have a computer without internet connection that 
 # Generative AI
 ## RAG
 A point of note, is that vanilla RAG is not good enough. We need to use a combination of techniques to improve the results. It is imperative to use reranking & filtering in the postprocessing step. This is very context specific, so there won't be many notes on it - but some examples are to use LLMs to re-rank, or filtering out results based on keywords / metadata. Another good option is cross-encoder re-ranking, find some more information [here](https://www.sbert.net/examples/applications/cross-encoder/README.html)
+### Prompting
+A [paper](https://arxiv.org/pdf/2312.16171v1.pdf) with 26 different prompting techniques has been released. They focus on strategies that help LLMs produce better outputs.
 ### Multi-Tenancy (Role Based Access Control)
 Here is good article from q-drant on this topic - [RABC Qdrant](https://qdrant.tech/documentation/tutorials/llama-index-multitenancy/). It's essentially just metadata filtering, but production ready.
 ### Courses
