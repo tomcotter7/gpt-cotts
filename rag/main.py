@@ -61,7 +61,7 @@ def clear_context() -> None:
 @rag.post("/notes")
 def get_notes() -> dict:
     """Return the notes of the user."""
-    notes_file = Path(__file__).parent.parent / "notes.md"
+    notes_file = Path(__file__).parent / "notes.md"
     with open(notes_file, "r") as f:
         notes = f.read()
         return convert_to_sections(notes)
@@ -70,7 +70,7 @@ def get_notes() -> dict:
 @rag.post("/notes/save")
 def save_notes(new_notes: dict) -> str:
     """Save the notes of the user."""
-    notes_file = Path(__file__).parent.parent / "notes.md"
+    notes_file = Path(__file__).parent / "notes.md"
     update_notes(new_notes, notes_file)
     return "success"
 

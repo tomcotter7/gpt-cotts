@@ -2,7 +2,6 @@ cd ~/Documents/projects/gpt-cotts/
 git add .
 git commit -am "update notes"
 git pull
-source .rag/bin/activate
-cd rag
+source venv/bin/activate
 make refresh
 deactivate

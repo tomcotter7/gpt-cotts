@@ -125,7 +125,7 @@ def load_and_convert(notes_file: Path) -> list[str]:
 
 
 if __name__ == "__main__":
-    notes_file = "../../notes.md"
+    notes_file = "../notes.md"
     with open(notes_file, "r") as f:
         text = f.read()
         convert_to_sections(text)
