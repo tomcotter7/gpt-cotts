@@ -14,4 +14,4 @@ docker:
 	docker build -t gptcotts-fastapi .
 
 gcp:
-	gcloud run deploy gpt-cotts --set-env-vars="OPENAI_API_KEY=${OPENAI_API_KEY}" --port 8000 --source .
+	gcloud run deploy gpt-cotts --set-env-vars="OPENAI_API_KEY=${OPENAI_API_KEY}" --port 8000 --memory 2Gi --source .
