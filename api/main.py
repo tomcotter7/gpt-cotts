@@ -71,6 +71,7 @@ def get_notes() -> dict:
 def save_notes(new_notes: dict) -> str:
     """Save the notes of the user."""
     notes_file = Path(__file__).parent / "notes.md"
+    print(notes_file)
     update_notes(new_notes, notes_file)
     return "success"
 

@@ -8,7 +8,7 @@ setup:
 	pip install -r requirements.txt
 
 web:
-	cd gpt-cotts-frontend && bun dev
+	cd gpt-cotts && bun dev
 
 docker:
 	docker build -t gptcotts-fastapi .

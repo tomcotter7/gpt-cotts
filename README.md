@@ -1,25 +1,36 @@
-# gpt-cotts
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-A productivity gpt. I have lots of ideas for ways for this to be useful, for now we have two componenents.
+## Getting Started
 
-	- Containerized React App (In Progress)
-        - A Backend-For-Frontend (BFF) React Application, which is very simple and just has access to a ChatGPT-like interface but can perform RAG over your own notes.
-    - FastAPI for querying vector db / llm responses (In Progress)
+First, run the development server:
 
-Both of these will be hosted on some cloud service provider - most likely AWS and made avaiable to the public to use over your own notes.
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-## Roadmap
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-    - React App
-        - [X] Home page to query notes (EOY 2023)
-        - [X] Page to edit notes (EOY 2023)
-        - [X] Add notes (EOY 2023)
-        - [ ] Notes database (EOY 2023)
-        - [ ] Edit notes from own laptop - push to db via git (Jan 2024)
-    - FastAPI
-        - [X] Endpoint to query notes (EOY 2023)
-        - [X] Endpoint to edit notes (EOY 2023)
-        - [] Endpoint to add notes (EOY 2023)
-    - Deployment
-        - [ ] Deploy to AWS/Vercel (EOY 2023)
+You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
