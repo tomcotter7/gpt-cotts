@@ -22,11 +22,32 @@ This is mainly useful when you have a computer without internet connection that 
 
 # Generative AI
 ## RAG
+A point of note, is that vanilla RAG is not good enough. We need to use a combination of techniques to improve the results. It is imperative to use reranking & filtering in the postprocessing step. This is very context specific, so there won't be many notes on it - but some examples are to use LLMs to re-rank, or filtering out results based on keywords / metadata. Another good option is cross-encoder re-ranking, find some more information [here](https://www.sbert.net/examples/applications/cross-encoder/README.html)
+### Multi-Tenancy (Role Based Access Control)
+Here is good article from q-drant on this topic - [RABC Qdrant](https://qdrant.tech/documentation/tutorials/llama-index-multitenancy/). It's essentially just metadata filtering, but production ready.
 ### Courses
 [Andrew Ng's Course](https://www.deeplearning.ai/short-courses/building-evaluating-advanced-rag/)
 ### Techniques
+#### Hypothetical Questions
+**Hypothetical Questions** - Generate a question for each chunk and then when searching, query over this index. Replace the result with the corresponding chunk. The statement the user asks is more likely to be similar to the 'hypothetical question' than the chunk itself.
+#### HyDE
+**Hypothetical Document Embedding (HyDE)** - Generate a 'chunk' based on a input question and then use a combination of the question and 'hypothetical chunk' to query the index. Find the paper [here](https://boston.lti.cs.cmu.edu/luyug/HyDE/HyDE.pdf).
+#### Context Enrichment
 Sentence Window Retrieval - Additional context around the retrieved sentence is pass to the LLM. Embed super small sentences, and then add context to the retrieved sentence when passing it to the LLM. Increasing the sentence window retrieval can increase the context relevant & groundedness up to a point.
 Auto Merging Retrieval - The document is structured as a tree, and if enough of the 'child nodes' are returned by the retrieval, the parent node is returned. Imagine the child nodes as sentences in a paragraph, and the parent node is the entire paragraph. In this, we want to only embed the leaf nodes. 
+#### Fusion Retrieval
+Also known as hybrid search, fusion retrieval is the combination of dense vector search (i.e the one produced by an embedding model) and a standard sparse vector retrieval algorithm such as BM-25. The two retrieved results are combined with the Reciprocal Rank Fusion algorithm.
+#### Reciprocal Rank Fusion
+RRF simply sorts the documents according to a naive scoring formula. Given a set of $D$ documents , and a set of rankings $R$, we can compute: $RRFScore(d \in D) = \Sigma_{r \in R} \frac{1}{k + r(d)}$. This is then used to sort the documents.
+#### Query Transformations
+A family of techniques which use the LLM as a reasoning engine.
+One is **Sub Query Transformation** - Use an LLM to turn the query into multiple sub-queries. "Which has more Github start, Langchain or Llamaindex?" -> "How many Github stars does Langchain have?" and "How many Github stars does Llamaindex have?". These two queries are send to the index in parallel and the results are combined.
+#### Context Referencing
+We can use fuzzy matching to get the relevant context used in the answer from the retrieved context - this can be used to highlight where the answer came from. Good for UI / HCI
+#### Response Synthesis
+Vanilla RAG just sends the context and question as a chunk - this can be improved in many ways. One interesting one is to *iteratively refine the answer by sending the retrievved context to the LLM chunk by chunk*.
+### Safety
+Meta has LLamaGuard - part of their purple Llama safety initiative. It ensures 3 things currently, *prompt injection*, *insecure output handling* and *sensitive information disclosure*. [Here](https://towardsdatascience.com/safeguarding-your-rag-pipelines-a-step-by-step-guide-to-implementing-llama-guard-with-llamaindex-6f80a2e07756) is a good medium article on the topic.
 ### Evaluation
 A "RAG Triad" exists for evaluation, which is "Groundedness", "Answer Relevance" and "Context Relevance". "Groundedness" means 'Is the response supported by the context?', "Answer Relevance" means 'Is the response relevant to the query?", and "Context Relevance" means 'Is the retrieved context relevant to the query?'.
 ## Opinion Blog Posts
@@ -233,4 +254,3 @@ It could also be required that the model doesn't exploit certain features (such 
 Let's say our loss function is $Residual^2 = (Observed - Predicted)^2$, and we are using linear regression to predict the value of $y$ given $x$. We can write this as $y = \beta_0 + \beta_1x$. Therefore, our loss function is $Residual^2 = (Observed - (\beta_0 + \beta_1x))^2$. However, we can also write $Residual^2 = (Inside)^2$, which means we can use the chain chain as $f(g(x)) = (Inside)^2$ and $g(x) = (Observed - (\beta_0 + \beta_1x))$. Therefore, $\frac{\partial Residual^2}{\partial \beta_1} = \frac{\partial Residual^2}{\partial Inside} \cdot \frac{\partial Inside}{\partial \beta_1}$.  We can do the same with $\beta_0$.
 ### Books
 [Linear Algebra Done Right](https://linear.axler.net/)
-
