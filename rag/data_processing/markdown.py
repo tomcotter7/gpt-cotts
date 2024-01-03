@@ -87,7 +87,7 @@ def convert_to_chunks(text: str) -> list[str]:
     for line in text.splitlines():
         if line.startswith("#"):
             if len(current_section) > 0:
-                chunk = [val for val in headers.values() if len(val) > 0].join(": ") + ": " + current_section
+                chunk = ": ".join([val for val in headers.values() if len(val) > 0]) + ":" + current_section
                 # chunk = f"{headers[1]}: {headers[2]}: {headers[3]}: {headers[4]}: {current_section}"
                 contextualized_lines.append(chunk)
                 current_section = ""
