@@ -16,7 +16,7 @@ export default function Notes() {
   
   useEffect(() => {
     const getNotes = async () => {
-      const response = await fetch('http://localhost:8000/notes', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export default function Notes() {
   }, [])
  
   async function saveNotes(newNotes, successfulMessage, failureMessage) {
-      fetch('http://localhost:8000/notes/save', {
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/save`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
