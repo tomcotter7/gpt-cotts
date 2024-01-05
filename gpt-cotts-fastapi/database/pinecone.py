@@ -6,7 +6,7 @@ import pinecone
 from dotenv import load_dotenv
 from sentence_transformers import SentenceTransformer
 
-from ..data_processing.embedding import embed
+from data_processing.embedding import embed
 
 load_dotenv()
 

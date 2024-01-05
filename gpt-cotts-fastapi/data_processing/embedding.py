@@ -4,7 +4,7 @@ import time
 import numpy as np
 from sentence_transformers import SentenceTransformer
 
-from ..utils import load_config
+from utils import load_config
 
 
 def embed(doc: str, model: SentenceTransformer) -> np.ndarray:

@@ -3,11 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "fastapi-dev": "pip install -r requirements.txt && uvicorn api.main:rag --port 8000 --reload",
-    "next-dev": "next dev",
-    "dev": "concurrently \"npm run next-dev\" \"npm run fastapi-dev\"",
+    "dev": "next dev",
     "build": "next build",
-    "fastapi": "pip install -r requirements.txt && uvicorn api.main:rag --port 8000",
     "start": "next start",
     "lint": "next lint"
   },

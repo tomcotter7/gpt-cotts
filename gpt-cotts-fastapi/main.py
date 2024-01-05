@@ -9,8 +9,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
-from .data_processing.markdown import convert_to_sections
-from .orchestrator import Orchestrator
+from data_processing.markdown import convert_to_sections
+from orchestrator import Orchestrator
 
 rag = FastAPI()
 

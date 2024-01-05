@@ -1,17 +1,5 @@
-refresh:
-	python3 -m rag.refresh --notes=rag/notes.md
-
 fastapi:
-	uvicorn api.main:rag --reload
-
-setup:
-	pip install -r requirements.txt
+	cd gpt-cotts-fastapi && uvicorn main:app --reload
 
 web:
-	npm run build && npm run start
-
-docker:
-	docker build -t gptcotts-fastapi .
-
-gcp:
-	gcloud run deploy gpt-cotts --set-env-vars="OPENAI_API_KEY=${OPENAI_API_KEY}" --port 8000 --memory 2Gi --source .
+	cd gpt-cotts-frontend && npm run build && npm run start

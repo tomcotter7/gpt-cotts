@@ -69,7 +69,7 @@ export default function Chat({settings}) {
 
 
   async function makeLLMRequest(message, settings) {
-    console.log(generating)
+    console.log(settings)
     setGenerating(true)
     stop.current = false
     let stream;

@@ -8,3 +8,4 @@ venv/
 *.pem
 .next/
 node_modules/ 
+vars.sh

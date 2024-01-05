@@ -10,10 +10,6 @@ export function Settings({onSettingsChange}) {
   const didMount = useRef(false);
 
   useEffect(() => {
-    if ( !didMount.current ) {
-      didMount.current = true;
-      return;
-    }
     onSettingsChange(settings)
   }, [settings])
 

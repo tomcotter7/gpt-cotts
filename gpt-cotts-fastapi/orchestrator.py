@@ -4,8 +4,8 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 
-from .database.pinecone import query_pinecone
-from .utils import load_config
+from database.pinecone import query_pinecone
+from utils import load_config
 
 load_dotenv()
 
