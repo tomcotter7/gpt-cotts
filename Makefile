@@ -8,7 +8,7 @@ setup:
 	pip install -r requirements.txt
 
 web:
-	npm run next-dev
+	npm run build && npm run start
 
 docker:
 	docker build -t gptcotts-fastapi .

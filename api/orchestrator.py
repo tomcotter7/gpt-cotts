@@ -8,8 +8,6 @@ from .database.pinecone import query_pinecone
 from .utils import load_config
 
 load_dotenv()
-print(os.getenv("OPENAI_API_KEY"))
-
 
 class Orchestrator:
     """Orchestrator class - deals with the interaction between the user and the model.
