@@ -24,7 +24,7 @@ ssh $USER@$HOST "
 "
 
 cp default.template.conf default.conf
-sed -i "s/{HOST}/$IP/g" default.conf
+sed -i "s/{HOST}/$DOMAIN/g" default.conf
 scp default.conf $USER@$HOST:
 ssh $USER@$HOST "
   sudo cp default.conf /etc/nginx/conf.d
