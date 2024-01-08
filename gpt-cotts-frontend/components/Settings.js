@@ -50,7 +50,7 @@ export function Settings({onSettingsChange}) {
                 className="form-checkbox"
                 onChange={() => handleCheckboxChange('RAG')}
               />
-              <span className="ml-2 text-black">Use RAG?</span>
+              <span className="ml-2 text-black">query over your own notes?</span>
             </label>
           </div>
         </div>

@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 export default function Navbar() {
   return (
-    <nav className="bg-fuchsia-500">
+    <nav id="nav" className="bg-fuchsia-500">
       <div className="flex flex-row gap-4 p-4">
         <div className="flex-col">
           <Image src="/imgs/for_valued_member.png" alt="logo" width="125" height="125" />

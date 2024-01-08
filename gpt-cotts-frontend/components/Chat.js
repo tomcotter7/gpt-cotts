@@ -127,42 +127,51 @@ export default function Chat() {
 
   if (chats.length === 0) {
     return (
-      <div className="lg:w-screen w-11/12">
+      <div className="lg:w-screen w-11/12 h-full flex flex-col">
         <div className="flex m-4 justify-end">
           <Settings onSettingsChange={handleSettingsChange}/>
         </div>
-        <div className="flex justify-center xl:mt-88 lg:mt-80 md:mt-64 mt-48">
+        <div className="m-4 grow">
           <Image
               src="/imgs/for_valued_member.png"
               alt="logo"
-              width={500}
-              height={500}
+              width={1000}
+              height={25}
+              quality={100}
             />
         </div>
-        <div className="fixed bottom-5" style={{width: 'inherit'}}>
+        <div className="m-4">
           <ChatForm onChatSubmit={onChatSubmit} onSettingsChange={handleSettingsChange} />
         </div>
       </div>
     )
   } else {
     return (
-      <div className="lg:w-screen w-11/12">
-        <div className="flex m-4 justify-between">
-          <p className="m-4 text-xl" ><b><u>skill issues? Use me</u></b></p>
+      <div className="lg:w-screen w-11/12 h-full flex flex-col">
+        <div className="flex m-4 justify-end">
           <Settings onSettingsChange={handleSettingsChange}/>
         </div>
-
-        <div className="fixed bottom-5" style={{width: 'inherit'}}>
-          <div className="flex flex-col-reverse mx-4 overflow-y-auto 2xl:max-h-[135rem] xl:max-h-[86rem] lg:max-h-[71rem] md:max-h-[43rem] sm:max-h-[32rem]" id="chat-boxes">
+        <div className="m-4 grow h-4/6">
+          <div className="flex flex-col-reverse mx-2 overflow-y-auto max-h-full" id="chat-boxes">
             {chats.map((chat) => (
               <ChatBox key={chat.id} role={chat.role} text={chat.text}/>
             ))}
           </div>
-          <div className="flex items-center justify-center m-2">
-            <button id="stopGenerateButton" className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white hidden" onClick={onStopButtonClick}>
+        </div>
+        <div >
+          <div className="flex items-center justify-center m-4">
+            <button
+              id="stopGenerateButton"
+              className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white hidden"
+              onClick={onStopButtonClick}
+            >
               <b>stop</b>
             </button>
-            <button id="clearButton" className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white ml-2 hidden" onClick={onClearButtonClick}>
+            <button
+              id="clearButton"
+              className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white ml-2 hidden"
+              onClick={onClearButtonClick}
+            >
               <b>clear</b>
             </button>
           </div>

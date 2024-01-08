@@ -2,7 +2,6 @@
 ## Sagemaker
 Sagemaker allows you to use / train modles on AWS, except that no data is sent to Amazon or leaves your VPC. TODO: Read [this](https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html)
 ## EC2 & Load Balancers
-
 [Here](https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-getting-started.html) is the documentation on getting a load balancer to point to an EC2 instance.
 
 # Corporate Stuff
@@ -227,6 +226,8 @@ PM2 a application manager that ensures the app is online 24/7, you can run it wi
 ## Frontend
 ### Tailwind / CSS
 Keeping a `fixed` position element to use the parents width (even though it is floating) - `style={{width: 'inherit'}}`
+### Chrome Dev Tools
+If you enable Chrome dev tools, you can change the size of viewport for testing purposes.
 
 # Programming Languages
 ## Mojo

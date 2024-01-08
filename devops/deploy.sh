@@ -13,7 +13,7 @@ ssh $USER@$HOST "
   pm2 start 'gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:rag' --name gpt-cotts-fastapi
 "
 
-rsync -av ../gpt-cotts-frontend/ $USER@$HOST:~/gpt-cotts-frontend --exclude=node_modules --exclude=.next
+rsync -av ../gpt-cotts-frontend/ $USER@$HOST:~/gpt-cotts-frontend --exclude=node_modules --exclude=.next --exclude=.env.local
 
 ssh $USER@$HOST "
   cd ~/gpt-cotts-frontend
