@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import Markdown from 'react-markdown'
+import { Settings } from '@/components/Settings'
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Image from 'next/image'
@@ -33,11 +34,14 @@ const pingServer = async (url) => {
   })
 }
 
-export default function Chat({settings}) {
+export default function Chat() {
 
   const [chats, setChats] = useState([])
   const [generating, setGenerating] = useState(false)
   const stop = useRef(false)
+  const [settings, setSettings] = useState({
+    rag: true
+  })
 
   function setDisabled(button) {
     button.classList.add('hidden')
@@ -85,7 +89,7 @@ export default function Chat({settings}) {
       return response;
     }
     response += value;
-    setChats((prevChats) => [...prevChats, {role: 'assistant', text: response, id: Date.now()}])
+    setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now()}, ...prevChats])
 
     while (true) {
       let { value, done } = await stream.read();
@@ -95,7 +99,7 @@ export default function Chat({settings}) {
         break;
       }
       response += value;
-      setChats((prevChats) => [...prevChats.slice(0, prevChats.length - 1), {role: 'assistant', text: response, id: Date.now()}])
+      setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now()}, ...prevChats.slice(1, prevChats.length)])
     }
   }
 
@@ -103,7 +107,7 @@ export default function Chat({settings}) {
     e.preventDefault();
     const chatInput = document.getElementById('chat-input');
     const chatBox = {role: 'user', text: chatInput.value, id: Date.now()};
-    setChats((prevChats) => [...prevChats, chatBox]);
+    setChats((prevChats) => [chatBox, ...prevChats]);
     makeLLMRequest(chatInput.value, settings);
   }
 
@@ -117,32 +121,53 @@ export default function Chat({settings}) {
     pingServer(`${process.env.NEXT_PUBLIC_API_URL}/clear`)
   }
 
+  function handleSettingsChange(newSettings) {
+    setSettings(newSettings)
+  }
+
   if (chats.length === 0) {
     return (
-      <div className="flex flex-col items-center">
-        <Image className="pt-52" src="/imgs/for_valued_member.png" alt="logo" width="500" height="500" />
-        <div className="fixed inset-x-0 bottom-5">
-          <ChatForm onChatSubmit={onChatSubmit} />
+      <div className="lg:w-screen w-11/12">
+        <div className="flex m-4 justify-end">
+          <Settings onSettingsChange={handleSettingsChange}/>
+        </div>
+        <div className="flex justify-center xl:mt-88 lg:mt-80 md:mt-64 mt-48">
+          <Image
+              src="/imgs/for_valued_member.png"
+              alt="logo"
+              width={500}
+              height={500}
+            />
+        </div>
+        <div className="fixed bottom-5" style={{width: 'inherit'}}>
+          <ChatForm onChatSubmit={onChatSubmit} onSettingsChange={handleSettingsChange} />
         </div>
       </div>
     )
   } else {
     return (
-      <div className="fixed inset-x-0 bottom-5">
-        <div className="flex flex-col py-2 px-20 mt-2" id="chat-boxes">
-          {chats.map((chat) => (
-            <ChatBox key={chat.id} role={chat.role} text={chat.text}/>
-          ))}
+      <div className="lg:w-screen w-11/12">
+        <div className="flex m-4 justify-between">
+          <p className="m-4 text-xl" ><b><u>skill issues? Use me</u></b></p>
+          <Settings onSettingsChange={handleSettingsChange}/>
         </div>
-        <div className="flex items-center justify-center w-100">
-          <button id="stopGenerateButton" className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white hidden" onClick={onStopButtonClick}>
-            <b>stop generating</b>
-          </button>
-          <button id="clearButton" className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white ml-2 hidden" onClick={onClearButtonClick}>
-            <b>clear</b>
-          </button>
+
+        <div className="fixed bottom-5" style={{width: 'inherit'}}>
+          <div className="flex flex-col-reverse mx-4 overflow-y-auto 2xl:max-h-[135rem] xl:max-h-[86rem] lg:max-h-[71rem] md:max-h-[43rem] sm:max-h-[32rem]" id="chat-boxes">
+            {chats.map((chat) => (
+              <ChatBox key={chat.id} role={chat.role} text={chat.text}/>
+            ))}
+          </div>
+          <div className="flex items-center justify-center m-2">
+            <button id="stopGenerateButton" className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white hidden" onClick={onStopButtonClick}>
+              <b>stop</b>
+            </button>
+            <button id="clearButton" className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white ml-2 hidden" onClick={onClearButtonClick}>
+              <b>clear</b>
+            </button>
+          </div>
+          <ChatForm onChatSubmit={onChatSubmit}  />
         </div>
-        <ChatForm onChatSubmit={onChatSubmit} />
       </div>
     )  
   }
@@ -150,11 +175,11 @@ export default function Chat({settings}) {
 
 
 function ChatForm({onChatSubmit}) {
-  
+
   function resetChatInput() {
     const chatInput = document.getElementById('chat-input');
     chatInput.value = ""
-    chatInput.style.height = "50px"
+    chatInput.style.height = "10vh"
   }
 
   function onGoButtonClick(e) {
@@ -175,26 +200,26 @@ function ChatForm({onChatSubmit}) {
   }
  
   return (
-    <div className="flex justify-center m-4">
+    <>
       <form>
-        <div className="flex space-x-4 justify-center" style={{"width": "75vh"}}>
+        <div className="flex space-x-4 mx-4">
           <textarea
-            className="p-2 border border-gray-300 rounded text-black h-10 w-3/4"
+            className="p-2 rounded text-black w-full"
             type="text"
             id="chat-input"
             placeholder="What's the issue?"
             onKeyUp={(e) => adjustHeight(e.target)}
             onKeyDown={(e) => onEnterPress(e)}
           />
-        <button
-          className="px-4 bg-purple-600 hover:bg-purple-500 rounded border border-purple-600 border-2 text-black"
-          onClick={onGoButtonClick}
-        >
-          <b>Go!</b>
-        </button>
+          <button
+            className="px-4 bg-purple-600 hover:bg-purple-500 rounded border border-2 border-purple-600 text-black"
+            onClick={onGoButtonClick}
+          >
+            <b>Go!</b>
+          </button>
         </div>
       </form>
-    </div>
+    </>
   )
 }
 

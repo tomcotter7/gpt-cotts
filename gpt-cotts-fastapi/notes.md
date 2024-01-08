@@ -1,6 +1,9 @@
 # AWS
 ## Sagemaker
 Sagemaker allows you to use / train modles on AWS, except that no data is sent to Amazon or leaves your VPC. TODO: Read [this](https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html)
+## EC2 & Load Balancers
+
+[Here](https://docs.aws.amazon.com/elasticloadbalancing/latest/classic/elb-getting-started.html) is the documentation on getting a load balancer to point to an EC2 instance.
 
 # Corporate Stuff
 ## Issue with Corporate Firewall
@@ -208,20 +211,22 @@ Useful article on how to write plugins.
 find & replace: `:%s/old/new/g`
 
 # Networking
-## FastAPI
-A python framework for building APIs. Homepage is [here](https://fastapi.tiangolo.com/).
-Once the app is set up - following the documentation - you can run it with: `uvicorn main:app --host 0.0.0.0 --port 8001`, to serve it externally.
 ## IPs
 Find IP address on Linux: `ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
 
-# Other Topics
-## Conciousness
-[Consciousness in AI](https://arxiv.org/abs/2308.08708). TODO: Fill out some notes on this
-Galileo's Error. TODO: Fill out some notes on this
-
-# PowerBI
-## Slicers
-[Video](https://www.youtube.com/watch?v=c_MjL1Cngbs) on default value for slicers.
+# WebApps
+## Backends
+### FastAPI
+A python framework for building APIs. Homepage is [here](https://fastapi.tiangolo.com/).
+Find a tutorial [here](https://www.travisluong.com/how-to-build-a-full-stack-next-js-fastapi-postgresql-boilerplate-tutorial/) on using FastAPI as a backend for a NextJS app.
+## Deploying
+### Nginx
+Find a tutorial [here](https://www.travisluong.com/how-to-deploy-next-js-fastapi-and-postgresql-with-shell-scripts/) explaining how to deploy a FastAPI / NextJS app using Nginx & PM2 with shell scripts.
+### PM2 
+PM2 a application manager that ensures the app is online 24/7, you can run it with `pm2 start %command%`. Pretty cool, here are the [docs](https://pm2.keymetrics.io/)
+## Frontend
+### Tailwind / CSS
+Keeping a `fixed` position element to use the parents width (even though it is floating) - `style={{width: 'inherit'}}`
 
 # Programming Languages
 ## Mojo
