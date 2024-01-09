@@ -9,3 +9,4 @@ venv/
 .next/
 node_modules/ 
 vars.sh
+testing-tts/

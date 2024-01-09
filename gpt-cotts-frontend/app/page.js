@@ -2,6 +2,7 @@
 import Chat from '@/components/Chat'
 import { Settings } from '@/components/Settings'
 import { useEffect, useState } from "react"
+import axios from 'axios'
 
 export default function Home() {
 
@@ -12,18 +13,21 @@ export default function Home() {
     const nav = document.getElementById('nav')
     if (nav) {
       const vh = (nav.offsetHeight / screen.height) * 100
-      if (screen.width < 640) {
-        setAdjustedHeight((86 - vh) + 'vh')
-      } else {
-        setAdjustedHeight((98 - vh) + 'vh')
-      }
+      setAdjustedHeight((98 - vh) + 'vh')
     }
   }, [])
+
+  function onLoginButtonClicked() {
+    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`).then((res) => {
+      window.location = res.data.url;
+    })
+  }
 
   
 
   return (
     <div className="flex flex-col items-center" style={{height: adjustedHeight}}>
+      <button className="bg-blue-500 border" onClick={onLoginButtonClicked}> Login </button>
       <Chat />
     </div>
   )
