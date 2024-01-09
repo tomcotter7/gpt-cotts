@@ -228,6 +228,15 @@ PM2 a application manager that ensures the app is online 24/7, you can run it wi
 Keeping a `fixed` position element to use the parents width (even though it is floating) - `style={{width: 'inherit'}}`
 ### Chrome Dev Tools
 If you enable Chrome dev tools, you can change the size of viewport for testing purposes.
+### Axios
+A cool npm package which is basically `fetch` but with a wayyy better syntax. Find it [here](https://github.com/axios/axios)
+### NextJS
+#### URL Handling
+Use `import { useSearchParams } from next/navigation` to get the params passed in with the url i.e code in `http://localhost:3000/auth?code=test`.
+## OAuth
+Tricky concept, with a fastapi / nextjs app. Here are some good resources, [Google OAuth docs](https://developers.google.com/identity/openid-connect/openid-connect#exchangecode), [SSO FastAPI](https://github.com/tomasvotava/fastapi-sso/tree/master), [A good example with Github auth](https://github.com/fuegoio/fastapi-frontend-auth-example/tree/main).
+
+I found the best method to use all 3 in conjunction with the Github auth giving a good general idea of how to go about it.
 
 # Programming Languages
 ## Mojo
