@@ -9,8 +9,12 @@ The MVP for this is essentially a LLM with access to personalized notes - editab
      - [X] 2 page website with 'Chat' and 'Notes' - React/Next.js
      - [X] Backend to handle LLM and note changes - Fastapi
      - [X] Deployed - Currently running on AWS EC2
-     - [ ] Database for notes - Soft Deadline 15th Jan.
-     - [ ] Authentication - Soft Deadline 31st Jan.
+     - [ ] Database for notes 
+     - [X] Authentication - Google Auth added.
+     - [ ] RAG Triad Evals
+     - [ ] Custom System Prompts
+     - [ ] Sentence Window Retrieval for large note clusters.
+     - [ ] Adding IR techniques for better retrieval.
 
 
 ## Features
