@@ -1,25 +1,33 @@
 import { useState, useRef, useEffect } from "react"
 import Markdown from 'react-markdown'
 import { Settings } from '@/components/Settings'
+import { ToastBox } from '@/components/Toast'
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Image from 'next/image'
 
 const sendMessage = async (message, animalese, url) => {
-  console.log(url)
+  const token = localStorage.getItem('token')
   const response = await fetch(url, {
     method: 'POST',
     body: JSON.stringify({message}),
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive'
+      'Connection': 'keep-alive',
+      'Authorization': `Bearer ${token}`
     },
     body: JSON.stringify({message})
   })
-
-  const stream = response.body.pipeThrough(new TextDecoderStream()).getReader();
-  return stream
+  
+  if (response.ok) {
+    const stream = response.body.pipeThrough(new TextDecoderStream()).getReader();
+    return stream
+  } else {
+    if (response.status === 401) {
+      return "unauthorized"
+    }
+  }
 }
 
 const pingServer = async (url) => {
@@ -42,6 +50,8 @@ export default function Chat() {
   const [settings, setSettings] = useState({
     rag: true
   })
+
+  const [toasts, setToasts] = useState({})
 
   function setDisabled(button) {
     button.classList.add('hidden')
@@ -81,6 +91,13 @@ export default function Chat() {
       stream =  await sendMessage(message, settings.animalese, `${process.env.NEXT_PUBLIC_API_URL}/rag`)
     } else {
       stream = await sendMessage(message, settings.animalese, `${process.env.NEXT_PUBLIC_API_URL}/llm`)
+    }
+
+    if (stream === "unauthorized") {
+      setGenerating(false)
+      setToasts({...toasts, [Date.now()]: {message: "You are not authorized to perform this action. pm us on Twitter to get access to the beta - @_tcotts or @luizayaara", success: false}})
+      setChats([])
+      return
     }
     
     let response = ""
@@ -127,23 +144,28 @@ export default function Chat() {
 
   if (chats.length === 0) {
     return (
-      <div className="lg:w-screen w-11/12 h-full flex flex-col">
-        <div className="flex m-4 justify-end">
-          <Settings onSettingsChange={handleSettingsChange}/>
+      <>
+        <ToastBox toasts={toasts} setToasts={setToasts}/>
+        <div className="lg:w-screen w-11/12 h-full flex flex-col">
+          <div className="flex m-4 justify-end">
+            <Settings onSettingsChange={handleSettingsChange}/>
+          </div>
+          <div className="m-4 grow">
+            <div className="flex justify-center">
+              <Image
+                  src="/imgs/for_valued_member.png"
+                  alt="logo"
+                  width={1000}
+                  height={25}
+                  quality={100}
+                />
+            </div>
+          </div>
+          <div className="m-4">
+            <ChatForm onChatSubmit={onChatSubmit} onSettingsChange={handleSettingsChange} />
+          </div>
         </div>
-        <div className="m-4 grow">
-          <Image
-              src="/imgs/for_valued_member.png"
-              alt="logo"
-              width={1000}
-              height={25}
-              quality={100}
-            />
-        </div>
-        <div className="m-4">
-          <ChatForm onChatSubmit={onChatSubmit} onSettingsChange={handleSettingsChange} />
-        </div>
-      </div>
+      </>
     )
   } else {
     return (

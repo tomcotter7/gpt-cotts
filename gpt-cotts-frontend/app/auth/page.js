@@ -12,41 +12,46 @@ export default function Auth() {
 
   function validatesParams() {
     const data = {
+      "state": params.get('state'),
       "code": params.get('code'),
       "scope": params.get('scope'),
       "authuser": params.get('authuser'),
       "prompt": params.get('prompt')
     }
     axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/validate`, data).then((res) => {
-      if (res.data.error != null) {
-        setError(res.data.error)
-        setAuth(false)
-        return
-      }
       
-      setUser({email: res.data.email, notes: res.data.notes})
+      const token = res.data.access_token
+      localStorage.setItem('token', token)
+      localStorage.setItem('initials', res.data.initials)
       setAuth(true)
+
     })
   }
 
   useEffect(() => {
     validatesParams()
   }, [])
-  
-  if (!auth && error == null) {
+
+  useEffect(() => {
+    if (auth) {
+      window.location = '/'
+    }
+  }, [auth])
+
+  if (!auth) {
     return (
-      <div> Authorizing </div>
+      <div className="flex flex-col items-center">
+        <h1>Authenticating...</h1>
+      </div>
     )
   }
 
-  if (error != null) {
+  else {
     return (
-      <div> {error} </div>
+      <div className="flex flex-col items-center">
+        <h1>Authenticated! Redirecting to home</h1>
+      </div>
     )
   }
-
-  return (
-    <div> {user.email} - Your notes are found here: {user.notes} </div>
-  )
 }
 

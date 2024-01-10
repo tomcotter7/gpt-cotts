@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Section } from '@/components/NotesSection'
 import { ToastBox } from '@/components/Toast'
 import ModalSectionForm from '@/components/ModalSectionForm';
+import NotLoggedIn from '@/components/NotLoggedIn';
 
 
 export default function Notes() {
@@ -11,38 +12,45 @@ export default function Notes() {
   const [notes, setNotes] = useState({})
   const [toasts, setToasts] = useState({})
   const [modalOpen, setModalOpen] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(localStorage.getItem('token') != null)
 
   const handleModalClose = () => setModalOpen(false)
   
   useEffect(() => {
     const getNotes = async () => {
+      const token = localStorage.getItem('token')
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes`, {
-        method: 'POST',
+        method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache'
+          'Cache-Control': 'no-cache',
+          'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({})
       })
-
+      if (response.status === 401) {
+        setLoggedIn(false)
+        return
+      }
       const data = await response.json()
+
       const sortedKeys = Object.keys(data).sort()
       const sortedData = {}
       sortedKeys.forEach(key => {
         sortedData[key] = data[key]
       })
-      console.log(sortedData)
       setNotes(sortedData)
     }
     getNotes()
   }, [])
  
   async function saveNotes(newNotes, successfulMessage, failureMessage) {
+      const token = localStorage.getItem('token')
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/save`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache'
+            'Cache-Control': 'no-cache',
+            'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify(newNotes)
       }).then(response => response.json())
@@ -91,6 +99,10 @@ export default function Notes() {
       sortedData[key] = newNotes[key]
     })
     saveNotes(sortedData, "Section saved successfully", "Section failed to save. Try again later.")
+  }
+
+  if (!loggedIn) {
+    return <NotLoggedIn/>
   }
 
   return (

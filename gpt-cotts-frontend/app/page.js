@@ -27,7 +27,6 @@ export default function Home() {
 
   return (
     <div className="flex flex-col items-center" style={{height: adjustedHeight}}>
-      <button className="bg-blue-500 border" onClick={onLoginButtonClicked}> Login </button>
       <Chat />
     </div>
   )

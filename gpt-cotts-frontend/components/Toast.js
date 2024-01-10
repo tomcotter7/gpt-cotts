@@ -1,5 +1,5 @@
 export function ToastBox({ toasts, setToasts }) {
-
+  
   function deleteToast(key) {
     var newToasts = { ...toasts }
     delete newToasts[key]
@@ -29,7 +29,7 @@ export function Toast({ id, message, success, onDelete }) {
   var icon = () => {
     
     return (
-        <span class="mr-2 h-4 w-4">
+        <span className="mr-2 h-4 w-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"

@@ -213,31 +213,6 @@ find & replace: `:%s/old/new/g`
 ## IPs
 Find IP address on Linux: `ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
 
-# WebApps
-## Backends
-### FastAPI
-A python framework for building APIs. Homepage is [here](https://fastapi.tiangolo.com/).
-Find a tutorial [here](https://www.travisluong.com/how-to-build-a-full-stack-next-js-fastapi-postgresql-boilerplate-tutorial/) on using FastAPI as a backend for a NextJS app.
-## Deploying
-### Nginx
-Find a tutorial [here](https://www.travisluong.com/how-to-deploy-next-js-fastapi-and-postgresql-with-shell-scripts/) explaining how to deploy a FastAPI / NextJS app using Nginx & PM2 with shell scripts.
-### PM2 
-PM2 a application manager that ensures the app is online 24/7, you can run it with `pm2 start %command%`. Pretty cool, here are the [docs](https://pm2.keymetrics.io/)
-## Frontend
-### Tailwind / CSS
-Keeping a `fixed` position element to use the parents width (even though it is floating) - `style={{width: 'inherit'}}`
-### Chrome Dev Tools
-If you enable Chrome dev tools, you can change the size of viewport for testing purposes.
-### Axios
-A cool npm package which is basically `fetch` but with a wayyy better syntax. Find it [here](https://github.com/axios/axios)
-### NextJS
-#### URL Handling
-Use `import { useSearchParams } from next/navigation` to get the params passed in with the url i.e code in `http://localhost:3000/auth?code=test`.
-## OAuth
-Tricky concept, with a fastapi / nextjs app. Here are some good resources, [Google OAuth docs](https://developers.google.com/identity/openid-connect/openid-connect#exchangecode), [SSO FastAPI](https://github.com/tomasvotava/fastapi-sso/tree/master), [A good example with Github auth](https://github.com/fuegoio/fastapi-frontend-auth-example/tree/main).
-
-I found the best method to use all 3 in conjunction with the Github auth giving a good general idea of how to go about it.
-
 # Programming Languages
 ## Mojo
 ### Resources
@@ -270,4 +245,28 @@ It could also be required that the model doesn't exploit certain features (such 
 Let's say our loss function is $Residual^2 = (Observed - Predicted)^2$, and we are using linear regression to predict the value of $y$ given $x$. We can write this as $y = \beta_0 + \beta_1x$. Therefore, our loss function is $Residual^2 = (Observed - (\beta_0 + \beta_1x))^2$. However, we can also write $Residual^2 = (Inside)^2$, which means we can use the chain chain as $f(g(x)) = (Inside)^2$ and $g(x) = (Observed - (\beta_0 + \beta_1x))$. Therefore, $\frac{\partial Residual^2}{\partial \beta_1} = \frac{\partial Residual^2}{\partial Inside} \cdot \frac{\partial Inside}{\partial \beta_1}$.  We can do the same with $\beta_0$.
 ### Books
 [Linear Algebra Done Right](https://linear.axler.net/)
+
+# WebApps
+## Backends
+### FastAPI
+A python framework for building APIs. Homepage is [here](https://fastapi.tiangolo.com/).
+Find a tutorial [here](https://www.travisluong.com/how-to-build-a-full-stack-next-js-fastapi-postgresql-boilerplate-tutorial/) on using FastAPI as a backend for a NextJS app.
+## Deploying
+### Nginx
+Find a tutorial [here](https://www.travisluong.com/how-to-deploy-next-js-fastapi-and-postgresql-with-shell-scripts/) explaining how to deploy a FastAPI / NextJS app using Nginx & PM2 with shell scripts.
+### PM2 
+PM2 a application manager that ensures the app is online 24/7, you can run it with `pm2 start %command%`. Pretty cool, here are the [docs](https://pm2.keymetrics.io/)
+## Frontend
+### Tailwind / CSS
+Keeping a `fixed` position element to use the parents width (even though it is floating) - `style={{width: 'inherit'}}`
+### Chrome Dev Tools
+If you enable Chrome dev tools, you can change the size of viewport for testing purposes.
+### Axios
+A cool npm package which is basically `fetch` but with a wayyy better syntax. Find it [here](https://github.com/axios/axios)
+### NextJS
+#### URL Handling
+Use `import { useSearchParams } from next/navigation` to get the params passed in with the url i.e code in `http://localhost:3000/auth?code=test`.
+## OAuth
+Tricky concept, with a fastapi / nextjs app. Here are some good resources, [Google OAuth docs](https://developers.google.com/identity/openid-connect/openid-connect#exchangecode), [SSO FastAPI](https://github.com/tomasvotava/fastapi-sso/tree/master), [A good example with Github auth](https://github.com/fuegoio/fastapi-frontend-auth-example/tree/main).
+I found the best method to use all 3 in conjunction with the Github auth giving a good general idea of how to go about it.
 
