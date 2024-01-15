@@ -87,6 +87,10 @@ Recent paper by Apple on how to get LLMs on edge devices. Find the paper [here](
 They introduced two techniques, *Windowing*, which only loads parameters from Flash Memory (larger than DRAM) if they are non-zero, and only load params for the last few tokens. This is a sliding window approach that reduces the number of IO requests required to build the weights. *Row-Column Building* - storing a concatenating row and column of the up-projection and down-projection layers to read bigger contiguous chunks from flask memory. These layers transform input data into higher and lower dimensional representations respectively.
 
 These two operations together allow the authors to load just 2% of the feed forward neural network from flash for each inference query.
+
+They basically just exploit the sparsity of FFN, and as such only need to transfer the non-sparse params from Flash to DRAM. Some techniques they use to keep latency low are:
+*Selective Persistance Strategy*: The embeddings and matrices with the attention mechanism (1/3 of model size) are kept in memory. Keeps inference performance high.
+*Anticipating ReLU sparsity*: A new predictor that only predicts whether the outputs will be zero'd by ReLU which means that they won't have to be loaded into memory.
 ## Foundational LLM Concepts
 ### Embeddings
 [What are embeddings?](https://vickiboykis.com/what_are_embeddings/)
@@ -158,6 +162,7 @@ Most interesting thing from here was *Inference Quantization*. The essentially m
 # Git
 ## Tips & Tricks
 *Get the email of the author of the last commit*: `git log --format="%ae" | head -1`
+*Move existing, uncomitted work to a new branch in Git*: `git switch -c <new-branch>`.
 
 # Image Classification
 ## ViT
