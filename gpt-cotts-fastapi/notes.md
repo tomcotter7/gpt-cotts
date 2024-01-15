@@ -81,6 +81,12 @@ TODO: Read through this and make notes on it.
 ### QMoE: Sub 1-bit compression
 [QMoE](https://arxiv.org/pdf/2310.16795.pdf)
 TODO: Read through this and make notes on it.
+### LLM in a Flash (Apple)
+Recent paper by Apple on how to get LLMs on edge devices. Find the paper [here](https://arxiv.org/pdf/2312.11514.pdf).
+
+They introduced two techniques, *Windowing*, which only loads parameters from Flash Memory (larger than DRAM) if they are non-zero, and only load params for the last few tokens. This is a sliding window approach that reduces the number of IO requests required to build the weights. *Row-Column Building* - storing a concatenating row and column of the up-projection and down-projection layers to read bigger contiguous chunks from flask memory. These layers transform input data into higher and lower dimensional representations respectively.
+
+These two operations together allow the authors to load just 2% of the feed forward neural network from flash for each inference query.
 ## Foundational LLM Concepts
 ### Embeddings
 [What are embeddings?](https://vickiboykis.com/what_are_embeddings/)
@@ -206,6 +212,7 @@ Gibbs Sampling LDA is more suited to short form text (i.e Tweets)
 Useful article on how to write plugins.
 ## Useful Tools
 find & replace: `:%s/old/new/g`
+vimgrep: `vimgrep /^# / %` would populate all instances of a line starting with '# ', into a buffer which can be opened with :copen.
 
 # Networking
 ## FastAPI
