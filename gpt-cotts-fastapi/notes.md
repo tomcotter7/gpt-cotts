@@ -47,10 +47,14 @@ One is **Sub Query Transformation** - Use an LLM to turn the query into multiple
 We can use fuzzy matching to get the relevant context used in the answer from the retrieved context - this can be used to highlight where the answer came from. Good for UI / HCI
 #### Response Synthesis
 Vanilla RAG just sends the context and question as a chunk - this can be improved in many ways. One interesting one is to *iteratively refine the answer by sending the retrievved context to the LLM chunk by chunk*.
+#### Information Compression
+[LLMLingua](https://www.llmlingua.com/), uses a smaller (<=7b) model to compute a prompt which contains all of the relevant knowledge in much less tokens. Here is the [code](https://github.com/microsoft/LLMLingua/blob/main/llmlingua/prompt_compressor.py).
 ### Safety
 Meta has LLamaGuard - part of their purple Llama safety initiative. It ensures 3 things currently, *prompt injection*, *insecure output handling* and *sensitive information disclosure*. [Here](https://towardsdatascience.com/safeguarding-your-rag-pipelines-a-step-by-step-guide-to-implementing-llama-guard-with-llamaindex-6f80a2e07756) is a good medium article on the topic.
 ### Evaluation
 A "RAG Triad" exists for evaluation, which is "Groundedness", "Answer Relevance" and "Context Relevance". "Groundedness" means 'Is the response supported by the context?', "Answer Relevance" means 'Is the response relevant to the query?", and "Context Relevance" means 'Is the retrieved context relevant to the query?'.
+### Output
+**Enforcing JSON outputs** - use Pydantic! I have collated some great blog posts here - [Jason Liu](https://blog.pydantic.dev/blog/2024/01/04/steering-large-language-models-with-pydantic/) and this random [guy](https://www.youtube.com/watch?v=VKeYaIEk82s) using dynamic pydantic models using `create_model`. Here is a potential library for this - [Instructor](https://jxnl.github.io/instructor/), although it's probably overkill right now.
 ## Opinion Blog Posts
 [Chatbots / HCI](https://wattenberger.com/thoughts/boo-chatbots)
 *Good tools make it clear how they should be used*. 
