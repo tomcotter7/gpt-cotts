@@ -7,12 +7,8 @@ Sagemaker allows you to use / train modles on AWS, except that no data is sent t
 Fix SLS issue when downloading model from hugging face: "downgrade 'requests' to '2.27.1'", "import os", "os.environ['CURL_CA_BUNDLE'] = ''".
 More info can be found on the open issue on GitHub [here](https://github.com/huggingface/transformers/issues/25552).
 
-# Dataiku
-## WebApps
-[WebApp Tutorial](https://knowledge.dataiku.com/latest/data-viz/webapps/tutorial-standard-html.html)
-
 # Docker
-## Other Issues
+## Tips & Tricks
 ### Uploading Docker Images to other Computers
 Save the docker image to a tar file: `docker save -o <path for generated tar file> <image name>`
 Copy the tar file to the other computer and load it: `docker load -i <path to image tar file>`
@@ -21,18 +17,32 @@ This is mainly useful when you have a computer without internet connection that 
 
 # Generative AI
 ## RAG
-A point of note, is that vanilla RAG is not good enough. We need to use a combination of techniques to improve the results. It is imperative to use reranking & filtering in the postprocessing step. This is very context specific, so there won't be many notes on it - but some examples are to use LLMs to re-rank, or filtering out results based on keywords / metadata. Another good option is cross-encoder re-ranking, find some more information [here](https://www.sbert.net/examples/applications/cross-encoder/README.html)
-### Prompting
-A [paper](https://arxiv.org/pdf/2312.16171v1.pdf) with 26 different prompting techniques has been released. They focus on strategies that help LLMs produce better outputs.
+### Prompting Techniques
+- [Paper](https://arxiv.org/pdf/2312.16171v1.pdf) with 26 different prompting techniques has been released. They focus on strategies that help LLMs produce better outputs.
+- [Prompt Enigeering Guide](https://www.promptingguide.ai/). A website with a collection of prompts for different scenarios.
+#### Information Compression (LLMLingua)
+- [LLMLingua](https://www.llmlingua.com/), uses a smaller (<=7b) model to compute a prompt which contains all of the relevant knowledge in much less tokens.
+- They use the statement that tokens with lower perplexity (i.e. the token aligns well with the internal distribution inside the LLM), actually have little effect on the LLMs comprehension of the context. Therefore, we can remove / transform some of these.
+- In the paper they regard 'Perplexity' as a *meausre of how well a language model predicts a sample*.
+- They train a small lanugage model on the output of the large language model they are using to align the small lanugage model to the distribution of  the large one.
+- "We employ the GPT-3.5-Turbo-0301 and the Claude-v1.3 as the target LLMs"
+- Interestingly, all these techniques just slightly decrease the token count, the largest decrease can from removing stop words.
+#### Information Compression (LongLLMLingua)
+- An extension on LLMLingua, using this technique "Therefore, we propose to use the perplexity of the question $x_{que}$ conditioned on different contexts $x_{doc}_k$ to represent the association between them.
+- They look at contrastive perplexity which is the perplexity of each demonstration / document with respect to the question itself.
+- They also propose a subsequence recovery algorithm as in document Q&A the compressed strings might result in incomplete answers.
+#### Storing Prompts / Structured Output Enforcing
+- **Enforcing JSON outputs** - use Pydantic! I have collated some great blog posts here - [Jason Liu](https://blog.pydantic.dev/blog/2024/01/04/steering-large-language-models-with-pydantic/) and this random [guy](https://www.youtube.com/watch?v=VKeYaIEk82s) using dynamic pydantic models using `create_model`. Here is a potential library for this - [Instructor](https://jxnl.github.io/instructor/), although it's probably overkill right now.
+#### Prompt Engineering
+- [Prompt Engineering](https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/). TODO: Read through this and make notes on it.
+- [Step Back Prompting](https://arxiv.org/pdf/2310.06117.pdf) - A prompting technique which tells the model to deal with the question from first principles. i.e. ask it a complex physics question, the model should first determine the equation that will power the answer, then provide the answer - rather than doing it in one step.
 ### Multi-Tenancy (Role Based Access Control)
-Here is good article from q-drant on this topic - [RABC Qdrant](https://qdrant.tech/documentation/tutorials/llama-index-multitenancy/). It's essentially just metadata filtering, but production ready.
-### Courses
-[Andrew Ng's Course](https://www.deeplearning.ai/short-courses/building-evaluating-advanced-rag/)
-### Techniques
+- [RABC Qdrant](https://qdrant.tech/documentation/tutorials/llama-index-multitenancy/). Just metadata filtering, but production ready.
+### Retrieval Techniques
 #### Hypothetical Questions
-**Hypothetical Questions** - Generate a question for each chunk and then when searching, query over this index. Replace the result with the corresponding chunk. The statement the user asks is more likely to be similar to the 'hypothetical question' than the chunk itself.
+- Hypothetical Questions. Generate a question for each chunk and then when searching, query over this index. Replace the result with the corresponding chunk. The statement the user asks is more likely to be similar to the 'hypothetical question' than the chunk itself.
 #### HyDE
-**Hypothetical Document Embedding (HyDE)** - Generate a 'chunk' based on a input question and then use a combination of the question and 'hypothetical chunk' to query the index. Find the paper [here](https://boston.lti.cs.cmu.edu/luyug/HyDE/HyDE.pdf).
+[Hypothetical Document Embedding (HyDE)](https://boston.lti.cs.cmu.edu/luyug/HyDE/HyDE.pdf). Generate a 'chunk' based on a input question and then use a combination of the question and 'hypothetical chunk' to query the index.
 #### Context Enrichment
 Sentence Window Retrieval - Additional context around the retrieved sentence is pass to the LLM. Embed super small sentences, and then add context to the retrieved sentence when passing it to the LLM. Increasing the sentence window retrieval can increase the context relevant & groundedness up to a point.
 Auto Merging Retrieval - The document is structured as a tree, and if enough of the 'child nodes' are returned by the retrieval, the parent node is returned. Imagine the child nodes as sentences in a paragraph, and the parent node is the entire paragraph. In this, we want to only embed the leaf nodes. 
@@ -42,32 +52,30 @@ Also known as hybrid search, fusion retrieval is the combination of dense vector
 RRF simply sorts the documents according to a naive scoring formula. Given a set of $D$ documents , and a set of rankings $R$, we can compute: $RRFScore(d \in D) = \Sigma_{r \in R} \frac{1}{k + r(d)}$. This is then used to sort the documents.
 #### Query Transformations
 A family of techniques which use the LLM as a reasoning engine.
-One is **Sub Query Transformation** - Use an LLM to turn the query into multiple sub-queries. "Which has more Github start, Langchain or Llamaindex?" -> "How many Github stars does Langchain have?" and "How many Github stars does Llamaindex have?". These two queries are send to the index in parallel and the results are combined.
+One is **Sub Query Taansformation** - Use an LLM to turn the query into multiple sub-queries. "Which has more Github start, Langchain or Llamaindex?" -> "How many Github stars does Langchain have?" and "How many Github stars does Llamaindex have?". These two queries are send to the index in parallel and the results are combined.
 #### Context Referencing
 We can use fuzzy matching to get the relevant context used in the answer from the retrieved context - this can be used to highlight where the answer came from. Good for UI / HCI
 #### Response Synthesis
 Vanilla RAG just sends the context and question as a chunk - this can be improved in many ways. One interesting one is to *iteratively refine the answer by sending the retrievved context to the LLM chunk by chunk*.
-#### Information Compression
-[LLMLingua](https://www.llmlingua.com/), uses a smaller (<=7b) model to compute a prompt which contains all of the relevant knowledge in much less tokens. Here is the [code](https://github.com/microsoft/LLMLingua/blob/main/llmlingua/prompt_compressor.py).
+#### Reranking
+Rerank the outputs for better context awareness.
+- Here is a super fast library to do so [FlashRank](https://github.com/PrithivirajDamodaran/FlashRank).
+- Here are some details on re-ranking with cross-encoders - [SBERT CE](https://www.sbert.net/examples/applications/cross-encoder/README.html)
+#### Adding Noise
+This [paper](https://arxiv.org/pdf/2401.14887.pdf) suggests that adding noise to the prompt - i.e. gathering irrevelant documents is actually more beneficial than gathering related documents which don't answer the question in terms of accuracy. Whether this is a feature or a bug of LLMs is up in the air - but it could be interesting to play with.
 ### Safety
 Meta has LLamaGuard - part of their purple Llama safety initiative. It ensures 3 things currently, *prompt injection*, *insecure output handling* and *sensitive information disclosure*. [Here](https://towardsdatascience.com/safeguarding-your-rag-pipelines-a-step-by-step-guide-to-implementing-llama-guard-with-llamaindex-6f80a2e07756) is a good medium article on the topic.
 ### Evaluation
 A "RAG Triad" exists for evaluation, which is "Groundedness", "Answer Relevance" and "Context Relevance". "Groundedness" means 'Is the response supported by the context?', "Answer Relevance" means 'Is the response relevant to the query?", and "Context Relevance" means 'Is the retrieved context relevant to the query?'.
-### Output
-**Enforcing JSON outputs** - use Pydantic! I have collated some great blog posts here - [Jason Liu](https://blog.pydantic.dev/blog/2024/01/04/steering-large-language-models-with-pydantic/) and this random [guy](https://www.youtube.com/watch?v=VKeYaIEk82s) using dynamic pydantic models using `create_model`. Here is a potential library for this - [Instructor](https://jxnl.github.io/instructor/), although it's probably overkill right now.
 ## Opinion Blog Posts
 [Chatbots / HCI](https://wattenberger.com/thoughts/boo-chatbots)
 *Good tools make it clear how they should be used*. 
-Also, people want to interact with tools in different ways. The only current way to do that with LLMs is to add context via text.
 Perhaps, we could think about adding "sliders". This shows your competency with the topic, how verbose a response, etc...
 There is a spectrum of how much human input is required for a task - we want to stay human input > 50% of the total input.
-    - This keeps the human engaged.
-## ML Papers
+## Interesting Papers
 ### Resources for accessing papers
 [ML Papers of Week](https://github.com/dair-ai/ML-Papers-of-the-Week)
-A list of ML papers worth reading - updated every week. I think I should dedicate some time every week to reading and understanding one of these.
 [AI Foundational Basics](https://gist.github.com/veekaybee/be375ab33085102f9027853128dc5f0e)
-Another list of AI foundational basics - should take some time to read through these.
 ### RLAIF
 [RLAIF - Paper](https://arxiv.org/pdf/2309.00267.pdf)
 This paper shows the comparision between RLHF and RLAIF. They seem to produce comparative results statistically - although from some of the results in the paper (cherry picked too) - the RLHF is clearly slightly better.
@@ -86,11 +94,9 @@ TODO: Read through this and make notes on it.
 [QMoE](https://arxiv.org/pdf/2310.16795.pdf)
 TODO: Read through this and make notes on it.
 ### LLM in a Flash (Apple)
-Recent paper by Apple on how to get LLMs on edge devices. Find the paper [here](https://arxiv.org/pdf/2312.11514.pdf).
+Recent [Paper](https://arxiv.org/pdf/2312.11514.pdf) by Apple on how to get LLMs on edge devices.
 
-They introduced two techniques, *Windowing*, which only loads parameters from Flash Memory (larger than DRAM) if they are non-zero, and only load params for the last few tokens. This is a sliding window approach that reduces the number of IO requests required to build the weights. *Row-Column Building* - storing a concatenating row and column of the up-projection and down-projection layers to read bigger contiguous chunks from flask memory. These layers transform input data into higher and lower dimensional representations respectively.
-
-These two operations together allow the authors to load just 2% of the feed forward neural network from flash for each inference query.
+They introduced two techniques, *Windowing*, which only loads parameters from Flash Memory (larger than DRAM) if they are non-zero, and only load params for the last few tokens. This is a sliding window approach that reduces the number of IO requests required to build the weights. *Row-Column Building* - storing a concatenating row and column of the up-projection and down-projection layers to read bigger contiguous chunks from flask memory. These layers transform input data into higher and lower dimensional representations respectively. These two operations together allow the authors to load just 2% of the feed forward neural network from flash for each inference query.
 
 They basically just exploit the sparsity of FFN, and as such only need to transfer the non-sparse params from Flash to DRAM. Some techniques they use to keep latency low are:
 *Selective Persistance Strategy*: The embeddings and matrices with the attention mechanism (1/3 of model size) are kept in memory. Keeps inference performance high.
@@ -98,7 +104,6 @@ They basically just exploit the sparsity of FFN, and as such only need to transf
 ## Foundational LLM Concepts
 ### Embeddings
 [What are embeddings?](https://vickiboykis.com/what_are_embeddings/)
-[1 2 3] - this is a 3 dimensional vector.
 ### Attention
 #### Attention & Transformers - Explained
 [Attention - Explained](https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/)
@@ -121,9 +126,6 @@ This is just a weighted sum, the values are weighted by the attention weight (wh
 This is done for each word, which can obviously be performed in paralell. After this you obtain an attention score matrix.
 #### Multi-Head Attention
 This scaled dot product attetention previously mentioned is 1-head attention. Multi-head attention is just this with different $q, k, v$ matrices. This means we can attend to different parts of the sequence different. Again this can be done in parallel.
-## Prompt Engineering
-[Prompt Engineering](https://lilianweng.github.io/posts/2023-03-15-prompt-engineering/)
-TODO: Read through this and make notes on it.
 ## LLM Inference
 ### Math
 [Maths of storing, inference and training of LLMs](https://blog.eleuther.ai/transformer-math/)
@@ -149,19 +151,9 @@ Most interesting thing from here was *Inference Quantization*. The essentially m
 [TinyChat](https://github.com/mit-han-lab/llm-awq/tree/main). In this repo is Tiny Chat - which uses quantization to produce super fast LLMs.
 ### Petals
 [Petals](https://petals.dev/). This is a library for running LLMs in the style of bit-torrent. This means other people run different parts of the model. Llama2 runs at 6 tokens/sec.
-### LlamaIndex
-[LlamaIndex](https://docs.llamaindex.ai/en/stable/) - this a library for performing RAG. TODO: Read through the docs & check this out.
 ## LLM Training
 ### ReST
 [ReST for Language Modelling](https://arxiv.org/pdf/2308.08998.pdf)
-### Enforcing Outputs
-[Guardrails](https://shreyar.github.io/guardrails/)
-[Magnetic](https://github.com/jackmpcollins/magentic#magentic)
-## Other Useful LLM Stuff
-### Medium Articles
-[Basic Langchain Rag](https://medium.com/@onkarmishra/using-langchain-for-question-answering-on-own-data-3af0a82789ed). This condenses down this [course](https://learn.deeplearning.ai/langchain-chat-with-your-data/lesson/1/introduction) - is a pretty cool implementation of Q&A with your own data.
-### LLM Utilization
-[LangChain](https://python.langchain.com/docs/get_started/introduction.html). LangChain is a library for interacting with LLMs. I have found this to be rather bloated - it's often better to just interact with the LLM yourself.
 
 # Git
 ## Tips & Tricks
@@ -229,11 +221,6 @@ A python framework for building APIs. Homepage is [here](https://fastapi.tiangol
 Once the app is set up - following the documentation - you can run it with: `uvicorn main:app --host 0.0.0.0 --port 8001`, to serve it externally.
 ## IPs
 Find IP address on Linux: `ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p'`
-
-# Other Topics
-## Conciousness
-[Consciousness in AI](https://arxiv.org/abs/2308.08708). TODO: Fill out some notes on this
-Galileo's Error. TODO: Fill out some notes on this
 
 # PowerBI
 ## Slicers
