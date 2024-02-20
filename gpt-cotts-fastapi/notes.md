@@ -67,6 +67,14 @@ This [paper](https://arxiv.org/pdf/2401.14887.pdf) suggests that adding noise to
 Meta has LLamaGuard - part of their purple Llama safety initiative. It ensures 3 things currently, *prompt injection*, *insecure output handling* and *sensitive information disclosure*. [Here](https://towardsdatascience.com/safeguarding-your-rag-pipelines-a-step-by-step-guide-to-implementing-llama-guard-with-llamaindex-6f80a2e07756) is a good medium article on the topic.
 ### Evaluation
 A "RAG Triad" exists for evaluation, which is "Groundedness", "Answer Relevance" and "Context Relevance". "Groundedness" means 'Is the response supported by the context?', "Answer Relevance" means 'Is the response relevant to the query?", and "Context Relevance" means 'Is the retrieved context relevant to the query?'.
+#### NDCG - Normalized Discounted Cumulative Gain
+Determined by dividing the Discounted Cumulative GAIN (DCG) by the ideal DCG (i.e a perfect ranking). DCG measures the total relevance of an item in a list with a discount that helps adddress the diminshing value of items further down the list.
+
+We can break this down:
+    - CG@K - The sum of scores of all relevant items among the top-K results
+    - DCG@K - Add a logarithmic penalty to each item in the list as you move down the list (sum the results)
+
+More details [here](https://www.evidentlyai.com/ranking-metrics/ndcg-metric)
 ## Opinion Blog Posts
 [Chatbots / HCI](https://wattenberger.com/thoughts/boo-chatbots)
 *Good tools make it clear how they should be used*. 
@@ -76,6 +84,8 @@ There is a spectrum of how much human input is required for a task - we want to 
 ### Resources for accessing papers
 [ML Papers of Week](https://github.com/dair-ai/ML-Papers-of-the-Week)
 [AI Foundational Basics](https://gist.github.com/veekaybee/be375ab33085102f9027853128dc5f0e)
+### Mixtral 8x7b
+[Mixtral](https://arxiv.org/abs/2401.04088). A LLM has an Attention Layer and a Feed Forward Layer. The FFN is linear, such that previously all tokens follow the same path after being passed through the attention layer. In this paper, they have multiple 'experts' i.e. multiple FFNs, and we can route the tokens through specific FFNs (2) and combine the results. It's called *sparse* because each token does not to go every expert. [Here](https://www.youtube.com/watch?v=mwO6v4BlgZQ&t=224s) is YKs video on the topic
 ### RLAIF
 [RLAIF - Paper](https://arxiv.org/pdf/2309.00267.pdf)
 This paper shows the comparision between RLHF and RLAIF. They seem to produce comparative results statistically - although from some of the results in the paper (cherry picked too) - the RLHF is clearly slightly better.
