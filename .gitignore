@@ -9,3 +9,6 @@ venv/
 .next/
 node_modules/ 
 vars.sh
+testing-tts/
+client_secrets.json
+.aws-sam/
