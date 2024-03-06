@@ -63,20 +63,38 @@ def upsert(index: str, namespace: str, data: list[dict]) -> None:
             vectors=data
     )
 
-@timing
-def update_notes(index: str, namespace: str, data: list[dict]) -> None:
+def update_notes(
+        index: str,
+        old_section_name: str,
+        new_section_name: str,
+        namespace: str,
+        data: list[dict]
+) -> None:
     """Update the notes in a Pinecone index.
 
     Args:
         index: The name of the Pinecone index.
+        old_section_name: The old section name.
+        new_section_name: The new section name.
+        changed_section: The section that has been updated.
         namespace: The name of the namespace.
         data: The list of dictionaries to be upserted.
     """
     pc = connect_to_pinecone()
     pc_index = pc.Index(index)
-    pc_index.delete( # type: ignore
+    if pc_index is None:
+        raise ValueError(f"Index {index} does not exist.")
+    old_data = pc_index.query(
             namespace=namespace,
-            filter={"header": {"$in": [d["header"] for d in data]}}
-    )
-    upsert(index, namespace, data)
+            vector=[0.0 for _ in range(1024)],
+            top_k=500,
+            filter={
+                "header": {"$eq": old_section_name}
+            }
+    )['matches']
 
+    ids = [d["id"] for d in old_data]
+    if ids:
+        pc_index.delete(ids=ids, namespace=namespace)
+    data_to_upsert = [d for d in data if d["header"] == new_section_name]
+    upsert(index, namespace, data_to_upsert)
