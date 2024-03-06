@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Section } from '@/components/NotesSection'
 import { ToastBox } from '@/components/Toast'
 import ModalSectionForm from '@/components/ModalSectionForm';
-import NotLoggedIn from '@/components/NotLoggedIn';
+import axios from 'axios'
 
 
 export default function Notes() {
@@ -23,19 +23,14 @@ export default function Notes() {
   useEffect(() => {
     const getNotes = async () => {
       const token = localStorage.getItem('token')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-cache',
-          'Authorization': `Bearer ${token}`
-        },
-      })
+
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notes`)
+
       if (response.status === 401) {
         setLoggedIn(false)
         return
       }
-      const data = await response.json()
+      const data = await response.data.sections
 
       const sortedKeys = Object.keys(data).sort()
       const sortedData = {}
@@ -47,25 +42,35 @@ export default function Notes() {
     getNotes()
   }, [])
  
-  async function saveNotes(newNotes, successfulMessage, failureMessage) {
+  async function saveNotes(
+      newNotes, 
+      oldSectionName,
+      newSectionName,
+      successfulMessage,
+      failureMessage
+  ) {
       const token = localStorage.getItem('token')
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/save`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/update`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Cache-Control': 'no-cache',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify(newNotes)
-      }).then(response => response.json())
-      .then(response => {
-        if (response === "success") {
-          setToasts({...toasts, [Date.now()]: {message: successfulMessage, success: true}})
-          setNotes(newNotes)
-        } else {
-          setToasts({...toasts, [Date.now()]: {message: failureMessage, success: false}})  
-        }
+          body: JSON.stringify({
+              new_notes: newNotes,
+              old_section_name: oldSectionName,
+              new_section_name: newSectionName
+          })
       })
+
+
+      if (response.ok) {
+        setToasts({...toasts, [Date.now()]: {message: successfulMessage, success: true}})
+        setNotes(newNotes)
+      } else {
+        setToasts({...toasts, [Date.now()]: {message: failureMessage, success: false}})  
+      }
   }
 
   function onAddNewSectionClick() {
@@ -76,37 +81,38 @@ export default function Notes() {
     e.preventDefault()
     setModalOpen(false)
     const newNotes = {...notes, [e.target.title.value]: e.target.content.value}
-    saveNotes(newNotes, "Section added successfully", "Section failed to add. Try again later.")
+    // saveNotes(newNotes, e.target.title.value, "Section added successfully", "Section failed to add. Try again later.")
   }
 
   function onSectionDelete(sectionToDelete) {
     const newNotes = {...notes}
     const titleToDelete = Object.keys(sectionToDelete)[0]
     delete newNotes[titleToDelete]
-    saveNotes(newNotes, "Section deleted successfully", "Section failed to delete. Try again later.")
+    // saveNotes(newNotes, sectionToDelete, "Section deleted successfully", "Section failed to delete. Try again later.")
   }
 
   const onSectionSave = (updatedSection) => {
     var newNotes = { ...notes }
+    const oldTitle = Object.keys(updatedSection)[0]
     const newTitle = Object.values(updatedSection)[0][0]
     const newContent = Object.values(updatedSection)[0][1]
-    if (Object.keys(updatedSection)[0] !== newTitle) {
-      delete newNotes[Object.keys(updatedSection)[0]]
-      newNotes[Object.values(updatedSection)[0][0]] = Object.values(updatedSection)[0][1]
-    } else {
-      newNotes[newTitle] = newContent
+    if (oldTitle !== newTitle) {
+      delete newNotes[oldTitle]
     }
+
+    newNotes[newTitle] = newContent
     
     const sortedKeys = Object.keys(newNotes).sort()
     const sortedData = {}
     sortedKeys.forEach(key => {
       sortedData[key] = newNotes[key]
     })
-    saveNotes(sortedData, "Section saved successfully", "Section failed to save. Try again later.")
+    saveNotes(sortedData, oldTitle, newTitle,  "Section saved successfully", "Section failed to save. Try again later.")
   }
 
   if (!loggedIn) {
-    return <NotLoggedIn/>
+    return <p>Not logged in</p>
+    // return <NotLoggedIn/>
   }
 
   return (
