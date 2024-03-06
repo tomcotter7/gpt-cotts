@@ -88,9 +88,9 @@ export default function Chat() {
     stop.current = false
     let stream;
     if (settings.rag) {
-      stream =  await sendMessage(message, settings.animalese, `${process.env.NEXT_PUBLIC_API_URL}/rag`)
+      stream =  await sendMessage(message, settings.animalese, `${process.env.NEXT_PUBLIC_API_URL}/generate/rag`)
     } else {
-      stream = await sendMessage(message, settings.animalese, `${process.env.NEXT_PUBLIC_API_URL}/llm`)
+      stream = await sendMessage(message, settings.animalese, `${process.env.NEXT_PUBLIC_API_URL}/generate/base`)
     }
 
     if (stream === "unauthorized") {

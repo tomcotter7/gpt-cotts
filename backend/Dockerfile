@@ -9,5 +9,5 @@ ADD .env /gptcotts
 RUN pip install -r requirements.txt
 RUN python3 -c "from flashrank import Ranker; Ranker(cache_dir='./cache')"
 
-CMD ["python", "app/dev_main.py"]
+CMD ["python", "app/main.py"]
 

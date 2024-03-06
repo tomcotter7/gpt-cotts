@@ -2,8 +2,8 @@ from typing import Optional
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
-from gptcotts.pinecone_connector import search
 from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt
+from gptcotts.retrieval import search
 from openai import OpenAI
 from pydantic import BaseModel
 

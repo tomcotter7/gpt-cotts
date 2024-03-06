@@ -8,7 +8,7 @@ def timing(func):
         result = func(*args, **kwargs)
         end_time = time.time()
         execution_time = end_time - start_time
-        print(f">>> Execution time for {func.__name__}: {execution_time} seconds")
+        print(f">>> Execution time for {func.__name__}: {round(execution_time, 5)} seconds")
         wrapper.function_time = execution_time # type: ignore
         return result
     return wrapper
