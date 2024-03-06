@@ -4,7 +4,8 @@ venv/
 **/*.exe
 **/*.log
 **/*.mp3
-*.env
+backend/**/.env
+.env.local
 *.pem
 .next/
 node_modules/ 

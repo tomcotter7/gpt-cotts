@@ -7,6 +7,8 @@ from gptcotts.retrieval import search
 from openai import OpenAI
 from pydantic import BaseModel
 
+
+
 router = APIRouter(
     prefix="/gptcotts/generation"
 )

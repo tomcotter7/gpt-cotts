@@ -5,8 +5,10 @@ import { ToastBox } from '@/components/Toast'
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Image from 'next/image'
+import axios from 'axios'
 
-const sendMessage = async (message, animalese, url) => {
+
+const sendMessage = async (message, url) => {
   const token = localStorage.getItem('token')
   const response = await fetch(url, {
     method: 'POST',
@@ -17,7 +19,7 @@ const sendMessage = async (message, animalese, url) => {
       'Connection': 'keep-alive',
       'Authorization': `Bearer ${token}`
     },
-    body: JSON.stringify({message})
+    body: JSON.stringify(message)
   })
   
   if (response.ok) {
@@ -83,14 +85,14 @@ export default function Chat() {
 
 
   async function makeLLMRequest(message, settings) {
-    console.log(settings)
+    console.log(message)
     setGenerating(true)
     stop.current = false
     let stream;
     if (settings.rag) {
-      stream =  await sendMessage(message, settings.animalese, `${process.env.NEXT_PUBLIC_API_URL}/generate/rag`)
+      stream =  await sendMessage(message, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`)
     } else {
-      stream = await sendMessage(message, settings.animalese, `${process.env.NEXT_PUBLIC_API_URL}/generate/base`)
+      stream = await sendMessage(message, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`)
     }
 
     if (stream === "unauthorized") {
@@ -125,7 +127,7 @@ export default function Chat() {
     const chatInput = document.getElementById('chat-input');
     const chatBox = {role: 'user', text: chatInput.value, id: Date.now()};
     setChats((prevChats) => [chatBox, ...prevChats]);
-    makeLLMRequest(chatInput.value, settings);
+    makeLLMRequest({query: chatInput.value}, settings);
   }
 
   function onStopButtonClick() {
