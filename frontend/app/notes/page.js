@@ -12,7 +12,11 @@ export default function Notes() {
   const [notes, setNotes] = useState({})
   const [toasts, setToasts] = useState({})
   const [modalOpen, setModalOpen] = useState(false)
-  const [loggedIn, setLoggedIn] = useState(localStorage.getItem('token') != null)
+  const [loggedIn, setLoggedIn] = useState(false)
+
+    useEffect(() => {
+      setLoggedIn(localStorage.getItem('token') != null)
+    }, [])
 
   const handleModalClose = () => setModalOpen(false)
   
