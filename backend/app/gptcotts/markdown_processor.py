@@ -1,6 +1,8 @@
 # noqa: D100
 from pathlib import Path
+
 from gptcotts.utils import timing
+
 
 @timing
 def convert_to_markdown(notes: dict) -> str:

@@ -1,10 +1,10 @@
-from typing import Optional
-
 from fastapi import APIRouter
 from gptcotts.indexing import update_notes
-from gptcotts.markdown_processor import (convert_to_chunks,
-                                         convert_to_markdown,
-                                         convert_to_sections)
+from gptcotts.markdown_processor import (
+    convert_to_chunks,
+    convert_to_markdown,
+    convert_to_sections,
+)
 from gptcotts.s3_connector import get_object_from_s3, put_object_to_s3
 from pydantic import BaseModel
 

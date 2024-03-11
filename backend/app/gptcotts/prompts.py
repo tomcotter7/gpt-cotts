@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class BasePrompt(BaseModel):
     """Base class for prompts."""
     system: str
