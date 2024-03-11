@@ -110,10 +110,10 @@ export default function Notes() {
     saveNotes(sortedData, oldTitle, newTitle,  "Section saved successfully", "Section failed to save. Try again later.")
   }
 
-  if (!loggedIn) {
-    return <p>Not logged in</p>
+  //if (!loggedIn) {
+    // return <p>Not logged in</p>
     // return <NotLoggedIn/>
-  }
+  //}
 
   return (
     <>
