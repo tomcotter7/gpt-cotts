@@ -12,10 +12,6 @@ router = APIRouter(
         prefix="/gptcotts/notes"
 )
 
-class NotesRequest(BaseModel):
-    user_id: Optional[str] = "tom"
-    notes_class: Optional[str] = "cs_notes"
-
 class UpdateNotesRequest(BaseModel):
     user_id: str = "tom"
     notes_class: str = "cs_notes"

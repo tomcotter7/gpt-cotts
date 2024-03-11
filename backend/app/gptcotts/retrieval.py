@@ -90,6 +90,7 @@ def search(
         index: str,
         namespace: str,
         query: str,
+        top_k: int = 5,
         rerank: bool = False,
         rerank_threshold: float = 0.75
 ) -> list[dict]:
@@ -113,11 +114,13 @@ def search(
             raise ValueError(f"Index {index} not found")
 
         embedding = embed(cohere_client, [query])
-        formatted_results = query_pinecone(pc_index, embedding, namespace)
+        pinecone_topk = top_k
+        if rerank:
+            pinecone_topk = top_k * 10
+        results = query_pinecone(pc_index, embedding, namespace, top_k=pinecone_topk)
 
         if rerank:
-            reranked_result = flashrank_rerank(query, formatted_results, threshold=rerank_threshold)
-            return reranked_result
+            results = flashrank_rerank(query, results, threshold=rerank_threshold)
 
-
-        return formatted_results
+        results = results[:pinecone_topk]
+        return results

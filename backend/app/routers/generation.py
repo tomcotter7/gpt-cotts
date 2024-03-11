@@ -20,8 +20,8 @@ class NonRAGRequest(BaseModel):
 
 class RAGRequest(BaseModel):
     query: str
-    index: str
-    namespace: str
+    index: str = "notes"
+    namespace: str = "tcotts-notes"
     model: Optional[str] = "gpt-3.5-turbo"
     history: Optional[list] = []
 
@@ -43,13 +43,19 @@ def generate_response(request: NonRAGRequest):
 
 @router.post("/rag")
 def generate_rag_response(request: RAGRequest):
-    relevant_context = search(request.index, request.namespace, request.query, rerank=True, rerank_threshold=0.75)
-    if not relevant_context:
-        llm_request = LLMRequest(prompt=NoContextPrompt(query=request.query), model=request.model, history=request.history)
-        return StreamingResponse(generate_openai_response(llm_request))
+    try:
+        relevant_context = search(request.index, request.namespace, request.query, rerank=True, rerank_threshold=0.75)
+        if not relevant_context:
+            llm_request = LLMRequest(prompt=NoContextPrompt(query=request.query), model=request.model, history=request.history)
+            return StreamingResponse(generate_openai_response(llm_request))
 
-    llm_request = LLMRequest(prompt=RAGPrompt(context=relevant_context, query=request.query), model=request.model, history=request.history)
-    return StreamingResponse(generate_openai_response(llm_request))
+        llm_request = LLMRequest(prompt=RAGPrompt(context=relevant_context, query=request.query), model=request.model, history=request.history)
+        return StreamingResponse(generate_openai_response(llm_request))
+    except Exception as e:
+        return {
+            "status": "400",
+            "message": str(e)
+        }
 
 def generate_openai_response(request: LLMRequest):
     client = OpenAI()
