@@ -90,7 +90,7 @@ export default function Chat() {
     stop.current = false
     let stream;
     if (settings.rag) {
-      stream =  await sendMessage(message, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`)
+      stream =  await sendMessage(message, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`)
     } else {
       stream = await sendMessage(message, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`)
     }
