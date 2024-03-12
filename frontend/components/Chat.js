@@ -23,6 +23,7 @@ const sendMessage = async (message, url) => {
   })
   
   if (response.ok) {
+    console.log(response.headers.get("relevent_context"))
     const stream = response.body.pipeThrough(new TextDecoderStream()).getReader();
     return stream
   } else {
@@ -85,7 +86,6 @@ export default function Chat() {
 
 
   async function makeLLMRequest(message, settings) {
-    console.log(message)
     setGenerating(true)
     stop.current = false
     let stream;
@@ -106,10 +106,10 @@ export default function Chat() {
     let { value, done } = await stream.read();
     if (done | stop.current) {
       return response;
-    }
+    } 
     response += value;
     setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now()}, ...prevChats])
-
+    const search = "<EOS><SOC>"
     while (true) {
       let { value, done } = await stream.read();
       if (done | stop.current) {
@@ -117,7 +117,15 @@ export default function Chat() {
         setGenerating(false)
         break;
       }
-      response += value;
+        
+      const pos = value.indexOf(search)
+        if (pos !== -1) {
+          response += value.substring(0, pos)
+          const context = value.substring(pos + search.length, value.length)
+          console.log(context)
+        } else {
+          response += value;
+        }
       setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now()}, ...prevChats.slice(1, prevChats.length)])
     }
   }
@@ -137,7 +145,6 @@ export default function Chat() {
   function onClearButtonClick() {
     stop.current = true
     setChats([])
-    pingServer(`${process.env.NEXT_PUBLIC_API_URL}/clear`)
   }
 
   function handleSettingsChange(newSettings) {
@@ -221,7 +228,8 @@ function ChatForm({onChatSubmit}) {
   }
 
   function adjustHeight(el){
-      el.style.height = (el.scrollHeight > el.clientHeight) ? (el.scrollHeight)+"px" : "60px";
+      el.style.height = "auto"
+      el.style.height = (el.scrollHeight)+"px"
   }
 
   function onEnterPress(e) {
@@ -257,7 +265,7 @@ function ChatForm({onChatSubmit}) {
 }
 
 function ChatBox({role, text}) {
-  var containerClasses = `border rounded border-2 mb-2 w-3/4 p-2`
+  var containerClasses = `border rounded border-2 mb-2 w-11/12 p-2`
 
   if (role === 'user') {
     containerClasses += ` bg-white border-fuchsia-500`

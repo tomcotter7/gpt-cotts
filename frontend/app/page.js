@@ -6,7 +6,7 @@ import axios from 'axios'
 
 export default function Home() {
 
-  const [adjustedHeight, setAdjustedHeight] = useState(0)
+  const [adjustedHeight, setAdjustedHeight] = useState('93vh')
 
   
   useEffect(() => {
