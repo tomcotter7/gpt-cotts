@@ -72,7 +72,7 @@ def generate_openai_response(request: LLMRequest, context: list[dict] = []):
         value = chunk.choices[0].delta.content
         if value:
             yield value
-    
+
     yield "<EOS><SOC>"
 
     for context_item in context:
