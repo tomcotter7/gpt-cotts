@@ -164,7 +164,7 @@ export default function Chat() {
               <Image
                   src="/imgs/sd_logo.png"
                   alt="logo"
-                  width={1000}
+                  width={500}
                   height={25}
                   quality={100}
                 />
