@@ -155,7 +155,7 @@ export default function Chat() {
           <div className="m-4 grow">
             <div className="flex justify-center">
               <Image
-                  src="/imgs/for_valued_member.png"
+                  src="/imgs/sd_logo.png"
                   alt="logo"
                   width={1000}
                   height={25}
