@@ -8,22 +8,24 @@ import Image from 'next/image'
 import axios from 'axios'
 
 
-const sendMessage = async (message, url) => {
-  const token = localStorage.getItem('token')
-  const response = await fetch(url, {
+const sendMessage = async (raw_request, url) => {
+  // const token = localStorage.getItem('token')
+  const raw = JSON.stringify(raw_request);
+
+  const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
+  myHeaders.append("Cache-Control", "no-cache");
+  myHeaders.append("Connection", "keep-alive");
+
+  const requestOptions = {
     method: 'POST',
-    body: JSON.stringify({message}),
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
-      'Authorization': `Bearer ${token}`
-    },
-    body: JSON.stringify(message)
-  })
+    headers: myHeaders,
+    body: raw,
+    redirect: 'follow'
+  };
+  const response = await fetch(url, requestOptions)
   
   if (response.ok) {
-    console.log(response.headers.get("relevent_context"))
     const stream = response.body.pipeThrough(new TextDecoderStream()).getReader();
     return stream
   } else {
@@ -85,14 +87,14 @@ export default function Chat() {
 
 
 
-  async function makeLLMRequest(message, settings) {
+  async function makeLLMRequest(request, settings) {
     setGenerating(true)
     stop.current = false
     let stream;
     if (settings.rag) {
-      stream =  await sendMessage(message, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`)
+      stream =  await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`)
     } else {
-      stream = await sendMessage(message, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`)
+      stream = await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`)
     }
 
     if (stream === "unauthorized") {
@@ -108,7 +110,7 @@ export default function Chat() {
       return response;
     } 
     response += value;
-    setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now()}, ...prevChats])
+    setChats((prevChats) => [{role: 'assistant', content: response, id: Date.now()}, ...prevChats])
     const search = "<EOS><SOC>"
     while (true) {
       let { value, done } = await stream.read();
@@ -126,16 +128,17 @@ export default function Chat() {
         } else {
           response += value;
         }
-      setChats((prevChats) => [{role: 'assistant', text: response, id: Date.now()}, ...prevChats.slice(1, prevChats.length)])
+      setChats((prevChats) => [{role: 'assistant', content: response, id: Date.now()}, ...prevChats.slice(1, prevChats.length)])
     }
   }
 
   function onChatSubmit(e) {
     e.preventDefault();
     const chatInput = document.getElementById('chat-input');
-    const chatBox = {role: 'user', text: chatInput.value, id: Date.now()};
-    setChats((prevChats) => [chatBox, ...prevChats]);
-    makeLLMRequest({query: chatInput.value}, settings);
+    const chatBox = {role: 'user', content: chatInput.value, id: Date.now()};
+    const newChats = [chatBox, ...chats]
+    setChats(newChats);
+    makeLLMRequest({query: chatInput.value, history: newChats}, settings);
   }
 
   function onStopButtonClick() {
@@ -185,7 +188,7 @@ export default function Chat() {
         <div className="m-4 grow h-4/6">
           <div className="flex flex-col-reverse mx-2 overflow-y-auto max-h-full" id="chat-boxes">
             {chats.map((chat) => (
-              <ChatBox key={chat.id} role={chat.role} text={chat.text}/>
+              <ChatBox key={chat.id} role={chat.role} text={chat.content}/>
             ))}
           </div>
         </div>
