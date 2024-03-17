@@ -1,14 +1,56 @@
+import json
 import logging
 import os
 from pathlib import Path
 
 import cohere
 from flashrank import Ranker, RerankRequest
+from openai import OpenAI
 from pinecone import Index
 
 from .cohere_utils import connect_to_cohere
 from .pinecone_utils import connect_to_pinecone
+from .prompts import RewriteQueryForRAG, RewriteQueryFunction
 from .utils import timing
+
+
+@timing
+def rewrite_query(query: str, history: list[dict]) -> str:
+    """Rewrite the query using a language model.
+
+    Args:
+        query: The query to be rewritten.
+
+    Returns:
+        The rewritten query.
+    """
+
+    prompt = RewriteQueryForRAG(query=query, history=history[:-1])
+    client = OpenAI()
+    print(str(prompt))
+    resp = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "system", "content": prompt.system},
+                  {"role": "user", "content": str(prompt)}],
+        temperature=0.0,
+        tools=[{
+            "type": "function",
+            "function": {
+                "name": "RewrittenQuery",
+                "description": "The new query.",
+                "parameters": RewriteQueryFunction.model_json_schema(),
+            },
+        }],
+        tool_choice={
+            "type": "function",
+            "function": {"name": "RewrittenQuery"},
+        },
+    )
+    response = resp.choices[0].message.tool_calls[0].function.arguments  # type: ignore
+    print(f">>> Rewritten query: {response}")
+    results = RewriteQueryFunction(**(json.loads(response)))
+    return results.new_query
+
 
 
 @timing
@@ -90,6 +132,7 @@ def search(
         index: str,
         namespace: str,
         query: str,
+        chat_history: list[dict],
         top_k: int = 5,
         rerank: bool = False,
         rerank_threshold: float = 0.75
@@ -112,6 +155,9 @@ def search(
 
         if not pc_index:
             raise ValueError(f"Index {index} not found")
+
+        print(">>> Chat history:", chat_history)
+        query = rewrite_query(query, chat_history)
 
         embedding = embed(cohere_client, [query])
         pinecone_topk = top_k

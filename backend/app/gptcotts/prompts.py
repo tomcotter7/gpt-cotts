@@ -22,3 +22,25 @@ class NoContextPrompt(BasePrompt):
     def __str__(self):
         """Return the base prompt as a string."""
         return f"""{self.query}"""
+
+class RewriteQueryFunction(BaseModel):
+    new_query: str
+
+class RewriteQueryForRAG(BasePrompt):
+    system: str = """You are a AI assistant with one task.
+
+Rewrite the input query (<query>) based on the chat history (<history>) such that is it optimized for retrieval and contains the keywords it is referencing. If it does not need to be re-written, return the original query.
+
+Some tips:
+    - Words like 'it', 'that', 'this', etc. should be replaced with the actual noun they are referencing.
+    - If the query is too vague, make it more specific.
+
+Return the results of the task as a JSON output.
+"""
+    history: list[dict]
+    query: str
+
+    def __str__(self):
+        """Return the prompt as a string."""
+        return f""""<history>{self.history}</history><query>{self.query}</query>"""
+
