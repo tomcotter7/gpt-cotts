@@ -35,21 +35,10 @@ const sendMessage = async (raw_request, url) => {
   }
 }
 
-const pingServer = async (url) => {
-  await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive'
-    },
-    body: JSON.stringify({})
-  })
-}
-
 export default function Chat() {
 
   const [chats, setChats] = useState([])
+  const [model, SetModel] = useState("gpt-3.5-turbo")
   const [generating, setGenerating] = useState(false)
   const stop = useRef(false)
   const [settings, setSettings] = useState({
@@ -87,11 +76,13 @@ export default function Chat() {
 
 
 
-  async function makeLLMRequest(request, settings) {
+  async function makeLLMRequest(request, rag) {
     setGenerating(true)
     stop.current = false
     let stream;
-    if (settings.rag) {
+
+    console.log(request)
+    if (rag) {
       stream =  await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`)
     } else {
       stream = await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`)
@@ -138,7 +129,8 @@ export default function Chat() {
     const chatBox = {role: 'user', content: chatInput.value, id: Date.now()};
     const newChats = [chatBox, ...chats]
     setChats(newChats);
-    makeLLMRequest({query: chatInput.value, history: newChats}, settings);
+    const model_to_use = settings.gpt4 ? "gpt-4" : "gpt-3.5-turbo"
+    makeLLMRequest({query: chatInput.value, history: newChats, model: model_to_use}, settings.rag);
   }
 
   function onStopButtonClick() {
@@ -174,7 +166,7 @@ export default function Chat() {
             </div>
           </div>
           <div className="m-4">
-            <ChatForm onChatSubmit={onChatSubmit} onSettingsChange={handleSettingsChange} />
+            <ChatForm onChatSubmit={onChatSubmit} settings={settings} />
           </div>
         </div>
       </>
@@ -209,7 +201,7 @@ export default function Chat() {
               <b>clear</b>
             </button>
           </div>
-          <ChatForm onChatSubmit={onChatSubmit}  />
+          <ChatForm onChatSubmit={onChatSubmit} settings={settings} />
         </div>
       </div>
     )  
@@ -217,7 +209,7 @@ export default function Chat() {
 }
 
 
-function ChatForm({onChatSubmit}) {
+function ChatForm({onChatSubmit, settings}) {
 
   function resetChatInput() {
     const chatInput = document.getElementById('chat-input');
@@ -244,26 +236,31 @@ function ChatForm({onChatSubmit}) {
   }
  
   return (
-    <>
+    <div>
       <form>
-        <div className="flex space-x-4 mx-4">
-          <textarea
-            className="p-2 rounded text-black w-full"
-            type="text"
-            id="chat-input"
-            placeholder="What's the issue?"
-            onKeyUp={(e) => adjustHeight(e.target)}
-            onKeyDown={(e) => onEnterPress(e)}
-          />
-          <button
-            className="px-4 bg-purple-600 hover:bg-purple-500 rounded border border-2 border-purple-600 text-black"
-            onClick={onGoButtonClick}
-          >
-            <b>Go!</b>
-          </button>
-        </div>
+          <div class="flex flex-row space-x-4 w-full border">
+              <div className="flex flex-col justify-center w-11/12">
+                  <div className="bg-green-200 rounded">
+                    <span className="text-black p-2"> Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{ settings.gpt4 ? "gpt-4" : "gpt-3.5-turbo" }</b> </span>
+                  </div>
+                  <textarea
+                    className="p-4 rounded text-black"
+                    type="text"
+                    id="chat-input"
+                    placeholder="What's the issue?"
+                    onKeyUp={(e) => adjustHeight(e.target)}
+                    onKeyDown={(e) => onEnterPress(e)}
+                  />
+              </div>
+              <button
+                className="w-1/12 bg-purple-600 hover:bg-purple-500 rounded border border-2 border-purple-600 text-black"
+                onClick={onGoButtonClick}
+              >
+                <b>Go!</b>
+              </button>
+          </div>
       </form>
-    </>
+    </div>
   )
 }
 
