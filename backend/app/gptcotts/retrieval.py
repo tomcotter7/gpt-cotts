@@ -27,7 +27,6 @@ def rewrite_query(query: str, history: list[dict]) -> str:
 
     prompt = RewriteQueryForRAG(query=query, history=history[:-1])
     client = OpenAI()
-    print(str(prompt))
     resp = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "system", "content": prompt.system},
@@ -47,9 +46,25 @@ def rewrite_query(query: str, history: list[dict]) -> str:
         },
     )
     response = resp.choices[0].message.tool_calls[0].function.arguments  # type: ignore
-    print(f">>> Rewritten query: {response}")
+    logging.info(f">>> Rewritten query: {response}")
     results = RewriteQueryFunction(**(json.loads(response)))
     return results.new_query
+
+@timing
+def load_reranker() -> Ranker:
+    """Load the FlashRank reranker.
+
+    Returns:
+        The FlashRank reranker.
+    """
+    path = Path(__file__).parent.parent.parent / "cache"
+    if os.path.exists(path):
+        logging.info(">>> Loading FlashRank reranker")
+    else:
+        logging.info(">>> FlashRank reranker not found - downloading it.")
+
+    return Ranker(cache_dir=path) # type: ignore
+
 
 
 
@@ -70,7 +85,7 @@ def flashrank_rerank(query: str, results: list[dict], threshold: float = 0.75) -
     Returns:
         A list of dictionaries containing the reranked results. All chunks with a score lower than the threshold are removed.
     """
-    ranker = Ranker(cache_dir=Path(__file__).parent.parent / "cache") # type: ignore
+    ranker =  load_reranker()
     rerank_request = RerankRequest(
         query=query,
         passages=results
@@ -156,7 +171,6 @@ def search(
         if not pc_index:
             raise ValueError(f"Index {index} not found")
 
-        print(">>> Chat history:", chat_history)
         query = rewrite_query(query, chat_history)
 
         embedding = embed(cohere_client, [query])
