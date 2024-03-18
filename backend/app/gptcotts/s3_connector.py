@@ -4,7 +4,6 @@ from gptcotts.utils import timing
 
 @timing
 def get_object_from_s3(bucket: str, key: str):
-    print(key)
     client = boto3.client('s3')
     response = client.get_object(Bucket=bucket, Key=key)
     return response['Body'].read().decode('utf-8')
