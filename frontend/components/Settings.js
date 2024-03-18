@@ -5,6 +5,7 @@ export function Settings({onSettingsChange}) {
   const [isOpen, setIsOpen] = useState(false)
   const [settings, setSettings] = useState({
     rag: true,
+    gpt4: false
   })
   const didMount = useRef(false);
 
@@ -17,7 +18,11 @@ export function Settings({onSettingsChange}) {
   }
 
   function handleCheckboxChange(setting) {
-      setSettings({rag: !settings.rag})
+      if (setting === 'RAG') {
+        setSettings({rag: !settings.rag})
+      } else if (setting === 'GPT4') {
+        setSettings({gpt4: !settings.gpt4})
+      }
   }
   
   return (
@@ -43,14 +48,25 @@ export function Settings({onSettingsChange}) {
       { isOpen && ( 
         <div className="absolute right-5 top-48 py-2 px-4 space-y-2 shadow-lg bg-white border border-gray-300 rounded-md ">
           <div className="p-2">
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={settings.rag}
-                className="form-checkbox"
-                onChange={() => handleCheckboxChange('RAG')}
-              />
-              <span className="ml-2 text-black">query over your own notes?</span>
+            <label className="flex-col items-center">
+              <div>
+                  <input
+                    type="checkbox"
+                    checked={settings.rag}
+                    className="form-checkbox"
+                    onChange={() => handleCheckboxChange('RAG')}
+                  />
+                  <span className="ml-2 text-black">query over your own notes?</span>
+              </div>
+              <div>
+                  <input
+                    type="checkbox"
+                    checked={settings.gpt4}
+                    className="form-checkbox"
+                    onChange={() => handleCheckboxChange('GPT4')}
+                  />
+                  <span className="ml-2 text-black">use GPT-4?</span>
+              </div>
             </label>
           </div>
         </div>

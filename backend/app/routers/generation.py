@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 
 from fastapi import APIRouter
@@ -13,8 +14,8 @@ router = APIRouter(
 
 class NonRAGRequest(BaseModel):
     query: str
-    model: Optional[str] = "gpt-3.5-turbo"
-    history: list = []
+    model: str
+    history: list
 
 class RAGRequest(BaseModel):
     query: str
@@ -79,6 +80,7 @@ def generate_rag_response(request: RAGRequest):
 def generate_openai_response(request: LLMRequest, context: list[dict] = []):
     client = OpenAI()
     model = request.model or "gpt-3.5-turbo"
+    logging.info(f">>> Using model: {model}")
     system_prompt = request.prompt.system
     messages = [{"role": "system", "content": system_prompt}] + request.history \
         + [{"role": "user", "content": str(request.prompt)}]
