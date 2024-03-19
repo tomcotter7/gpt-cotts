@@ -238,9 +238,9 @@ function ChatForm({onChatSubmit, settings}) {
   return (
     <div>
       <form>
-          <div class="flex flex-row space-x-4 w-full border">
+          <div class="flex flex-row space-x-4 w-full">
               <div className="flex flex-col justify-center w-11/12">
-                  <div className="bg-green-200 rounded">
+                  <div className="bg-lime-200 rounded">
                     <span className="text-black p-2"> Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{ settings.gpt4 ? "gpt-4" : "gpt-3.5-turbo" }</b> </span>
                   </div>
                   <textarea
