@@ -9,12 +9,17 @@ The MVP for this is essentially a LLM with access to personalized notes - editab
      - [X] 2 page website with 'Chat' and 'Notes' - React/Next.js
      - [X] Backend to handle LLM and note changes - Fastapi
      - [X] Deployed - Currently running on AWS Lambda
-     - [ ] Database for notes 
-     - [ ] Authentication - Google Auth added.
-     - [ ] RAG Triad Evals
+     - [ ] Database for notes - S3 / GitHub
+     - [ ] Authentication - AWS
      - [ ] Custom System Prompts
-     - [ ] Sentence Window Retrieval for large note clusters.
-     - [ ] Adding IR techniques for better retrieval.
+
+## ToDo List
+
+- Custom System Prompt
+- Golang script for Github <-> S3
+- Auth
+- Hybrid Search with SPLADEv3
+- Self-Rag with internet search.
 
 
 ## Features
