@@ -1,6 +1,5 @@
 "use client";
 import Chat from '@/components/Chat'
-import { Settings } from '@/components/Settings'
 import { useEffect, useState } from "react"
 import axios from 'axios'
 

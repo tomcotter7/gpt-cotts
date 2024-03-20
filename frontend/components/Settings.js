@@ -1,16 +1,16 @@
 import { useState, useEffect, useRef } from "react"
 
-export function Settings({onSettingsChange}) {
+export function Settings({onSettingsChange, passed_settings}) {
 
   const [isOpen, setIsOpen] = useState(false)
   const [settings, setSettings] = useState({
-    rag: true,
-    gpt4: false
+    rag: passed_settings.rag,
+    gpt4: passed_settings.gpt4
   })
   const didMount = useRef(false);
 
   useEffect(() => {
-    onSettingsChange(settings)
+      onSettingsChange(settings)
   }, [settings])
 
   function handleToggle() {
