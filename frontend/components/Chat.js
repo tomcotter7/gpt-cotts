@@ -42,7 +42,8 @@ export default function Chat() {
   const [generating, setGenerating] = useState(false)
   const stop = useRef(false)
   const [settings, setSettings] = useState({
-    rag: true
+    rag: true,
+    gpt4: false
   })
 
   const [toasts, setToasts] = useState({})
@@ -152,7 +153,7 @@ export default function Chat() {
         <ToastBox toasts={toasts} setToasts={setToasts}/>
         <div className="lg:w-screen w-11/12 h-full flex flex-col">
           <div className="flex m-4 justify-end">
-            <Settings onSettingsChange={handleSettingsChange}/>
+            <Settings settings={settings} onSettingsChange={handleSettingsChange}/>
           </div>
           <div className="m-4 grow">
             <div className="flex justify-center">
@@ -175,7 +176,7 @@ export default function Chat() {
     return (
       <div className="lg:w-screen w-11/12 h-full flex flex-col">
         <div className="flex m-4 justify-end">
-          <Settings onSettingsChange={handleSettingsChange}/>
+          <Settings settings={settings} onSettingsChange={handleSettingsChange}/>
         </div>
         <div className="m-4 grow h-4/6">
           <div className="flex flex-col-reverse mx-2 overflow-y-auto max-h-full" id="chat-boxes">
