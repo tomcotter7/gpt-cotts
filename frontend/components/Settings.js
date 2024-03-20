@@ -19,9 +19,9 @@ export function Settings({onSettingsChange}) {
 
   function handleCheckboxChange(setting) {
       if (setting === 'RAG') {
-        setSettings({rag: !settings.rag})
+        setSettings({...settings, rag: !settings.rag})
       } else if (setting === 'GPT4') {
-        setSettings({gpt4: !settings.gpt4})
+        setSettings({...settings, gpt4: !settings.gpt4})
       }
   }
   
