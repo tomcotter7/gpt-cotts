@@ -1,9 +1,8 @@
 version = 0.1
 [default.deploy.parameters]
-stack_name = "gpt-cotts-backend"
+stack_name = "gptcotts-fastapi"
 resolve_s3 = true
-s3_prefix = "gpt-cotts-backend"
+s3_prefix = "gptcotts-fastapi"
 region = "eu-north-1"
-confirm_changeset = true
 capabilities = "CAPABILITY_IAM"
-image_repositories = ["FastAPIFunction=816149945621.dkr.ecr.eu-north-1.amazonaws.com/gptcottsbackend284fe733/fastapifunctionead79d0drepo"]
+image_repositories = ["FastAPIFunction=816149945621.dkr.ecr.eu-north-1.amazonaws.com/gptcottsfastapi3425c386/fastapifunctionead79d0drepo"]

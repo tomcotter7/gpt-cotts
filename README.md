@@ -11,11 +11,10 @@ The MVP for this is essentially a LLM with access to personalized notes - editab
      - [X] Deployed - Currently running on AWS Lambda
      - [ ] Database for notes - S3 / GitHub
      - [ ] Authentication - AWS
-     - [ ] Custom System Prompts
+     - [X] Custom System Prompts
 
 ## ToDo List
 
-- Custom System Prompt
 - Golang script for Github <-> S3
 - Auth
 - Hybrid Search with SPLADEv3
