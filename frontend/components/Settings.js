@@ -10,7 +10,7 @@ export function Settings({onSettingsChange, passed_settings}) {
   const didMount = useRef(false);
 
   useEffect(() => {
-    onSettingsChange(settings)
+      onSettingsChange(settings)
   }, [settings])
 
   function handleToggle() {
