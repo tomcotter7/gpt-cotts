@@ -4,9 +4,14 @@ from pydantic import BaseModel
 class BasePrompt(BaseModel):
     """Base class for prompts."""
     system: str
+    expertise: str
+
+    def system_prompt(self):
+        """Return the system prompt."""
+        return self.system.format(expertise=self.expertise)
 
 class RAGPrompt(BasePrompt):
-    system: str = "You are a AI language model called gpt-cotts. Given a query and a relevant context to that query, you are tasked with generating a response to that query"
+    system: str = "You are a AI language model called gpt-cotts. Given a query and a relevant context to that query, you are tasked with generating a response to that query. You should act as if you have {expertise} expertise in the topic asked about."
     context: list[dict]
     query: str
 
@@ -16,7 +21,7 @@ class RAGPrompt(BasePrompt):
         return f"""<context>{context}</context>\n<query>{self.query}</query>"""
 
 class NoContextPrompt(BasePrompt):
-    system: str = "You are a AI language model called gpt-cotts. Given a query, you are tasked with generating a response to that query"
+    system: str = "You are a AI language model called gpt-cotts. Given a query, you are tasked with generating a response to that query. You should act as if you have {expertise} expertise in the topic asked about."
     query: str
 
     def __str__(self):

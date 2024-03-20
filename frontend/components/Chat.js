@@ -35,6 +35,20 @@ const sendMessage = async (raw_request, url) => {
   }
 }
 
+const convertSliderToExpertise = (slider) => {
+    if (slider === 0) {
+        return "baby-like"
+    } else if (slider === 25) {
+        return "basic"
+    } else if (slider === 50) {
+        return "normal"
+    } else if (slider === 75) {
+        return "expert"
+    } else {
+        return "masterful"
+    }
+
+}
 export default function Chat() {
 
   const [chats, setChats] = useState([])
@@ -43,7 +57,8 @@ export default function Chat() {
   const stop = useRef(false)
   const [settings, setSettings] = useState({
     rag: true,
-    gpt4: false
+    gpt4: false,
+    slider: 50
   })
 
   const [toasts, setToasts] = useState({})
@@ -131,7 +146,13 @@ export default function Chat() {
     const newChats = [chatBox, ...chats]
     setChats(newChats);
     const model_to_use = settings.gpt4 ? "gpt-4" : "gpt-3.5-turbo"
-    makeLLMRequest({query: chatInput.value, history: newChats, model: model_to_use}, settings.rag);
+    makeLLMRequest(
+        {
+            query: chatInput.value,
+            history: newChats,
+            model: model_to_use,
+            expertise: convertSliderToExpertise(settings.slider)
+        }, settings.rag);
   }
 
   function onStopButtonClick() {
@@ -144,7 +165,8 @@ export default function Chat() {
   }
 
   function handleSettingsChange(newSettings) {
-    setSettings(newSettings)
+      console.log(newSettings)
+      setSettings(newSettings)
   }
 
   if (chats.length === 0) {
@@ -152,9 +174,7 @@ export default function Chat() {
       <>
         <ToastBox toasts={toasts} setToasts={setToasts}/>
         <div className="lg:w-screen w-11/12 h-full flex flex-col">
-          <div className="flex m-4 justify-end">
             <Settings passed_settings={settings} onSettingsChange={handleSettingsChange}/>
-          </div>
           <div className="m-4 grow">
             <div className="flex justify-center">
               <Image
@@ -175,9 +195,7 @@ export default function Chat() {
   } else {
     return (
       <div className="lg:w-screen w-11/12 h-full flex flex-col">
-        <div className="flex m-4 justify-end">
-          <Settings passed_settings={settings} onSettingsChange={handleSettingsChange}/>
-        </div>
+        <Settings passed_settings={settings} onSettingsChange={handleSettingsChange}/>
         <div className="m-4 grow h-4/6">
           <div className="flex flex-col-reverse mx-2 overflow-y-auto max-h-full" id="chat-boxes">
             {chats.map((chat) => (
@@ -242,7 +260,7 @@ function ChatForm({onChatSubmit, settings}) {
           <div className="flex flex-row space-x-4 w-full">
               <div className="flex flex-col justify-center w-11/12">
                   <div className="bg-lime-200 rounded">
-                    <span className="text-black p-2"> Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{ settings.gpt4 ? "gpt-4" : "gpt-3.5-turbo" }</b> </span>
+                    <span className="text-black p-2"> Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{ settings.gpt4 ? "gpt-4" : "gpt-3.5-turbo" }</b> with <b> { convertSliderToExpertise(settings.slider) } </b> expertise </span>
                   </div>
                   <textarea
                     className="p-4 rounded text-black"

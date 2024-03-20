@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
@@ -12,17 +11,15 @@ router = APIRouter(
     prefix="/gptcotts/generation"
 )
 
-class NonRAGRequest(BaseModel):
+class BaseRequest(BaseModel):
     query: str
     model: str
     history: list
+    expertise: str = "normal"
 
-class RAGRequest(BaseModel):
-    query: str
+class RAGRequest(BaseRequest):
     index: str = "notes"
     namespace: str = "tcotts-notes"
-    model: Optional[str] = "gpt-3.5-turbo"
-    history: list = []
 
 class LLMRequest(BaseModel):
     prompt: BasePrompt
@@ -36,12 +33,12 @@ def filter_history(history):
     return history
 
 @router.post("/base")
-def generate_response(request: NonRAGRequest):
+def generate_response(request: BaseRequest):
     try:
         history = filter_history(request.history)
         model = request.model or "gpt-3.5-turbo"
         llm_request = LLMRequest(
-                prompt=NoContextPrompt(query=request.query),
+                prompt=NoContextPrompt(query=request.query, expertise=request.expertise),
                 model=model,
                 history=history
         )
@@ -66,10 +63,10 @@ def generate_rag_response(request: RAGRequest):
         )
         model = request.model or "gpt-3.5-turbo"
         if not relevant_context:
-            llm_request = LLMRequest(prompt=NoContextPrompt(query=request.query), model=model, history=history)
+            llm_request = LLMRequest(prompt=NoContextPrompt(query=request.query, expertise=request.expertise), model=model, history=history)
             return StreamingResponse(generate_openai_response(llm_request))
 
-        llm_request = LLMRequest(prompt=RAGPrompt(context=relevant_context, query=request.query), model=model, history=history)
+        llm_request = LLMRequest(prompt=RAGPrompt(context=relevant_context, query=request.query, expertise=request.expertise), model=model, history=history)
         return StreamingResponse(generate_openai_response(llm_request, relevant_context))
     except Exception as e:
         return {
@@ -81,7 +78,7 @@ def generate_openai_response(request: LLMRequest, context: list[dict] = []):
     client = OpenAI()
     model = request.model or "gpt-3.5-turbo"
     logging.info(f">>> Using model: {model}")
-    system_prompt = request.prompt.system
+    system_prompt = request.prompt.system_prompt()
     messages = [{"role": "system", "content": system_prompt}] + request.history \
         + [{"role": "user", "content": str(request.prompt)}]
     response = client.chat.completions.create(
