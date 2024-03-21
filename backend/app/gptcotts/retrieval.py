@@ -25,7 +25,7 @@ def rewrite_query(query: str, history: list[dict]) -> str:
         The rewritten query.
     """
 
-    prompt = RewriteQueryForRAG(query=query, history=history[:-1])
+    prompt = RewriteQueryForRAG(query=query, history=history[:-1], expertise="")
     client = OpenAI()
     resp = client.chat.completions.create(
         model="gpt-3.5-turbo",

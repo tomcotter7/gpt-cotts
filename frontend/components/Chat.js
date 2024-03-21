@@ -207,14 +207,14 @@ export default function Chat() {
           <div className="flex items-center justify-center m-4">
             <button
               id="stopGenerateButton"
-              className="px-4 bg-skyblue hover:bg-skyblue-dark border-tangerine rounded border border-2 text-white hidden"
+              className="px-4 bg-skyblue hover:bg-skyblue-dark border-tangerine rounded border border-2 text-black hidden"
               onClick={onStopButtonClick}
             >
               <b>stop</b>
             </button>
             <button
               id="clearButton"
-              className="px-4 bg-skyblue hover:bg-skyblue-dark border-tangerine rounded border border-2 text-white ml-2 hidden"
+              className="px-4 bg-skyblue hover:bg-skyblue-dark border-tangerine rounded border border-2 text-black ml-2 hidden"
               onClick={onClearButtonClick}
             >
               <b>clear</b>
@@ -287,7 +287,7 @@ function ChatBox({role, text}) {
   var containerClasses = `border rounded border-2 mb-2 w-11/12 p-2`
 
   if (role === 'user') {
-    containerClasses += ` bg-white border-skyblue`
+    containerClasses += ` bg-tangerine border-skyblue`
   } else {
     containerClasses += ` ml-auto bg-skyblue border-white`
   }
