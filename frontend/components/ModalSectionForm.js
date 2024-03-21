@@ -8,7 +8,7 @@ export default function ModalSectionForm({ open, onClose, onSave }) {
 
           <div className="bg-gray-400 p-4 w-full rounded-md shadow-md">
             <div className="flex">
-              <button className="ml-auto bg-purple-600 p-2 rounded hover:bg-red-500" onClick={onClose}>Cancel</button>
+              <button className="ml-auto bg-tangerine p-2 rounded hover:bg-spearmint" onClick={onClose}>Cancel</button>
             </div>
             <form className="flex flex-col" onSubmit={onSave}>
               <label className="text-lg text-black font-semibold mb-2"><u>Section Title</u></label>
@@ -16,7 +16,7 @@ export default function ModalSectionForm({ open, onClose, onSave }) {
               <label className="text-lg text-black font-semibold mb-2"><u>Section Content</u></label>
               <textarea className="border rounded-md p-2 text-black" style={{"height": "12vh"}} name="content" />
               <div className="flex pt-2">
-                <button className="ml-auto bg-purple-600 p-2 rounded hover:bg-fuchsia-500" type="submit">Save</button>
+                <button className="ml-auto bg-tangerine p-2 rounded hover:bg-skyblue" type="submit">Save</button>
               </div>
             </form>
           </div>
