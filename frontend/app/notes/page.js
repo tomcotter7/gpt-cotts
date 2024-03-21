@@ -122,7 +122,7 @@ export default function Notes() {
         <ToastBox toasts={toasts} setToasts={setToasts}/>
         <h1 className="text-center text-4xl mb-2"><u>Notes</u></h1>
         <button 
-          className="px-4 bg-purple-600 hover:bg-purple-500 rounded border border-purple-600 border-2 text-black"
+          className="px-4 bg-tangerine hover:bg-tangerine-dark rounded border border-tangerine border-2 text-black"
           onClick={onAddNewSectionClick}
         >
         <b>Add new section</b>

@@ -44,7 +44,7 @@ export function Toast({ id, message, success, onDelete }) {
   }
 
   if (success) {
-    color = "bg-green-400"
+    color = "bg-spearmint"
     icon = () => {
       return (
         <span className="mr-2 h-4 w-4">

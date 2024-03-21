@@ -207,14 +207,14 @@ export default function Chat() {
           <div className="flex items-center justify-center m-4">
             <button
               id="stopGenerateButton"
-              className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white hidden"
+              className="px-4 bg-skyblue hover:bg-skyblue-dark border-tangerine rounded border border-2 text-white hidden"
               onClick={onStopButtonClick}
             >
               <b>stop</b>
             </button>
             <button
               id="clearButton"
-              className="px-4 bg-fuchsia-500 hover:bg-fuchsia-400 border-fuchsia-500 rounded border border-2 text-white ml-2 hidden"
+              className="px-4 bg-skyblue hover:bg-skyblue-dark border-tangerine rounded border border-2 text-white ml-2 hidden"
               onClick={onClearButtonClick}
             >
               <b>clear</b>
@@ -259,7 +259,7 @@ function ChatForm({onChatSubmit, settings}) {
       <form>
           <div className="flex flex-row space-x-4 w-full">
               <div className="flex flex-col justify-center w-11/12">
-                  <div className="bg-lime-200 rounded">
+                  <div className="bg-spearmint rounded">
                     <span className="text-black p-2"> Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{ settings.gpt4 ? "gpt-4" : "gpt-3.5-turbo" }</b> with <b> { convertSliderToExpertise(settings.slider) } </b> expertise </span>
                   </div>
                   <textarea
@@ -272,7 +272,7 @@ function ChatForm({onChatSubmit, settings}) {
                   />
               </div>
               <button
-                className="w-1/12 bg-purple-600 hover:bg-purple-500 rounded border border-2 border-purple-600 text-black"
+                className="w-1/12 bg-tangerine hover:bg-tangerine-dark rounded border border-2 border-tangerine text-black"
                 onClick={onGoButtonClick}
               >
                 <b>Go!</b>
@@ -287,9 +287,9 @@ function ChatBox({role, text}) {
   var containerClasses = `border rounded border-2 mb-2 w-11/12 p-2`
 
   if (role === 'user') {
-    containerClasses += ` bg-white border-fuchsia-500`
+    containerClasses += ` bg-white border-skyblue`
   } else {
-    containerClasses += ` ml-auto bg-fuchsia-500 border-white`
+    containerClasses += ` ml-auto bg-skyblue border-white`
   }
 
   return (

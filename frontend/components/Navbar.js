@@ -21,15 +21,15 @@ export default function Navbar() {
 
 
   return (
-    <nav id="nav" className="bg-fuchsia-500">
+    <nav id="nav" className="bg-skyblue">
       <div className="flex flex-row gap-4 p-4">
         <div className="flex-col">
           <Image src="/imgs/for_valued_member.png" alt="logo" width="125" height="125" />
-          <p className="text-sm">skill issues? use me.</p>
+          <p className="text-sm text-black">skill issues? use me.</p>
         </div>
-        <Link className="bg-gray-400 hover:bg-gray-300 rounded p-2 text-center mt-4 mb-1 max-h-10" href="/"><b>Home</b></Link>
-        <Link className="bg-gray-400 hover:bg-gray-300 rounded p-2 text-center mt-4 mb-1 max-h-10" href="/notes"><b>Notes</b></Link>
-        { loggedIn ? <div className="absolute right-6 bg-gray-400 rounded p-2 text-center m-4 max-h-10"> <b>{localStorage.getItem('initials')}</b> </div> : <button className="absolute right-6 m-4 bg-gray-400 hover:bg-gray-300 rounded p-2 text-center max-h-10" onClick={onLoginButtonClicked}><b>Login</b></button> }
+        <Link className="bg-tangerine hover:bg-tangerine-dark rounded p-2 text-center text-black mt-4 mb-1 max-h-10" href="/"><b>Home</b></Link>
+        <Link className="bg-tangerine hover:bg-tangerine-dark rounded p-2 text-center text-black mt-4 mb-1 max-h-10" href="/notes"><b>Notes</b></Link>
+        { loggedIn ? <div className="absolute right-6 bg-tangerine rounded p-2 text-center text-black m-4 max-h-10"> <b>{localStorage.getItem('initials')}</b> </div> : <button className="absolute right-6 m-4 bg-tangerine hover:tangerine-dark rounded p-2 text-center text-black max-h-10" onClick={onLoginButtonClicked}><b>Login</b></button> }
       </div>
     </nav>
   )

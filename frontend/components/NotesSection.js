@@ -25,7 +25,7 @@ function EditingSection({ title, content, id }) {
 function MarkdownSection({ title, content }) {
   return (
     <div>
-      <h1 className="text-fuchsia-500 text-center"><b> {title} </b></h1>
+      <h1 className="text-skyblue text-center"><b> {title} </b></h1>
       <Markdown remarkPlugins={remarkMath} rehypePlugins={rehypeKatex}>
         {content}
       </Markdown>
@@ -57,14 +57,14 @@ export function Section({ id, title, content, onSectionSave, onSectionDelete}) {
     <div>
       <div className="flex justify-end">
         <button
-          className="px-4 mr-2 mt-2 bg-fuchsia-500 hover:bg-fuchsia-400 rounded border border-2 text-white"
+          className="px-4 mr-2 mt-2 bg-spearmint hover:bg-spearmint-dark rounded border border-2 text-white"
           onClick={onEditButtonClick}
         >
           {editing ? 'Save' : 'Edit'}
         </button>
 
         <button
-          className="mr-2 mt-2 border bg-fuchsia-500 hover:bg-fuchsia-400 rounded border-2 px-4 text-white"
+          className="mr-2 mt-2 border bg-red-300 hover:bg-red-400 rounded border-2 px-4 text-white"
           onClick={onDeleteButtonClick}
         >
           <svg

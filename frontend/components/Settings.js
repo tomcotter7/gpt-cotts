@@ -26,9 +26,9 @@ export function Settings({onSettingsChange, passed_settings}) {
     }
   
   return (
-    <div className="flex justify-center bg-lime-200">
+    <div className="flex justify-center bg-spearmint">
         <form>
-            <label for="rag">
+            <label htmlFor="rag">
                 <span className="ml-2 text-black">query over your own notes?</span>
             </label>
             <input
@@ -38,7 +38,7 @@ export function Settings({onSettingsChange, passed_settings}) {
                 className="form-checkbox m-2"
                 onChange={() => handleCheckboxChange('RAG')}
             />
-            <label for="gpt4">
+            <label htmlFor="gpt4">
                 <span className="ml-2 text-black">use GPT-4?</span>
             </label>
             <input
@@ -48,7 +48,7 @@ export function Settings({onSettingsChange, passed_settings}) {
                 className="form-checkbox m-2"
                 onChange={() => handleCheckboxChange('GPT4')}
             />
-            <label for="slider">
+            <label htmlFor="slider">
                 <span className="ml-2 text-black">set expertise of model on topic</span>
             </label>
             <input
