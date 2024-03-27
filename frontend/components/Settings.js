@@ -49,7 +49,7 @@ export function Settings({onSettingsChange, passed_settings}) {
                 onChange={() => handleCheckboxChange('GPT4')}
             />
             <label htmlFor="slider">
-                <span className="ml-2 text-black">set expertise of model on topic</span>
+                <span className="ml-2 text-black">what's your expertise on the topic?</span>
             </label>
             <input
                 type="range"
