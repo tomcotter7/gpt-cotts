@@ -5,7 +5,7 @@ import axios from "axios";
 
 export default function Auth() {
 
-  const params = useSearchParams()
+  //const params = useSearchParams()
   const [auth, setAuth] = useState(false)
   const [user, setUser] = useState(null)
   const [error, setError] = useState(null)

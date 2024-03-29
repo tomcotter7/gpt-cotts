@@ -97,7 +97,6 @@ export default function Chat() {
     stop.current = false
     let stream;
 
-    console.log(request)
     if (rag) {
       stream =  await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`)
     } else {
@@ -230,6 +229,25 @@ export default function Chat() {
 
 function ChatForm({onChatSubmit, settings}) {
 
+    const textAreaRef = useRef(null)
+
+    useEffect(() => {
+
+        function handleKeyDown(e) {
+            if (e.key === 'k' && e.ctrlKey) {
+                e.preventDefault()
+                textAreaRef.current.focus()
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [])
+
   function resetChatInput() {
     const chatInput = document.getElementById('chat-input');
     chatInput.value = ""
@@ -266,6 +284,7 @@ function ChatForm({onChatSubmit, settings}) {
                     className="p-4 rounded text-black"
                     type="text"
                     id="chat-input"
+                    ref={textAreaRef}
                     placeholder="What's the issue?"
                     onKeyUp={(e) => adjustHeight(e.target)}
                     onKeyDown={(e) => onEnterPress(e)}
