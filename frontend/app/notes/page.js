@@ -3,7 +3,6 @@ import 'katex/dist/katex.min.css'
 import { useState, useEffect, useRef } from 'react'
 import { Section } from '@/components/NotesSection'
 import { ToastBox } from '@/components/Toast'
-import ModalSectionForm from '@/components/ModalSectionForm';
 import axios from 'axios'
 
 
@@ -11,25 +10,13 @@ export default function Notes() {
 
   const [notes, setNotes] = useState({})
   const [toasts, setToasts] = useState({})
-  const [modalOpen, setModalOpen] = useState(false)
-  const [loggedIn, setLoggedIn] = useState(false)
-
-    useEffect(() => {
-      setLoggedIn(localStorage.getItem('token') != null)
-    }, [])
-
-  const handleModalClose = () => setModalOpen(false)
-  
+ 
   useEffect(() => {
     const getNotes = async () => {
       const token = localStorage.getItem('token')
 
       const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notes`)
 
-      if (response.status === 401) {
-        setLoggedIn(false)
-        return
-      }
       const data = await response.data.sections
 
       const sortedKeys = Object.keys(data).sort()
@@ -73,23 +60,6 @@ export default function Notes() {
       }
   }
 
-  function onAddNewSectionClick() {
-    setModalOpen(true)
-  }
-
-  function onNewSectionSave(e) {
-    e.preventDefault()
-    setModalOpen(false)
-    const newNotes = {...notes, [e.target.title.value]: e.target.content.value}
-    // saveNotes(newNotes, e.target.title.value, "Section added successfully", "Section failed to add. Try again later.")
-  }
-
-  function onSectionDelete(sectionToDelete) {
-    const newNotes = {...notes}
-    const titleToDelete = Object.keys(sectionToDelete)[0]
-    delete newNotes[titleToDelete]
-    // saveNotes(newNotes, sectionToDelete, "Section deleted successfully", "Section failed to delete. Try again later.")
-  }
 
   const onSectionSave = (updatedSection) => {
     var newNotes = { ...notes }
@@ -110,28 +80,16 @@ export default function Notes() {
     saveNotes(sortedData, oldTitle, newTitle,  "Section saved successfully", "Section failed to save. Try again later.")
   }
 
-  //if (!loggedIn) {
-    // return <p>Not logged in</p>
-    // return <NotLoggedIn/>
-  //}
-
   return (
     <>
       <div className="m-2 flex flex-col items-center">
-        <ModalSectionForm open={modalOpen} onClose={handleModalClose} onSave={onNewSectionSave}/>
         <ToastBox toasts={toasts} setToasts={setToasts}/>
         <h1 className="text-center text-4xl mb-2"><u>Notes</u></h1>
-        <button 
-          className="px-4 bg-tangerine hover:bg-tangerine-dark rounded border border-tangerine border-2 text-black"
-          onClick={onAddNewSectionClick}
-        >
-        <b>Add new section</b>
-      </button>
       </div>
       <div className="flex flex-col border items-center">
         {Object.entries(notes).map(([key, value]) => (
           <div key={Date.now() + key} className="border w-full text-center prose max-w-none">
-            <Section key={key} id={key} title={key} content={value} onSectionSave={(updatedSection) => onSectionSave(updatedSection)} onSectionDelete={(sectionToDelete) => onSectionDelete(sectionToDelete)}/>
+            <Section key={key} id={key} title={key} content={value} onSectionSave={(updatedSection) => onSectionSave(updatedSection)}/>
           </div>
         ))}
       </div>
