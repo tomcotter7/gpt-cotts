@@ -1,6 +1,6 @@
-import anthropic
 import logging
 
+import anthropic
 from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt
