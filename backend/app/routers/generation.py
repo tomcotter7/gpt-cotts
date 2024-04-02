@@ -1,3 +1,4 @@
+import anthropic
 import logging
 
 from fastapi import APIRouter
@@ -29,7 +30,7 @@ class LLMRequest(BaseModel):
 def filter_history(history):
     history = sorted(history, key=lambda x: x["id"])
     history = [{ k : v for k, v in item.items() if k in ["role", "content"]} for item in history]
-    history = history[-3:]
+    history = history[-4:]
     return history
 
 @router.post("/base")
@@ -42,7 +43,10 @@ def generate_response(request: BaseRequest):
                 model=model,
                 history=history
         )
-        return StreamingResponse(generate_openai_response(llm_request))
+        if "claude" in model:
+            return StreamingResponse(generate_claude_response(llm_request))
+        else:
+            return StreamingResponse(generate_openai_response(llm_request))
     except Exception as e:
         return {
             "status": "400",
@@ -61,18 +65,49 @@ def generate_rag_response(request: RAGRequest):
                 rerank=True,
                 rerank_threshold=0.75
         )
-        model = request.model or "gpt-3.5-turbo"
+        model = request.model or "claude-3-haiku-20240307"
         if not relevant_context:
-            llm_request = LLMRequest(prompt=NoContextPrompt(query=request.query, expertise=request.expertise), model=model, history=history)
-            return StreamingResponse(generate_openai_response(llm_request))
+            llm_request = LLMRequest(
+                    prompt=NoContextPrompt(query=request.query, expertise=request.expertise),
+                    model=model,
+                    history=history
+            )
+        else:
+            llm_request = LLMRequest(
+                    prompt=RAGPrompt(context=relevant_context, query=request.query, expertise=request.expertise),
+                    model=model,
+                    history=history
+            )
 
-        llm_request = LLMRequest(prompt=RAGPrompt(context=relevant_context, query=request.query, expertise=request.expertise), model=model, history=history)
-        return StreamingResponse(generate_openai_response(llm_request, relevant_context))
+        if "claude" in model:
+            return StreamingResponse(generate_claude_response(llm_request, relevant_context))
+        else:
+            return StreamingResponse(generate_openai_response(llm_request, relevant_context))
     except Exception as e:
         return {
             "status": "400",
             "message": str(e)
         }
+
+
+def generate_claude_response(request: LLMRequest, context: list[dict] = []):
+    messages = request.history + [{"role": "user", "content": str(request.prompt)}]
+    client = anthropic.Anthropic()
+    with client.messages.stream(
+            system=request.prompt.system_prompt(),
+            max_tokens=1024,
+            messages=messages, # type: ignore
+            model=request.model
+    ) as stream:
+        for chunk in stream.text_stream:
+            yield chunk
+
+    yield "<EOS><SOC>"
+
+    for context_item in context:
+        yield context_item["text"]
+
+
 
 def generate_openai_response(request: LLMRequest, context: list[dict] = []):
     client = OpenAI()

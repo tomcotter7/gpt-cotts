@@ -57,7 +57,7 @@ export default function Chat() {
   const stop = useRef(false)
   const [settings, setSettings] = useState({
     rag: true,
-    gpt4: false,
+    model: "gpt-3.5-turbo-0125",
     slider: 50
   })
 
@@ -130,7 +130,6 @@ export default function Chat() {
         if (pos !== -1) {
           response += value.substring(0, pos)
           const context = value.substring(pos + search.length, value.length)
-          console.log(context)
         } else {
           response += value;
         }
@@ -142,14 +141,12 @@ export default function Chat() {
     e.preventDefault();
     const chatInput = document.getElementById('chat-input');
     const chatBox = {role: 'user', content: chatInput.value, id: Date.now()};
-    const newChats = [chatBox, ...chats]
-    setChats(newChats);
-    const model_to_use = settings.gpt4 ? "gpt-4" : "gpt-3.5-turbo"
+    setChats((prevChats) => [chatBox, ...prevChats]);
     makeLLMRequest(
         {
             query: chatInput.value,
-            history: newChats,
-            model: model_to_use,
+            history: chats,
+            model: settings.model,
             expertise: convertSliderToExpertise(settings.slider)
         }, settings.rag);
   }
@@ -164,7 +161,6 @@ export default function Chat() {
   }
 
   function handleSettingsChange(newSettings) {
-      console.log(newSettings)
       setSettings(newSettings)
   }
 
@@ -278,7 +274,7 @@ function ChatForm({onChatSubmit, settings}) {
           <div className="flex flex-row space-x-4 w-full">
               <div className="flex flex-col justify-center w-11/12">
                   <div className="bg-spearmint rounded">
-                    <span className="text-black p-2"> Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{ settings.gpt4 ? "gpt-4" : "gpt-3.5-turbo" }</b> with <b> { convertSliderToExpertise(settings.slider) } </b> expertise </span>
+                    <span className="text-black p-2"> Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{ settings.model }</b> with <b> { convertSliderToExpertise(settings.slider) } </b> expertise </span>
                   </div>
                   <textarea
                     className="p-4 rounded text-black"

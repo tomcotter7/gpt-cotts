@@ -4,7 +4,7 @@ export function Settings({onSettingsChange, passed_settings}) {
 
   const [settings, setSettings] = useState({
     rag: passed_settings.rag,
-    gpt4: passed_settings.gpt4,
+    model: passed_settings.model,
     slider: passed_settings.slider
   })
   const didMount = useRef(false);
@@ -13,13 +13,13 @@ export function Settings({onSettingsChange, passed_settings}) {
       onSettingsChange(settings)
   }, [settings])
 
-  function handleCheckboxChange(setting) {
-      if (setting === 'RAG') {
+    function handleCheckboxChange() {
         setSettings({...settings, rag: !settings.rag})
-      } else if (setting === 'GPT4') {
-        setSettings({...settings, gpt4: !settings.gpt4})
-      }
-  }
+    }
+
+    function handleDropdownChange(event) {
+        setSettings({...settings, model: event.target.value})
+    }
 
     function handleSlideChange(event) {
         setSettings({...settings, slider: parseInt(event.target.value)})
@@ -38,16 +38,21 @@ export function Settings({onSettingsChange, passed_settings}) {
                 className="form-checkbox m-2"
                 onChange={() => handleCheckboxChange('RAG')}
             />
-            <label htmlFor="gpt4">
-                <span className="ml-2 text-black">use GPT-4?</span>
+            <label htmlFor="model">
+                <span className="ml-2 text-black">use GPT-4? </span>
             </label>
-            <input
-                id="gpt4"
-                type="checkbox"
-                checked={settings.gpt4}
-                className="form-checkbox m-2"
-                onChange={() => handleCheckboxChange('GPT4')}
-            />
+            <select
+                id="model"
+                value={settings.model}
+                onChange={handleDropdownChange}
+                className="text-black"
+            >
+                <option value="gpt-3.5-turbo-0125">gpt-3.5</option>
+                <option value="gpt-4-0125-preview">gpt-4</option>
+                <option value="claude-3-haiku-20240307">claude3-haiku</option>
+                <option value="claude-3-sonnet-20240229">claude3-sonnet</option>
+            </select>
+                
             <label htmlFor="slider">
                 <span className="ml-2 text-black">what's your expertise on the topic?</span>
             </label>
