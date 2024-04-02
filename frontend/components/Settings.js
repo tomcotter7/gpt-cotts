@@ -39,7 +39,7 @@ export function Settings({onSettingsChange, passed_settings}) {
                 onChange={() => handleCheckboxChange('RAG')}
             />
             <label htmlFor="model">
-                <span className="ml-2 text-black">use GPT-4? </span>
+                <span className="ml-2 text-black">which model to use? </span>
             </label>
             <select
                 id="model"
