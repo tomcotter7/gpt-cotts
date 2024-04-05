@@ -1,4 +1,7 @@
-from fastapi import APIRouter
+from typing import Annotated
+
+from fastapi import APIRouter, Depends
+from gptcotts.auth_utils import User, get_current_user
 from gptcotts.indexing import update_notes
 from gptcotts.markdown_processor import (
     convert_to_chunks,
@@ -22,7 +25,7 @@ class UpdateNotesRequest(BaseModel):
     new_section_name: str
 
 @router.get("/")
-def get_notes():
+def get_notes(current_user: Annotated[User, Depends(get_current_user)]):
     """Get the notes for a user and class."""
     notes = get_object_from_s3("gptcotts-notes", "tom/cs_notes.md")
     sections = convert_to_sections(notes)
@@ -30,7 +33,10 @@ def get_notes():
     return {"sections": sections}
 
 @router.post("/update")
-def update_notes_in_s3_and_pinecone(request: UpdateNotesRequest):
+def update_notes_in_s3_and_pinecone(
+        current_user: Annotated[User, Depends(get_current_user)],
+        request: UpdateNotesRequest
+):
     """Refresh the notes for a user and class."""
     markdown = convert_to_markdown(request.new_notes)
     put_object_to_s3("gptcotts-notes", f"{request.user_id}/{request.notes_class}.md", markdown)

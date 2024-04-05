@@ -10,23 +10,34 @@ export default function Notes() {
 
   const [notes, setNotes] = useState({})
   const [toasts, setToasts] = useState({})
- 
+
   useEffect(() => {
-    const getNotes = async () => {
-      const token = localStorage.getItem('token')
+    const getNotes = async (token) => {
+        const config = {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        };
+        const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/notes`,
+            config
+        )
 
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notes`)
+        const data = await response.data.sections
 
-      const data = await response.data.sections
-
-      const sortedKeys = Object.keys(data).sort()
-      const sortedData = {}
-      sortedKeys.forEach(key => {
-        sortedData[key] = data[key]
-      })
-      setNotes(sortedData)
+        const sortedKeys = Object.keys(data).sort()
+        const sortedData = {}
+        sortedKeys.forEach(key => {
+            sortedData[key] = data[key]
+        })
+        setNotes(sortedData)
     }
-    getNotes()
+
+    const token = localStorage.getItem('authToken')
+    if (!token) {
+        window.location.href = "/"
+    }
+    getNotes(token)
   }, [])
  
   async function saveNotes(
@@ -36,7 +47,7 @@ export default function Notes() {
       successfulMessage,
       failureMessage
   ) {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('authToken')
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/update`, {
           method: 'POST',
           headers: {

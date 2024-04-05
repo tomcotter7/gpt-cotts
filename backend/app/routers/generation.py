@@ -1,8 +1,10 @@
 import logging
+from typing import Annotated
 
 import anthropic
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
+from gptcotts.auth_utils import User, get_current_user
 from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt
 from gptcotts.retrieval import search
 from openai import OpenAI
@@ -34,7 +36,10 @@ def filter_history(history):
     return history
 
 @router.post("/base")
-def generate_response(request: BaseRequest):
+def generate_response(
+        current_user: Annotated[User, Depends(get_current_user)],
+        request: BaseRequest
+):
     try:
         history = filter_history(request.history)
         model = request.model or "gpt-3.5-turbo"
@@ -54,7 +59,10 @@ def generate_response(request: BaseRequest):
         }
 
 @router.post("/rag")
-def generate_rag_response(request: RAGRequest):
+def generate_rag_response(
+        current_user: Annotated[User, Depends(get_current_user)],
+        request: RAGRequest
+):
     try:
         history = filter_history(request.history)
         relevant_context = search(
