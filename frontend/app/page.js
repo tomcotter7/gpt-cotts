@@ -1,11 +1,15 @@
 "use client";
 import Chat from '@/components/Chat'
+import NotLoggedIn from '@/components/NotLoggedIn'
+import { isLoggedIn } from '@/utils/auth'
 import { useEffect, useState } from "react"
 import axios from 'axios'
 
 export default function Home() {
 
-  const [adjustedHeight, setAdjustedHeight] = useState('93vh')
+    const [adjustedHeight, setAdjustedHeight] = useState('93vh')
+    const [loggedIn, setLoggedIn] = useState(false)
+    const [loading, setLoading] = useState(true)
 
   
   useEffect(() => {
@@ -14,19 +18,27 @@ export default function Home() {
       const vh = (nav.offsetHeight / screen.height) * 100
       setAdjustedHeight((98 - vh) + 'vh')
     }
+
+    if (isLoggedIn()) {
+      setLoggedIn(true)
+    }
+
+    setLoading(false)
   }, [])
 
-  function onLoginButtonClicked() {
-    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`).then((res) => {
-      window.location = res.data.url;
-    })
-  }
+    if (loading) {
+        return <div> Loading ... </div>
+    }
 
-  
-
-  return (
-    <div className="flex flex-col items-center" style={{height: adjustedHeight}}>
-      <Chat />
-    </div>
-  )
+    
+    if (!loggedIn) {
+        return <NotLoggedIn />
+    }
+    else {
+        return (
+            <div className="flex flex-col items-center" style={{height: adjustedHeight}}>
+                <Chat />
+            </div>
+        )
+    }
 }

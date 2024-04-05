@@ -4,7 +4,7 @@ import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers import generation, notes
+from routers import auth, generation, notes
 
 origins = ["*"]
 
@@ -14,6 +14,7 @@ load_dotenv()
 app = FastAPI()
 app.include_router(generation.router)
 app.include_router(notes.router)
+app.include_router(auth.router)
 
 app.add_middleware(
     CORSMiddleware,

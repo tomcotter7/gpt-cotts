@@ -8,21 +8,26 @@ import Image from 'next/image'
 import axios from 'axios'
 
 
-const sendMessage = async (raw_request, url) => {
-  // const token = localStorage.getItem('token')
+const sendMessage = async (raw_request, url, authToken) => {
   const raw = JSON.stringify(raw_request);
 
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
   myHeaders.append("Cache-Control", "no-cache");
   myHeaders.append("Connection", "keep-alive");
+  myHeaders.append("Authorization", "Bearer " + authToken);
 
   const requestOptions = {
     method: 'POST',
-    headers: myHeaders,
+    headers: {
+        'accept': 'application/json',
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + authToken
+    },
     body: raw,
     redirect: 'follow'
   };
+    
   const response = await fetch(url, requestOptions)
   
   if (response.ok) {
@@ -98,9 +103,9 @@ export default function Chat() {
     let stream;
 
     if (rag) {
-      stream =  await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`)
+      stream =  await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`, localStorage.getItem('authToken'))
     } else {
-      stream = await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`)
+      stream = await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`, localStorage.getItem('authToken'))
     }
 
     if (stream === "unauthorized") {

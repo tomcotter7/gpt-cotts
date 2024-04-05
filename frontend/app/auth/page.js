@@ -1,57 +1,73 @@
 "use client";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useState } from 'react';
 
-export default function Auth() {
+function LoginForm({ handleSubmit, handleChange, credentials }) {
 
-  //const params = useSearchParams()
-  const [auth, setAuth] = useState(false)
-  const [user, setUser] = useState(null)
-  const [error, setError] = useState(null)
-
-  function validatesParams() {
-    const data = {
-      "state": params.get('state'),
-      "code": params.get('code'),
-      "scope": params.get('scope'),
-      "authuser": params.get('authuser'),
-      "prompt": params.get('prompt')
-    }
-    axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/validate`, data).then((res) => {
-      
-      const token = res.data.access_token
-      localStorage.setItem('token', token)
-      localStorage.setItem('initials', res.data.initials)
-      setAuth(true)
-
-    })
-  }
-
-  useEffect(() => {
-    validatesParams()
-  }, [])
-
-  useEffect(() => {
-    if (auth) {
-      window.location = '/'
-    }
-  }, [auth])
-
-  if (!auth) {
     return (
-      <div className="flex flex-col items-center">
-        <h1>Authenticating...</h1>
-      </div>
-    )
-  }
-
-  else {
-    return (
-      <div className="flex flex-col items-center">
-        <h1>Authenticated! Redirecting to home</h1>
-      </div>
-    )
-  }
+        <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
+            <div className="flex flex-row">
+                <label className="block text-black" for="username">Username</label>
+            </div>
+            <div className="flex flex-row">
+                    <input
+                        className="text-black w-full border rounded focus:outline-none focus:ring-2 focus:ring-tangerine focus:border-transparent p-2"
+                        name="username"
+                        value={credentials.username}
+                        onChange={handleChange}
+                        required
+                    />
+            </div>
+            <div className="flex flex-row">
+                <label className="block text-black" for="password">Password</label>
+            </div>
+            <div className="flex flex-row">
+                <input
+                    className="text-black w-full border rounded focus:outline-none focus:ring-2 focus:ring-tangerine focus:border-transparent p-2"
+                    name="password"
+                    type="password"
+                    value={credentials.password}
+                    onChange={handleChange}
+                    required
+                />
+            </div>
+            <button className="border bg-tangerine hover:bg-tangerine-dark text-black m-4" type="submit"><b>Log in</b></button>
+        </form>
+    );
 }
 
+export default function LoginPage() {
+
+
+    const [credentials, setCredentials] = useState({
+        username: '',
+        password: '',
+    });
+
+
+    async function handleSubmit(e) {
+        e.preventDefault();
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/token`, {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `grant_type=password&username=${credentials.username}&password=${credentials.password}&scope=&client_id=&client_secret=`,
+        }).then((res) => res.json());
+        localStorage.setItem('authToken', response.access_token);
+        localStorage.setItem('username', credentials.username);
+        window.location.href = '/';
+    }
+
+    function handleChange(e) {
+        const { name, value } = e.target;
+        setCredentials((prev) => ({ ...prev, [name]: value }));
+    }
+
+    return (
+        <div className="flex flex-col text-center items-center mt-2 gap-2">
+            <h1 className="text-4xl font-bold text-skyblue"><u>Login</u></h1>
+            <LoginForm handleSubmit={handleSubmit} handleChange={handleChange} credentials={credentials} />
+        </div>
+    );
+}

@@ -14,6 +14,9 @@ module.exports = {
       },
     },
     colors: {
+          'gray': {
+              DEFAULT: '#64748b'
+           },
           'black': '#000000',
           'tangerine': {
               DEFAULT: '#fcbe6a',

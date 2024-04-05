@@ -7,3 +7,7 @@ python-dotenv
 cohere
 boto3
 anthropic
+python-jose
+passlib
+python-multipart
+pydantic[email]

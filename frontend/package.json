@@ -12,6 +12,8 @@
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@mui/material": "^5.15.2",
+    "amazon-cognito-identity-js": "^6.3.12",
+    "aws-amplify": "^6.0.26",
     "axios": "^1.6.5",
     "concurrently": "^8.2.2",
     "next": "^14.1.4",
@@ -26,6 +28,7 @@
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
+    "@types/node": "20.12.2",
     "autoprefixer": "^10.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.0.3",

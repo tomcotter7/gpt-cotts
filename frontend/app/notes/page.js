@@ -1,5 +1,6 @@
 "use client";
 import 'katex/dist/katex.min.css'
+import { isLoggedIn } from '@/utils/auth'
 import { useState, useEffect, useRef } from 'react'
 import { Section } from '@/components/NotesSection'
 import { ToastBox } from '@/components/Toast'
@@ -8,23 +9,34 @@ import axios from 'axios'
 
 export default function Notes() {
 
+    if (!isLoggedIn()) {
+        window.location.href = "/"
+    }
+
   const [notes, setNotes] = useState({})
   const [toasts, setToasts] = useState({})
  
   useEffect(() => {
     const getNotes = async () => {
-      const token = localStorage.getItem('token')
+        const token = localStorage.getItem('authToken')
+        const config = {
+            headers: {
+                'Authorization': 'Bearer ' + token
+            }
+        };
+        const response = await axios.get(
+            `${process.env.NEXT_PUBLIC_API_URL}/notes`,
+            config
+        )
 
-      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/notes`)
+        const data = await response.data.sections
 
-      const data = await response.data.sections
-
-      const sortedKeys = Object.keys(data).sort()
-      const sortedData = {}
-      sortedKeys.forEach(key => {
-        sortedData[key] = data[key]
-      })
-      setNotes(sortedData)
+        const sortedKeys = Object.keys(data).sort()
+        const sortedData = {}
+        sortedKeys.forEach(key => {
+            sortedData[key] = data[key]
+        })
+        setNotes(sortedData)
     }
     getNotes()
   }, [])
@@ -36,7 +48,7 @@ export default function Notes() {
       successfulMessage,
       failureMessage
   ) {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('authToken')
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/update`, {
           method: 'POST',
           headers: {
