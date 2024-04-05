@@ -3,7 +3,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import axios from 'axios';
-import { isLoggedIn } from '@/utils/auth'
 import { StopSign } from '@/utils/svgs'
 
 const LoginLink = () => {
@@ -48,7 +47,7 @@ export default function Navbar() {
   const [loggedIn, setLoggedIn] = useState(false)
 
   useEffect(() => {
-    if (isLoggedIn()) {
+    if (localStorage.getItem('authToken') !== null) {
         setLoggedIn(true)
     }
   }, [])

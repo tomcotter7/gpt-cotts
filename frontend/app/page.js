@@ -1,7 +1,6 @@
 "use client";
 import Chat from '@/components/Chat'
 import NotLoggedIn from '@/components/NotLoggedIn'
-import { isLoggedIn } from '@/utils/auth'
 import { useEffect, useState } from "react"
 import axios from 'axios'
 
@@ -19,7 +18,7 @@ export default function Home() {
       setAdjustedHeight((98 - vh) + 'vh')
     }
 
-    if (isLoggedIn()) {
+    if (localStorage.getItem('authToken') !== null) {
       setLoggedIn(true)
     }
 

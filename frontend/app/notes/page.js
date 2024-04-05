@@ -1,6 +1,5 @@
 "use client";
 import 'katex/dist/katex.min.css'
-import { isLoggedIn } from '@/utils/auth'
 import { useState, useEffect, useRef } from 'react'
 import { Section } from '@/components/NotesSection'
 import { ToastBox } from '@/components/Toast'
@@ -9,16 +8,11 @@ import axios from 'axios'
 
 export default function Notes() {
 
-    if (!isLoggedIn()) {
-        window.location.href = "/"
-    }
-
   const [notes, setNotes] = useState({})
   const [toasts, setToasts] = useState({})
- 
+
   useEffect(() => {
-    const getNotes = async () => {
-        const token = localStorage.getItem('authToken')
+    const getNotes = async (token) => {
         const config = {
             headers: {
                 'Authorization': 'Bearer ' + token
@@ -38,7 +32,12 @@ export default function Notes() {
         })
         setNotes(sortedData)
     }
-    getNotes()
+
+    const token = localStorage.getItem('authToken')
+    if (!token) {
+        window.location.href = "/"
+    }
+    getNotes(token)
   }, [])
  
   async function saveNotes(
