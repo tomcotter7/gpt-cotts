@@ -3,7 +3,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import axios from 'axios';
-import { StopSign } from '@/utils/svgs'
 
 const LoginLink = () => {
 
