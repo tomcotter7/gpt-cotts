@@ -8,8 +8,13 @@ import boto3
 from dotenv import load_dotenv
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from gptcotts.auth_utils import (User, UserInDB, create_access_token,
-                                 get_current_user, get_user)
+from gptcotts.auth_utils import (
+    User,
+    UserInDB,
+    create_access_token,
+    get_current_user,
+    get_user,
+)
 from passlib.context import CryptContext
 from pydantic import BaseModel, EmailStr
 
