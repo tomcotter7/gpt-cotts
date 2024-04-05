@@ -4,11 +4,15 @@ import { useState, useEffect } from 'react'
 export default function NotLoggedIn() {
 
     return (
-        <div className="flex flex-col text-center items-center">
-            <p className="text-6xl m-4 text-spearmint"><b> not logged in :(</b> </p>
-            <p className="text-xl text-black"> log into to continue to gpt-cotts </p>
-            <p className="text-red-400">
-                <b>pm us (tcotts / luizayaara) on twitter for access</b>
+        <div className="flex flex-col text-center items-center py-20">
+            <p className="text-6xl font-bold text-white mb-4">
+                not logged in :(
+            </p>
+            <p className="text-2xl text-gray-200 mb-8">
+                log into to continue to gpt-cotts
+            </p>
+            <p className="text-xl font-bold text-spearmint">
+                <u>pm us (@tcotts / @luizayaara) on twitter for access</u>
             </p>
         </div>
     )

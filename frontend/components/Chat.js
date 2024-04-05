@@ -110,7 +110,7 @@ export default function Chat() {
 
     if (stream === "unauthorized") {
       setGenerating(false)
-      setToasts({...toasts, [Date.now()]: {message: "You are not authorized to perform this action. pm us on Twitter to get access to the beta - @_tcotts or @luizayaara", success: false}})
+      setToasts({...toasts, [Date.now()]: {message: "You are not authorized to perform this action. Try logging out and logging back in.", success: false}})
       setChats([])
       return
     }
