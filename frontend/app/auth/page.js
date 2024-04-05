@@ -6,7 +6,7 @@ function LoginForm({ handleSubmit, handleChange, credentials }) {
     return (
         <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
             <div className="flex flex-row">
-                <label className="block text-black" for="username">Username</label>
+                <label className="block text-black" htmlFor="username">Username</label>
             </div>
             <div className="flex flex-row">
                     <input
@@ -18,7 +18,7 @@ function LoginForm({ handleSubmit, handleChange, credentials }) {
                     />
             </div>
             <div className="flex flex-row">
-                <label className="block text-black" for="password">Password</label>
+                <label className="block text-black" htmlFor="password">Password</label>
             </div>
             <div className="flex flex-row">
                 <input
@@ -66,7 +66,7 @@ export default function LoginPage() {
 
     return (
         <div className="flex flex-col text-center items-center mt-2 gap-2">
-            <h1 className="text-4xl font-bold text-skyblue"><u>Login</u></h1>
+            <h1 className="text-4xl font-bold text-white"><u>Login</u></h1>
             <LoginForm handleSubmit={handleSubmit} handleChange={handleChange} credentials={credentials} />
         </div>
     );

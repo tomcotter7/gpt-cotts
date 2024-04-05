@@ -3,6 +3,7 @@ import Chat from '@/components/Chat'
 import NotLoggedIn from '@/components/NotLoggedIn'
 import { useEffect, useState } from "react"
 import axios from 'axios'
+import { ClipLoader } from 'react-spinners'
 
 export default function Home() {
 
@@ -26,7 +27,11 @@ export default function Home() {
   }, [])
 
     if (loading) {
-        return <div> Loading ... </div>
+        return (
+            <div className="flex flex-col items-center justify-center m-12">
+                <ClipLoader color="#96f4a2" size="150px" />
+            </div>
+        )
     }
 
     
