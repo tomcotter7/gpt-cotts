@@ -57,12 +57,11 @@ const convertSliderToExpertise = (slider) => {
 export default function Chat() {
 
   const [chats, setChats] = useState([])
-  const [model, SetModel] = useState("gpt-3.5-turbo")
   const [generating, setGenerating] = useState(false)
   const stop = useRef(false)
   const [settings, setSettings] = useState({
-    rag: true,
-    model: "gpt-3.5-turbo-0125",
+    rag: false,
+    model: "claude-3-haiku-20240307",
     slider: 50
   })
 
@@ -103,7 +102,7 @@ export default function Chat() {
     let stream;
 
     if (rag) {
-      stream =  await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`, localStorage.getItem('authToken'))
+      stream = await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`, localStorage.getItem('authToken'))
     } else {
       stream = await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`, localStorage.getItem('authToken'))
     }
