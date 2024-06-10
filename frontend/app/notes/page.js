@@ -14,18 +14,20 @@ export default function Notes() {
 
   useEffect(() => {
     const getNotes = async (token) => {
-        const config = {
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
-        };
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes`, {
+        const headers = new Headers();
+        headers.append('Authorization', 'Bearer ' + token)
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'accept': 'application/json',
-                'Authorization': 'Bearer ' + token
-        }})
+            headers: headers,
+            redirect: 'follow'
+        })
+
+        if (response.status === 401) {
+            setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
+            localStorage.removeItem('authToken')
+            window.location.href = "/"
+        }
 
         const data = await response.json()
         const sections = data.sections
