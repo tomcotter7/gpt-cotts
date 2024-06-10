@@ -14,13 +14,12 @@ export default function Notes() {
 
   useEffect(() => {
     const getNotes = async (token) => {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/`, {
+        const headers = new Headers();
+        headers.append('Authorization', 'Bearer ' + token)
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get`, {
             method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'accept': 'application/json',
-                'Authorization': 'Bearer ' + token},
-            redirect: 'follow',
+            headers: headers
         })
 
         const data = await response.json()

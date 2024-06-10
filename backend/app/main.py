@@ -8,10 +8,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from routers import auth, generation, notes
 
-origins = [
-        "https://gptcotts.uk",
-        "http://localhost:3000"
-]
+# origins = [
+#         "https://gptcotts.uk",
+#         "http://localhost:3000"
+# ]
+origins = ["*"]
 
 logging.basicConfig(level=logging.INFO)
 load_dotenv()

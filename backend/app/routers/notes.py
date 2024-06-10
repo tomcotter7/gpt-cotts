@@ -32,7 +32,7 @@ class UpdateNotesRequest(BaseModel):
     new_section_name: str
 
 
-@router.get("/")
+@router.get("/get")
 def get_notes(current_user: Annotated[User, Depends(get_current_user)]):
     """Get the notes for a user and class."""
     filenames = get_all_objects_from_directory("gptcotts-notes", current_user.username)
