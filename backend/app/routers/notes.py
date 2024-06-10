@@ -9,9 +9,9 @@ from gptcotts.markdown_processor import (
     convert_to_sections,
 )
 from gptcotts.s3_connector import (
-    get_object_from_s3,
     get_all_objects_from_directory,
-    put_object_to_s3
+    get_object_from_s3,
+    put_object_to_s3,
 )
 from pydantic import BaseModel
 
