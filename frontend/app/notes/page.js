@@ -19,8 +19,15 @@ export default function Notes() {
 
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get`, {
             method: 'GET',
-            headers: headers
+            headers: headers,
+            redirect: 'follow'
         })
+
+        if (response.status === 401) {
+            setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
+            localStorage.removeItem('authToken')
+            window.location.href = "/"
+        }
 
         const data = await response.json()
         const sections = data.sections
