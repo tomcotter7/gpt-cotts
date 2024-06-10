@@ -19,12 +19,15 @@ export default function Notes() {
                 'Authorization': 'Bearer ' + token
             }
         };
-        const response = await axios.get(
-            `${process.env.NEXT_PUBLIC_API_URL}/notes`,
-            config
-        )
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'accept': 'application/json',
+                'Authorization': 'Bearer ' + token
+        }})
 
-        const data = await response.data
+        const data = await response.json()
         const sections = data.sections
         const filenames = data.filenames
 
