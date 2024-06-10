@@ -1,4 +1,4 @@
-flashrank>=0.2.0
+flashrank==0.2.0
 fastapi
 uvicorn
 openai

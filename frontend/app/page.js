@@ -20,10 +20,29 @@ export default function Home() {
     }
 
     if (localStorage.getItem('authToken') !== null) {
-      setLoggedIn(true)
-    }
+        const headers = new Headers();
+        headers.append('Authorization', `Bearer ${localStorage.getItem('authToken')}`)
+        const requestOptions = {
+            method: 'GET',
+            headers: headers,
+            redirect: 'follow'
+        }
 
-    setLoading(false)
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/users/me`, requestOptions).then(response => {
+            if (response.ok) {
+                setLoggedIn(true)
+                setLoading(false)
+            } else {
+                setLoggedIn(false)
+                setLoading(false)
+            }
+        }).catch(error => {
+            setLoggedIn(false)
+            setLoading(false)
+        })
+    } else {
+        setLoading(false)
+    }
   }, [])
 
     if (loading) {
