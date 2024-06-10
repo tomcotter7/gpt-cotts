@@ -27,7 +27,7 @@ const sendMessage = async (raw_request, url, authToken) => {
     body: raw,
     redirect: 'follow'
   };
-    
+
   const response = await fetch(url, requestOptions)
   
   if (response.ok) {
@@ -108,10 +108,11 @@ export default function Chat() {
     }
 
     if (stream === "unauthorized") {
-      setGenerating(false)
-      setToasts({...toasts, [Date.now()]: {message: "You are not authorized to perform this action. Try logging out and logging back in.", success: false}})
-      setChats([])
-      return
+        setGenerating(false)
+        setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
+        setChats([])
+        localStorage.removeItem('authToken')
+        window.location.href = "/"
     }
     
     let response = ""

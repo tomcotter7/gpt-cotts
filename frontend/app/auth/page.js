@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import { ClipLoader } from 'react-spinners';
 
 function LoginForm({ handleSubmit, handleChange, credentials }) {
 
@@ -43,8 +44,11 @@ export default function LoginPage() {
         password: '',
     });
 
+    const [loading, setLoading] = useState(false);
+
 
     async function handleSubmit(e) {
+        setLoading(true);
         e.preventDefault();
         const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/token`, {
             method: 'POST',
@@ -54,6 +58,7 @@ export default function LoginPage() {
             },
             body: `grant_type=password&username=${credentials.username}&password=${credentials.password}&scope=&client_id=&client_secret=`,
         }).then((res) => res.json());
+        setLoading(false);
         localStorage.setItem('authToken', response.access_token);
         localStorage.setItem('username', credentials.username);
         window.location.href = '/';
@@ -68,6 +73,7 @@ export default function LoginPage() {
         <div className="flex flex-col text-center items-center mt-2 gap-2">
             <h1 className="text-4xl font-bold text-white"><u>Login</u></h1>
             <LoginForm handleSubmit={handleSubmit} handleChange={handleChange} credentials={credentials} />
+            {loading && <div><ClipLoader color="#96f4a2" size="25px" /></div>}
         </div>
     );
 }

@@ -8,12 +8,19 @@ from gptcotts.markdown_processor import (
     convert_to_markdown,
     convert_to_sections,
 )
-from gptcotts.s3_connector import get_object_from_s3, put_object_to_s3
+from gptcotts.s3_connector import (
+    get_object_from_s3,
+    get_all_objects_from_directory,
+    put_object_to_s3
+)
 from pydantic import BaseModel
 
 router = APIRouter(
         prefix="/gptcotts/notes"
 )
+
+class FilenameRequest(BaseModel):
+    filename: str
 
 class UpdateNotesRequest(BaseModel):
     user_id: str = "tom"
@@ -24,13 +31,29 @@ class UpdateNotesRequest(BaseModel):
     old_section_name: str
     new_section_name: str
 
+
 @router.get("/")
 def get_notes(current_user: Annotated[User, Depends(get_current_user)]):
     """Get the notes for a user and class."""
-    notes = get_object_from_s3("gptcotts-notes", "tom/cs_notes.md")
+    filenames = get_all_objects_from_directory("gptcotts-notes", current_user.username)
+    first_notes = get_object_from_s3("gptcotts-notes", current_user.username + "/" + filenames[0] + ".md")
+    sections = convert_to_sections(first_notes)
+
+    return {"sections": sections, "filenames": filenames}
+
+
+@router.post("/get_with_filename")
+def get_notes_with_filename(
+        current_user: Annotated[User, Depends(get_current_user)],
+        request: FilenameRequest
+):
+    """Get the notes for a user and class."""
+    filename = request.filename
+    notes = get_object_from_s3("gptcotts-notes", current_user.username + "/" + filename + ".md")
     sections = convert_to_sections(notes)
 
     return {"sections": sections}
+
 
 @router.post("/update")
 def update_notes_in_s3_and_pinecone(

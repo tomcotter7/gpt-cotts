@@ -5,11 +5,12 @@ import { Section } from '@/components/NotesSection'
 import { ToastBox } from '@/components/Toast'
 import axios from 'axios'
 
-
 export default function Notes() {
 
-  const [notes, setNotes] = useState({})
-  const [toasts, setToasts] = useState({})
+    const [notes, setNotes] = useState({})
+    const [currentFilename, setCurrentFilename] = useState("select a file")
+    const [filenames, setFilenames] = useState([])
+    const [toasts, setToasts] = useState({})
 
   useEffect(() => {
     const getNotes = async (token) => {
@@ -23,22 +24,81 @@ export default function Notes() {
             config
         )
 
-        const data = await response.data.sections
+        const data = await response.data
+        const sections = data.sections
+        const filenames = data.filenames
 
-        const sortedKeys = Object.keys(data).sort()
+        const sortedKeys = Object.keys(sections).sort()
         const sortedData = {}
         sortedKeys.forEach(key => {
-            sortedData[key] = data[key]
+            sortedData[key] = sections[key]
         })
+
+        sessionStorage.setItem('notes_for_' + filenames[0], JSON.stringify(sortedData))
+
         setNotes(sortedData)
+        setFilenames(filenames)
+        setCurrentFilename(filenames[0])
+
     }
 
     const token = localStorage.getItem('authToken')
+
     if (!token) {
         window.location.href = "/"
     }
     getNotes(token)
   }, [])
+
+    useEffect(() => {
+        const getNotes = async (token) => {
+            const raw = JSON.stringify({filename: currentFilename})
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'accept': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: raw
+            };
+            fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get_with_filename`, requestOptions)
+                .then(
+                    (res) => {
+                        if (res.ok) {
+                            return res.json()
+                        } else if (res.status === 401) {
+                            setToast({...toasts, [Data.now()]: {message: "Your session has expired. Please log in again.", success: false}})
+                            localStorage.removeItem('authToken')
+                            window.location.href = "/"
+                        }})
+                .then((data) => {
+                    const sections = data.sections
+                    const sortedKeys = Object.keys(sections).sort()
+                    const sortedData = {}
+                    sortedKeys.forEach(key => {
+                        sortedData[key] = sections[key]
+                    })
+                    sessionStorage.setItem('notes_for_' + currentFilename, JSON.stringify(sortedData))
+                    setNotes(sortedData)
+                })
+            }
+
+        if (currentFilename === "select a file") {
+            return
+        }
+        const notes = sessionStorage.getItem('notes_for_' + currentFilename)
+        if (notes) {
+            setNotes(JSON.parse(notes))
+        } else {
+            const token = localStorage.getItem('authToken')
+            if (!token) {
+                window.location.href = "/"
+            }
+            getNotes(token)
+        }
+
+    }, [currentFilename])
  
   async function saveNotes(
       newNotes, 
@@ -71,6 +131,10 @@ export default function Notes() {
       }
   }
 
+    const handleFileNameChange = (e) => {
+        setCurrentFilename(e.target.value)
+    }
+
 
   const onSectionSave = (updatedSection) => {
     var newNotes = { ...notes }
@@ -97,7 +161,15 @@ export default function Notes() {
         <ToastBox toasts={toasts} setToasts={setToasts}/>
         <h1 className="text-center text-4xl mb-2"><u>Notes</u></h1>
       </div>
-      <div className="flex flex-col border items-center">
+      <div className="flex flex-col items-center">
+        <form className="mb-2">
+        <select className="bg-gray border border-gray text-sm rounded focus:border-skyblue block w-full" onChange={handleFileNameChange}>
+                <option defaultValue key={currentFilename} value={currentFilename}>{currentFilename}</option>
+                {filenames.map((filename) => (
+                    (filename !== currentFilename) && (<option key={filename} value={filename}>{filename}</option>)
+                ))}
+            </select>
+        </form>
         {Object.entries(notes).map(([key, value]) => (
           <div key={Date.now() + key} className="border w-full text-center prose max-w-none">
             <Section key={key} id={key} title={key} content={value} onSectionSave={(updatedSection) => onSectionSave(updatedSection)}/>
