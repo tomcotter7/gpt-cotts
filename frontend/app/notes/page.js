@@ -14,18 +14,14 @@ export default function Notes() {
 
   useEffect(() => {
     const getNotes = async (token) => {
-        const config = {
-            headers: {
-                'Authorization': 'Bearer ' + token
-            }
-        };
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'accept': 'application/json',
-                'Authorization': 'Bearer ' + token
-        }})
+                'Authorization': 'Bearer ' + token},
+            redirect: 'follow',
+        })
 
         const data = await response.json()
         const sections = data.sections
