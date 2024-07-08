@@ -3,9 +3,10 @@ import { useState, useEffect, useRef } from "react"
 export function Settings({onSettingsChange, passed_settings}) {
 
   const [settings, setSettings] = useState({
-    rag: passed_settings.rag,
-    model: passed_settings.model,
-    slider: passed_settings.slider
+      rag: passed_settings.rag,
+      model: passed_settings.model,
+      rerank_model: passed_settings.rerank_model, 
+      slider: passed_settings.slider
   })
   const didMount = useRef(false);
 
@@ -13,12 +14,16 @@ export function Settings({onSettingsChange, passed_settings}) {
       onSettingsChange(settings)
   }, [settings])
 
-    function handleCheckboxChange() {
+    function handleRAGCheckboxChange() {
         setSettings({...settings, rag: !settings.rag})
     }
 
-    function handleDropdownChange(event) {
+    function handleLLMDropdownChange(event) {
         setSettings({...settings, model: event.target.value})
+    }
+
+    function handleRerankDropdownChange(event) {
+        setSettings({...settings, rerank_model: event.target.value})
     }
 
     function handleSlideChange(event) {
@@ -36,7 +41,7 @@ export function Settings({onSettingsChange, passed_settings}) {
                 type="checkbox"
                 checked={settings.rag}
                 className="form-checkbox m-2"
-                onChange={() => handleCheckboxChange('RAG')}
+                onChange={() => handleRAGCheckboxChange('RAG')}
             />
             <label htmlFor="model">
                 <span className="ml-2 text-black">which model to use? </span>
@@ -44,13 +49,13 @@ export function Settings({onSettingsChange, passed_settings}) {
             <select
                 id="model"
                 value={settings.model}
-                onChange={handleDropdownChange}
+                onChange={handleLLMDropdownChange}
                 className="text-black"
             >
                 <option value="gpt-3.5-turbo-0125">gpt-3.5</option>
                 <option value="gpt-4-0125-preview">gpt-4</option>
                 <option value="claude-3-haiku-20240307">claude3-haiku</option>
-                <option value="claude-3-sonnet-20240229">claude3-sonnet</option>
+                <option value="claude-3-5-sonnet-20240620">claude3.5-sonnet</option>
             </select>
                 
             <label htmlFor="slider">
@@ -65,6 +70,7 @@ export function Settings({onSettingsChange, passed_settings}) {
                 className="m-2"
                 onChange={handleSlideChange}
             />
+            { settings.rag ? <div className="text-center"> <label htmlFor="rerank_model"> <span className="ml-2 text-black">which model to use for reranking? </span> </label> <select id="rerank_model" value={settings.rerank_model} onChange={handleRerankDropdownChange} className="text-black"> <option value="cohere">cohere</option> <option value="flashrank">flashrank</option> </select> </div> : null }
         </form>
     </div>
     

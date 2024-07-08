@@ -24,7 +24,7 @@ router = APIRouter(
 load_dotenv()
 SECRET_KEY = os.environ.get("SECRET_KEY", None)
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 if SECRET_KEY is None:
     raise ValueError("No SECRET_KEY set for authentication")
 

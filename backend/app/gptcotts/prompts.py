@@ -40,7 +40,7 @@ Some tips:
     - Words like 'it', 'that', 'this', etc. should be replaced with the actual noun they are referencing.
     - If the query is too vague, make it more specific.
 
-Return the results of the task as a JSON output.
+Return the results of the task as a JSON output. You must must use double quotes for the keys and values in the JSON output.
 """
     history: list[dict]
     query: str

@@ -3,9 +3,10 @@ import logging
 import os
 from pathlib import Path
 
+import anthropic
 import cohere
+from anthropic.types import ToolUseBlock
 from flashrank import Ranker, RerankRequest
-from openai import OpenAI
 from pinecone import Index
 
 from .cohere_utils import connect_to_cohere
@@ -26,29 +27,36 @@ def rewrite_query(query: str, history: list[dict]) -> str:
     """
 
     prompt = RewriteQueryForRAG(query=query, history=history[:-1], expertise="")
-    client = OpenAI()
-    resp = client.chat.completions.create(
-        model="gpt-3.5-turbo",
-        messages=[{"role": "system", "content": prompt.system},
-                  {"role": "user", "content": str(prompt)}],
-        temperature=0.0,
-        tools=[{
-            "type": "function",
-            "function": {
-                "name": "RewrittenQuery",
-                "description": "The new query.",
-                "parameters": RewriteQueryFunction.model_json_schema(),
-            },
-        }],
-        tool_choice={
-            "type": "function",
-            "function": {"name": "RewrittenQuery"},
-        },
+
+    client = anthropic.Anthropic()
+    resp = client.messages.create(
+            model="claude-3-haiku-20240307",
+            system=prompt.system,
+            messages=[{"role": "user", "content": str(prompt)}],
+            max_tokens=1024,
+            tools=[
+                {
+                    "name": "RewrittenQuery",
+                    "description": "The new query.",
+                    "input_schema": RewriteQueryFunction.model_json_schema(),
+                }
+            ],
+            tool_choice = {"type": "tool", "name": "RewrittenQuery"}
     )
-    response = resp.choices[0].message.tool_calls[0].function.arguments  # type: ignore
-    logging.info(f">>> Rewritten query: {response}")
-    results = RewriteQueryFunction(**(json.loads(response)))
-    return results.new_query
+    response = resp.content[0]
+
+    if isinstance(response, ToolUseBlock):
+        response = str(response.input)
+        logging.info(f">>> Rewritten query: {response}")
+        try:
+            results = RewriteQueryFunction(**(json.loads(response)))
+            return results.new_query
+        except json.decoder.JSONDecodeError:
+            logging.warning(f">>> Failed to parse response: {response}")
+            return query
+
+    logging.warning(f">>> Haiku failed to use Tool: {response}")
+    return query
 
 @timing
 def load_reranker() -> Ranker:
@@ -65,6 +73,31 @@ def load_reranker() -> Ranker:
 
     return Ranker(cache_dir=path) # type: ignore
 
+@timing
+def cohere_rerank(query: str, results: list[dict], threshold: float = 0.75) -> list[dict]:
+    """Rerank the results using Cohere.
+
+    `results` must be a list of dictionaries, where each dictionary has the following keys:
+        - id: The ID of the result.
+        - text: The text of the result.
+        - meta: The metadata of the result.
+
+    Args:
+        query: The query to be used for reranking.
+        results: The list of dictionaries to be reranked.
+        threshold: The threshold to filter the results.
+
+    Returns:
+        A list of dictionaries containing the reranked results. All chunks with a score lower than the threshold are removed. Same keys as the input.
+    """
+    cohere_client = connect_to_cohere()
+    response = cohere_client.rerank(
+            model="rerank-english-v3.0",
+            query=query,
+            documents=results,
+    )
+    results = [r.document for r in response if r.relevance_score > threshold]
+    return []
 
 
 
@@ -83,7 +116,7 @@ def flashrank_rerank(query: str, results: list[dict], threshold: float = 0.75) -
         threshold: The threshold to filter the results.
 
     Returns:
-        A list of dictionaries containing the reranked results. All chunks with a score lower than the threshold are removed.
+        A list of dictionaries containing the reranked results. All chunks with a score lower than the threshold are removed. Same keys as the input.
     """
     ranker =  load_reranker()
     rerank_request = RerankRequest(
@@ -107,7 +140,7 @@ def query_pinecone(pc_index: Index, embedding: list[float], namespace: str, top_
         top_k: The number of results to return.
 
     Returns:
-        A list of dictionaries containing the search results.
+        A list of dictionaries containing the search results. Each dictionary has the keys: id, text, and meta.
     """
     results = pc_index.query(
             namespace=namespace,
@@ -150,6 +183,7 @@ def search(
         chat_history: list[dict],
         top_k: int = 5,
         rerank: bool = False,
+        rerank_model: str = "cohere",
         rerank_threshold: float = 0.75
 ) -> list[dict]:
         """Search for similar texts in a Pinecone index.
@@ -180,7 +214,12 @@ def search(
         results = query_pinecone(pc_index, embedding, namespace, top_k=pinecone_topk)
 
         if rerank:
-            results = flashrank_rerank(query, results, threshold=rerank_threshold)
+            if rerank_model == "cohere":
+                results = cohere_rerank(query, results, threshold=rerank_threshold)
+            elif rerank_model == "flashrank":
+                results = flashrank_rerank(query, results, threshold=rerank_threshold)
+            else:
+                logging.info(f"Rerank model {rerank_model} not found. Not reranking.")
 
         results = results[:pinecone_topk]
         return results
