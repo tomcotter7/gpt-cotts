@@ -3,11 +3,10 @@ import logging
 import os
 from pathlib import Path
 
-import cohere
 import anthropic
+import cohere
 from anthropic.types import ToolUseBlock
 from flashrank import Ranker, RerankRequest
-from openai import OpenAI
 from pinecone import Index
 
 from .cohere_utils import connect_to_cohere
