@@ -6,7 +6,7 @@ pinecone-client
 python-dotenv
 cohere
 boto3
-anthropic
+anthropic>=0.30.1
 python-jose
 passlib
 python-multipart

@@ -6,7 +6,9 @@ import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Image from 'next/image'
 import axios from 'axios'
+import { ClipLoader } from 'react-spinners'
 
+const BoldText = ({ text }) => <b>{text}</b>;
 
 const sendMessage = async (raw_request, url, authToken) => {
   const raw = JSON.stringify(raw_request);
@@ -61,8 +63,9 @@ export default function Chat() {
   const stop = useRef(false)
   const [settings, setSettings] = useState({
     rag: false,
-    model: "claude-3-haiku-20240307",
-    slider: 50
+    model: "claude-3-5-sonnet-20240620",
+    slider: 50,
+      rerank_model: "cohere"
   })
 
   const [toasts, setToasts] = useState({})
@@ -112,7 +115,7 @@ export default function Chat() {
         setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
         setChats([])
         localStorage.removeItem('authToken')
-        window.location.href = "/"
+        window.location.href = "/auth"
     }
     
     let response = ""
@@ -205,9 +208,10 @@ export default function Chat() {
         </div>
         <div >
           <div className="flex items-center justify-center m-4">
+            { generating ? <ClipLoader color="#96f4a2" size="25px" className="hidden" /> : null }
             <button
               id="stopGenerateButton"
-              className="px-4 bg-skyblue hover:bg-skyblue-dark border-tangerine rounded border border-2 text-black hidden"
+              className="mx-3 px-4 bg-skyblue hover:bg-skyblue-dark border-tangerine rounded border border-2 text-black hidden"
               onClick={onStopButtonClick}
             >
               <b>stop</b>
@@ -279,7 +283,10 @@ function ChatForm({onChatSubmit, settings}) {
           <div className="flex flex-row space-x-4 w-full">
               <div className="flex flex-col justify-center w-11/12">
                   <div className="bg-spearmint rounded">
-                    <span className="text-black p-2"> Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{ settings.model }</b> with <b> { convertSliderToExpertise(settings.slider) } </b> expertise </span>
+      <span className="text-black p-2">
+      Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{ settings.model }</b> with <b> { convertSliderToExpertise(settings.slider) } </b> expertise{settings.rag ? ` and reranking with` : ""} {settings.rag ? <b>{settings.rerank_model}</b> : ""}.
+      </span>
+
                   </div>
                   <textarea
                     className="p-4 rounded text-black"

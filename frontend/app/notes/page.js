@@ -26,7 +26,7 @@ export default function Notes() {
         if (response.status === 401) {
             setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
             localStorage.removeItem('authToken')
-            window.location.href = "/"
+            window.location.href = "/auth"
         }
 
         const data = await response.json()
@@ -50,7 +50,7 @@ export default function Notes() {
     const token = localStorage.getItem('authToken')
 
     if (!token) {
-        window.location.href = "/"
+        window.location.href = "/auth"
     }
     getNotes(token)
   }, [])
@@ -75,7 +75,7 @@ export default function Notes() {
                         } else if (res.status === 401) {
                             setToast({...toasts, [Data.now()]: {message: "Your session has expired. Please log in again.", success: false}})
                             localStorage.removeItem('authToken')
-                            window.location.href = "/"
+                            window.location.href = "/auth"
                         }})
                 .then((data) => {
                     const sections = data.sections
@@ -98,7 +98,7 @@ export default function Notes() {
         } else {
             const token = localStorage.getItem('authToken')
             if (!token) {
-                window.location.href = "/"
+                window.location.href = "/auth"
             }
             getNotes(token)
         }

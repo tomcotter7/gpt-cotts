@@ -22,6 +22,7 @@ class BaseRequest(BaseModel):
 
 class RAGRequest(BaseRequest):
     index: str = "notes"
+    rerank_model: str = "cohere"
     namespace: str = "tcotts-notes"
 
 class LLMRequest(BaseModel):
@@ -42,7 +43,7 @@ def generate_response(
 ):
     try:
         history = filter_history(request.history)
-        model = request.model or "gpt-3.5-turbo"
+        model = request.model or "claude-3-haiku-20240307"
         llm_request = LLMRequest(
                 prompt=NoContextPrompt(query=request.query, expertise=request.expertise),
                 model=model,
@@ -71,6 +72,7 @@ def generate_rag_response(
                 request.query,
                 history,
                 rerank=True,
+                rerank_model=request.rerank_model,
                 rerank_threshold=0.75
         )
         model = request.model or "claude-3-haiku-20240307"
