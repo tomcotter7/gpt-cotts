@@ -58,15 +58,16 @@ const convertSliderToExpertise = (slider) => {
 }
 export default function Chat() {
 
-  const [chats, setChats] = useState([])
-  const [generating, setGenerating] = useState(false)
-  const stop = useRef(false)
-  const [settings, setSettings] = useState({
-    rag: false,
-    model: "claude-3-5-sonnet-20240620",
-    slider: 50,
-      rerank_model: "cohere"
-  })
+    const [chats, setChats] = useState([])
+    const [context, setContext] = useState({})
+    const [generating, setGenerating] = useState(false)
+    const stop = useRef(false)
+    const [settings, setSettings] = useState({
+        rag: false,
+        model: "claude-3-5-sonnet-20240620",
+        slider: 50,
+        rerank_model: "cohere"
+    })
 
   const [toasts, setToasts] = useState({})
 
@@ -77,6 +78,20 @@ export default function Chat() {
   function setEnabled(button) {
     button.classList.remove('hidden')
   }
+
+    useEffect(() => {
+        function handleKeyDown(e) {
+            if (e.key === 'l' && e.altKey) {
+                e.preventDefault()
+                setChats([])
+            }
+        }
+        window.addEventListener('keydown', handleKeyDown)
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [])
 
   useEffect(() => {
     const clearButton = document.getElementById('clearButton');
@@ -122,10 +137,10 @@ export default function Chat() {
     let { value, done } = await stream.read();
     if (done | stop.current) {
       return response;
-    } 
+    }
+
     response += value;
-    setChats((prevChats) => [{role: 'assistant', content: response, id: Date.now()}, ...prevChats])
-    const search = "<EOS><SOC>"
+      setChats((prevChats) => [{role: 'assistant', content: response, id: Date.now()}, ...prevChats])
     while (true) {
       let { value, done } = await stream.read();
       if (done | stop.current) {
@@ -133,15 +148,15 @@ export default function Chat() {
         setGenerating(false)
         break;
       }
-        
-      const pos = value.indexOf(search)
-        if (pos !== -1) {
-          response += value.substring(0, pos)
-          const context = value.substring(pos + search.length, value.length)
-        } else {
-          response += value;
+        try {
+            var returned_context = JSON.parse(value)
+            var context_list = returned_context['context']
+            // set the last chat to have a key of 'context' and the context_list as the value
+            setChats((prevChats) => [{role: 'assistant', content: prevChats[0].content, id: Date.now(), context: context_list}, ...prevChats.slice(1, prevChats.length)])
+        } catch {
+            response += value;
+            setChats((prevChats) => [{role: 'assistant', content: response, id: Date.now()}, ...prevChats.slice(1, prevChats.length)])
         }
-      setChats((prevChats) => [{role: 'assistant', content: response, id: Date.now()}, ...prevChats.slice(1, prevChats.length)])
     }
   }
 
@@ -202,7 +217,7 @@ export default function Chat() {
         <div className="m-4 grow h-4/6">
           <div className="flex flex-col-reverse mx-2 overflow-y-auto max-h-full" id="chat-boxes">
             {chats.map((chat) => (
-              <ChatBox key={chat.id} role={chat.role} text={chat.content}/>
+              <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context}/>
             ))}
           </div>
         </div>
@@ -237,16 +252,13 @@ function ChatForm({onChatSubmit, settings}) {
     const textAreaRef = useRef(null)
 
     useEffect(() => {
-
         function handleKeyDown(e) {
-            if (e.key === 'k' && e.ctrlKey) {
+            if (e.key === 'k' && e.altKey) {
                 e.preventDefault()
                 textAreaRef.current.focus()
             }
         }
-
         window.addEventListener('keydown', handleKeyDown)
-
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown)
@@ -310,7 +322,7 @@ function ChatForm({onChatSubmit, settings}) {
   )
 }
 
-function ChatBox({role, text}) {
+function ChatBox({role, text, context}) {
   var containerClasses = `border rounded border-2 mb-2 w-11/12 p-2`
 
   if (role === 'user') {
@@ -318,6 +330,8 @@ function ChatBox({role, text}) {
   } else {
     containerClasses += ` ml-auto bg-skyblue border-white`
   }
+
+
 
   return (
     <div className={containerClasses}>
@@ -343,6 +357,33 @@ function ChatBox({role, text}) {
           }
         }}
         />
+    {context ? <ContextBox context={context}/> : null}
     </div>
   )
+}
+
+function ContextBox({context}) {
+    
+    const [open, setOpen] = useState(false)
+
+    if (!open) {
+        return (
+            <div className="bg-spearmint border border-tangerine p-1">
+            <button className="m-1 bg-skyblue text-black p-1 rounded border border-skyblue-dark hover:bg-skyblue-dark hover:border-skyblue" onClick={() => setOpen(true)}>View context</button>
+            </div>
+        )
+    } else {
+
+        return (
+            <div className="bg-spearmint border border-tangerine p-1">
+            <button className="m-1 bg-skyblue text-black p-1 rounded border border-skyblue-dark hover:bg-skyblue-dark hover:border-skyblue" onClick={() => setOpen(false)}>Hide context</button>
+                <p className="text-black"> <b>Context:</b> </p>
+                {context.map((context_item) => 
+                    <>
+                    <p key={context_item['id']} className="mx-2 text-black border border-white my-2"> - {context_item['text']}. This context came from the topic <b>{context_item['meta']['class']}</b></p>
+                    </>
+                )}
+            </div>
+        )
+    }
 }

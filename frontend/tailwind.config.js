@@ -18,6 +18,7 @@ module.exports = {
               DEFAULT: '#64748b'
            },
           'black': '#000000',
+          'white': '#ffffff',
           'tangerine': {
               DEFAULT: '#fcbe6a',
               dark: '#fa9712'

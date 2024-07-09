@@ -3,6 +3,11 @@ import { useState, useEffect } from 'react'
 
 export default function NotLoggedIn() {
 
+    useEffect(() => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('username');
+    }, [])
+
     return (
         <div className="flex flex-col text-center items-center py-20">
             <p className="text-6xl font-bold text-white mb-4">
