@@ -10,6 +10,24 @@ export function Settings({onSettingsChange, passed_settings}) {
   })
   const didMount = useRef(false);
 
+    useEffect(() => {
+        function handleKeyDown(e) {
+            if (e.key === 'r' && e.altKey) {
+                e.preventDefault()
+                setSettings((prevSettings) => {
+                    return {...prevSettings, rag: !prevSettings.rag}
+                })
+            } 
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown)
+        }
+    }, [])
+
+
   useEffect(() => {
       onSettingsChange(settings)
   }, [settings])

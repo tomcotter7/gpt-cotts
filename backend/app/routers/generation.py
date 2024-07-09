@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Annotated
 
@@ -112,10 +113,8 @@ def generate_claude_response(request: LLMRequest, context: list[dict] = []):
         for chunk in stream.text_stream:
             yield chunk
 
-    yield "<EOS><SOC>"
-
-    for context_item in context:
-        yield context_item["text"]
+    if context:
+        yield json.dumps({"context": context})
 
 
 
@@ -137,7 +136,5 @@ def generate_openai_response(request: LLMRequest, context: list[dict] = []):
         if value:
             yield value
 
-    yield "<EOS><SOC>"
-
-    for context_item in context:
-        yield context_item["text"]
+    if context:
+        yield json.dumps({"context": context})

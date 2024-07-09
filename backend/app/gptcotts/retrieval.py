@@ -98,10 +98,11 @@ def cohere_rerank(query: str, results: list[dict], threshold: float = 0.75) -> l
     response = cohere_client.rerank(
             model="rerank-english-v3.0",
             query=query,
-            documents=results,
+            documents=results, # type: ignore
+            return_documents=True
     )
     try:
-        results = [r.document for r in response if r.relevance_score > threshold]
+        results = [{"text": r.document.text, "id": r.document.id, "meta": r.document.meta} for r in response.results if r.relevance_score > threshold] # type: ignore
         return results
     except AttributeError as e:
         logging.warning(f">>> Failed to rerank using Cohere - received error: {e}")

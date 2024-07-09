@@ -20,7 +20,6 @@ export default function Home() {
     }
 
     if (localStorage.getItem('authToken') !== null) {
-        console.log('Checking if logged in...')
         const headers = new Headers();
         headers.append('Authorization', `Bearer ${localStorage.getItem('authToken')}`)
         const requestOptions = {
