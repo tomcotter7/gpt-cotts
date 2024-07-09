@@ -1,3 +1,4 @@
+import ast
 import json
 import logging
 import os
@@ -52,7 +53,10 @@ def rewrite_query(query: str, history: list[dict]) -> str:
             results = RewriteQueryFunction(**(json.loads(response)))
             return results.new_query
         except json.decoder.JSONDecodeError:
-            logging.warning(f">>> Failed to parse response: {response}")
+            results = RewriteQueryFunction(**(ast.literal_eval(response)))
+            return results.new_query
+        except Exception as e:
+            logging.warning(f">>> Failed to parse response: {response}, got error: {e}")
             return query
 
     logging.warning(f">>> Haiku failed to use Tool: {response}")
@@ -96,8 +100,12 @@ def cohere_rerank(query: str, results: list[dict], threshold: float = 0.75) -> l
             query=query,
             documents=results,
     )
-    results = [r.document for r in response if r.relevance_score > threshold]
-    return []
+    try:
+        results = [r.document for r in response if r.relevance_score > threshold]
+        return results
+    except AttributeError as e:
+        logging.warning(f">>> Failed to rerank using Cohere - received error: {e}")
+        return results
 
 
 
