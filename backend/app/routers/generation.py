@@ -1,4 +1,5 @@
 import json
+import os
 import logging
 from typing import Annotated
 
@@ -119,7 +120,10 @@ def generate_claude_response(request: LLMRequest, context: list[dict] = []):
 
 
 def generate_openai_response(request: LLMRequest, context: list[dict] = []):
-    client = OpenAI()
+    if "deepseek" in request.model:
+        client = OpenAI(api_key=os.getenv("DEEPSEEK_API_KEY"), base_url="https://api.deepseek.com")
+    else:
+        client = OpenAI()
     model = request.model or "gpt-3.5-turbo"
     logging.info(f">>> Using model: {model}")
     system_prompt = request.prompt.system_prompt()
