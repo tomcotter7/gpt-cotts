@@ -72,6 +72,7 @@ export function Settings({onSettingsChange, passed_settings}) {
             >
                 <option value="gpt-3.5-turbo-0125">gpt-3.5</option>
                 <option value="gpt-4-0125-preview">gpt-4</option>
+                <option value="deepseek-coder">deepseek-coder</option>
                 <option value="claude-3-haiku-20240307">claude3-haiku</option>
                 <option value="claude-3-5-sonnet-20240620">claude3.5-sonnet</option>
             </select>
