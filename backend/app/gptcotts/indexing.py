@@ -1,4 +1,5 @@
 import os
+import uuid
 
 from .cohere_utils import connect_to_cohere
 from .pinecone_utils import connect_to_pinecone
@@ -25,19 +26,25 @@ def batch_embed(data: list[dict]) -> list[dict]:
 
     batch_size = int(os.getenv("COHERE_BATCH_SIZE", 96))
     for i in range(0, len(data), batch_size):
-        batch = data[i:i+batch_size]
+        batch = data[i : i + batch_size]
         texts = [d["text"] for d in batch]
         embeddings = cohere_client.embed(
-                texts=texts,
-                model=os.getenv("COHERE_MODEL", "embed-english-v3.0"),
-                input_type="search_query"
+            texts=texts,
+            model=os.getenv("COHERE_MODEL", "embed-english-v3.0"),
+            input_type="search_query",
         )
-        for idx, emb in enumerate(embeddings.embeddings): # type: ignore
-            results.append({
-                "id": str(i + idx),
-                "metadata": {"header": data[i + idx]["header"], "class": data[i + idx]["class"], "text": data[i + idx]["text"]},
-                "values": emb
-            })
+        for idx, emb in enumerate(embeddings.embeddings):  # type: ignore
+            results.append(
+                {
+                    "id": str(uuid.uuid4()),
+                    "metadata": {
+                        "header": data[i + idx]["header"],
+                        "class": data[i + idx]["class"],
+                        "text": data[i + idx]["text"],
+                    },
+                    "values": emb,
+                }
+            )
     return results
 
 
@@ -58,17 +65,17 @@ def upsert(index: str, namespace: str, data: list[dict]) -> None:
     pc = connect_to_pinecone()
     pc_index = pc.Index(index)
     data = batch_embed(data)
-    pc_index.upsert( # type: ignore
-            namespace=namespace,
-            vectors=data
+    pc_index.upsert(  # type: ignore
+        namespace=namespace, vectors=data
     )
 
+
 def update_notes(
-        index: str,
-        old_section_name: str,
-        new_section_name: str,
-        namespace: str,
-        data: list[dict]
+    index: str,
+    old_section_name: str,
+    new_section_name: str,
+    namespace: str,
+    data: list[dict],
 ) -> None:
     """Update the notes in a Pinecone index.
 
@@ -85,13 +92,11 @@ def update_notes(
     if pc_index is None:
         raise ValueError(f"Index {index} does not exist.")
     old_data = pc_index.query(
-            namespace=namespace,
-            vector=[0.0 for _ in range(1024)],
-            top_k=500,
-            filter={
-                "header": {"$eq": old_section_name}
-            }
-    )['matches']
+        namespace=namespace,
+        vector=[0.0 for _ in range(1024)],
+        top_k=500,
+        filter={"header": {"$eq": old_section_name}},
+    )["matches"]
 
     ids = [d["id"] for d in old_data]
     if ids:
