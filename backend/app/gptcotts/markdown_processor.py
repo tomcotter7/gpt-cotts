@@ -5,6 +5,64 @@ from gptcotts.utils import timing
 
 
 @timing
+def convert_to_markdown(notes: dict) -> str:
+    """Convert a dictionary of sections to a markdown file.
+
+    Args:
+        notes: Dictionary of sections (strings).
+
+    Returns:
+        Markdown file (as a string).
+    """
+    markdown = ""
+    for header, section in notes.items():
+        markdown += f"# {header}\n\n{section}\n"
+    return markdown
+
+
+@timing
+def convert_to_sections(text: str, max_depth: int = 5) -> dict:
+    """Convert a notes file (as a string) to a dictionary of sections.
+
+    This function works best with markdown files that are highly structured.
+    Use headers to defined the sections, and limit each section in size.
+
+    Args:
+        text: The text of the notes file.
+        max_depth: The maximum depth of the sections.
+            This is the maximum number of '#' characters at the start of a line.
+            If None, there is no limit, the program will calculate the depth.
+
+    Returns:
+        Dictionary of sections (strings).
+    """
+    if max_depth is None:
+        max_depth = 0
+        for line in text.splitlines():
+            if line.startswith("#"):
+                level = line.count("#")
+                if level > max_depth:
+                    max_depth = level
+
+    split_text = text.splitlines()
+
+    header = ""
+    sections = {}
+
+    for line in split_text:
+        level = line.count("#")
+        if line.startswith("#") and level == 1:
+            header = line.replace("#", "").strip()
+
+        elif line.startswith("-") or len(line) == 0:
+            continue
+        else:
+            sections[header] = sections.get(header, "") + line + "\n"
+
+    return sections
+
+
+@timing
 def convert_to_chunks(text: str, notes_class: str) -> list[dict]:
     """Convert a notes file (as a string) to a list of chunks.
 
