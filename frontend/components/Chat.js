@@ -278,7 +278,7 @@ function ChatForm({onChatSubmit, settings}) {
 
   function adjustHeight(el){
       el.style.height = "auto"
-      el.style.height = (el.scrollHeight)+"px"
+      el.style.height = `${Math.min((el.scrollHeight / window.innerHeight) * 100, 20)}vh`;
   }
 
   function onEnterPress(e) {
