@@ -19,6 +19,7 @@ def convert_to_markdown(notes: dict) -> str:
         markdown += f"# {header}\n\n{section}\n"
     return markdown
 
+
 @timing
 def convert_to_sections(text: str, max_depth: int = 5) -> dict:
     """Convert a notes file (as a string) to a dictionary of sections.
@@ -61,6 +62,7 @@ def convert_to_sections(text: str, max_depth: int = 5) -> dict:
     return sections
 
 
+@timing
 def convert_to_chunks(text: str, notes_class: str) -> list[dict]:
     """Convert a notes file (as a string) to a list of chunks.
 
@@ -82,8 +84,14 @@ def convert_to_chunks(text: str, notes_class: str) -> list[dict]:
     for line in text.splitlines():
         if line.startswith("#"):
             if len(current_section) > 0:
-                chunk = ": ".join([val for val in headers.values() if len(val) > 0]) + ":" + current_section
-                contextualized_lines.append({"header": headers[1], "class": notes_class, "text": chunk})
+                chunk = (
+                    ": ".join([val for val in headers.values() if len(val) > 0])
+                    + ":"
+                    + current_section
+                )
+                contextualized_lines.append(
+                    {"header": headers[1], "class": notes_class, "text": chunk}
+                )
                 current_section = ""
             level = line.count("#")
             if level in headers:
@@ -94,11 +102,21 @@ def convert_to_chunks(text: str, notes_class: str) -> list[dict]:
                     except KeyError:
                         break
 
-        elif line.startswith("-") or len(line) == 0:
+        elif len(line) == 0:
             pass
 
         else:
             current_section += line + "\n"
+
+    if len(current_section) > 0:
+        chunk = (
+            ": ".join([val for val in headers.values() if len(val) > 0])
+            + ":"
+            + current_section
+        )
+        contextualized_lines.append(
+            {"header": headers[1], "class": notes_class, "text": chunk}
+        )
 
     return contextualized_lines
 
@@ -117,4 +135,3 @@ def load_and_convert(notes_file: Path, notes_class: str) -> list[dict]:
         text = f.read()
     chunks = convert_to_chunks(text, notes_class)
     return chunks
-

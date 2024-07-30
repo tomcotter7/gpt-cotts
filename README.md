@@ -17,12 +17,12 @@ npm run dev
 
 You can deploy however is best for you. I'm using AWS Lambda for the backend and Vercel for the frontend.
 
-To set up an s3 connection to your notes repo, you can use the [action](https://github.com/tomcotter7/gptcotts-github-action) I made. Make sure to point to the s3 bucket in use for the backend.
+To set up an s3/pinecone connection to your notes repo, you can use the [action](https://github.com/tomcotter7/gptcotts-github-action) I made.
 
 ## TODO List
 
 - [X] Connect notes repo to the app. (via s3)
-- [] Connect notes repo to the app. (via Pinecone)
+- [X] Connect notes repo to the app. (via Pinecone)
 - [] File / Photo upload.
 - [] Chat history
 - [] Evaluation logs (ndcg, map, hallucination, model quality).

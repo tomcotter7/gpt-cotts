@@ -15,12 +15,12 @@ from gptcotts.s3_connector import (
 )
 from pydantic import BaseModel
 
-router = APIRouter(
-        prefix="/gptcotts/notes"
-)
+router = APIRouter(prefix="/gptcotts/notes")
+
 
 class FilenameRequest(BaseModel):
     filename: str
+
 
 class UpdateNotesRequest(BaseModel):
     user_id: str = "tom"
@@ -36,7 +36,9 @@ class UpdateNotesRequest(BaseModel):
 def get_notes(current_user: Annotated[User, Depends(get_current_user)]):
     """Get the notes for a user and class."""
     filenames = get_all_objects_from_directory("gptcotts-notes", current_user.username)
-    first_notes = get_object_from_s3("gptcotts-notes", current_user.username + "/" + filenames[0] + ".md")
+    first_notes = get_object_from_s3(
+        "gptcotts-notes", current_user.username + "/" + filenames[0] + ".md"
+    )
     sections = convert_to_sections(first_notes)
 
     return {"sections": sections, "filenames": filenames}
@@ -44,12 +46,13 @@ def get_notes(current_user: Annotated[User, Depends(get_current_user)]):
 
 @router.post("/get_with_filename")
 def get_notes_with_filename(
-        current_user: Annotated[User, Depends(get_current_user)],
-        request: FilenameRequest
+    current_user: Annotated[User, Depends(get_current_user)], request: FilenameRequest
 ):
     """Get the notes for a user and class."""
     filename = request.filename
-    notes = get_object_from_s3("gptcotts-notes", current_user.username + "/" + filename + ".md")
+    notes = get_object_from_s3(
+        "gptcotts-notes", current_user.username + "/" + filename + ".md"
+    )
     sections = convert_to_sections(notes)
 
     return {"sections": sections}
@@ -57,21 +60,21 @@ def get_notes_with_filename(
 
 @router.post("/update")
 def update_notes_in_s3_and_pinecone(
-        current_user: Annotated[User, Depends(get_current_user)],
-        request: UpdateNotesRequest
+    current_user: Annotated[User, Depends(get_current_user)],
+    request: UpdateNotesRequest,
 ):
     """Refresh the notes for a user and class."""
     markdown = convert_to_markdown(request.new_notes)
-    put_object_to_s3("gptcotts-notes", f"{request.user_id}/{request.notes_class}.md", markdown)
+    put_object_to_s3(
+        "gptcotts-notes", f"{request.user_id}/{request.notes_class}.md", markdown
+    )
     notes_data = convert_to_chunks(markdown, request.notes_class)
     update_notes(
-            request.pinecone_index,
-            request.old_section_name,
-            request.new_section_name,
-            request.pinecone_namespace,
-            notes_data
+        request.pinecone_index,
+        request.old_section_name,
+        request.new_section_name,
+        request.pinecone_namespace,
+        notes_data,
     )
 
     return {"status": "success"}
-
-
