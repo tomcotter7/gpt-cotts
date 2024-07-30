@@ -12,83 +12,48 @@ export default function Notes() {
     const [filenames, setFilenames] = useState([])
     const [toasts, setToasts] = useState({})
 
-  useEffect(() => {
-    const getNotes = async (token) => {
-        const headers = new Headers();
-        headers.append('Authorization', 'Bearer ' + token)
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get`, {
-            method: 'GET',
-            headers: headers,
-            redirect: 'follow'
-        })
-
-        if (response.status === 401) {
-            setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
-            localStorage.removeItem('authToken')
-            window.location.href = "/auth"
-        }
-
-        const data = await response.json()
-        const sections = data.sections
-        const filenames = data.filenames
-
-        const sortedKeys = Object.keys(sections).sort()
-        const sortedData = {}
-        sortedKeys.forEach(key => {
-            sortedData[key] = sections[key]
-        })
-
-        sessionStorage.setItem('notes_for_' + filenames[0], JSON.stringify(sortedData))
-
-        setNotes(sortedData)
-        setFilenames(filenames)
-        setCurrentFilename(filenames[0])
-
-    }
-
-    const token = localStorage.getItem('authToken')
-
-    if (!token) {
-        window.location.href = "/auth"
-    }
-    getNotes(token)
-  }, [])
-
     useEffect(() => {
         const getNotes = async (token) => {
-            const raw = JSON.stringify({filename: currentFilename})
-            const requestOptions = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'accept': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: raw
-            };
-            fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get_with_filename`, requestOptions)
-                .then(
-                    (res) => {
-                        if (res.ok) {
-                            return res.json()
-                        } else if (res.status === 401) {
-                            setToast({...toasts, [Data.now()]: {message: "Your session has expired. Please log in again.", success: false}})
-                            localStorage.removeItem('authToken')
-                            window.location.href = "/auth"
-                        }})
-                .then((data) => {
-                    const sections = data.sections
-                    const sortedKeys = Object.keys(sections).sort()
-                    const sortedData = {}
-                    sortedKeys.forEach(key => {
-                        sortedData[key] = sections[key]
-                    })
-                    sessionStorage.setItem('notes_for_' + currentFilename, JSON.stringify(sortedData))
-                    setNotes(sortedData)
-                })
+            const headers = new Headers();
+            headers.append('Authorization', 'Bearer ' + token)
+
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_API_URL}/notes/get`,
+                {
+                    method: 'GET',
+                    headers: headers,
+                    redirect: 'follow'
+                }
+            )
+
+            if (response.status === 401) {
+                setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
+                localStorage.removeItem('authToken')
+                window.location.href = "/auth"
             }
 
+            const data = await response.json()
+            const sections = data.sections
+            const filenames = data.filenames
+
+            sessionStorage.setItem(
+                'notes_for_' + filenames[0], JSON.stringify(sections)
+            )
+
+            setNotes(sections)
+            setFilenames(filenames)
+            setCurrentFilename(filenames[0])
+        }
+
+        const token = localStorage.getItem('authToken')
+
+        if (!token) {
+            window.location.href = "/auth"
+        }
+        getNotes(token)
+    }, [])
+
+    useEffect(() => {
         if (currentFilename === "select a file") {
             return
         }
@@ -100,67 +65,49 @@ export default function Notes() {
             if (!token) {
                 window.location.href = "/auth"
             }
-            getNotes(token)
+            getNotesWithFilename(token)
         }
-
     }, [currentFilename])
- 
-  async function saveNotes(
-      newNotes, 
-      oldSectionName,
-      newSectionName,
-      successfulMessage,
-      failureMessage
-  ) {
-      const token = localStorage.getItem('authToken')
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/update`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Cache-Control': 'no-cache',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify({
-              new_notes: newNotes,
-              old_section_name: oldSectionName,
-              new_section_name: newSectionName
-          })
-      })
 
+    const getNotesWithFilename = async (token, successMessage = "") => {
+            const raw = JSON.stringify({filename: currentFilename})
+            const requestOptions = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'accept': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: raw
+            };
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get_with_filename`, requestOptions)
+            if (response.ok) {
+                const data = await response.json()
+                const sections = data.sections
+                sessionStorage.setItem('notes_for_' + currentFilename, JSON.stringify(sections))
+                setNotes(sections)
+                if (successMessage != "") {
+                    setToasts({...toasts, [Date.now()]: {message: successMessage, success: true}})
+                }
+            } else if (response.status === 401) {
+                setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
+                localStorage.removeItem('authToken')
+                window.location.href = "/auth"
+            }
+    }
 
-      if (response.ok) {
-        setToasts({...toasts, [Date.now()]: {message: successfulMessage, success: true}})
-        setNotes(newNotes)
-      } else {
-        setToasts({...toasts, [Date.now()]: {message: failureMessage, success: false}})  
-      }
-  }
 
     const handleFileNameChange = (e) => {
         setCurrentFilename(e.target.value)
     }
 
-
-  const onSectionSave = (updatedSection) => {
-    var newNotes = { ...notes }
-    const oldTitle = Object.keys(updatedSection)[0]
-    const newTitle = Object.values(updatedSection)[0][0]
-    const newContent = Object.values(updatedSection)[0][1]
-    if (oldTitle !== newTitle) {
-      delete newNotes[oldTitle]
+    const refreshCache = () => {
+        sessionStorage.removeItem('notes_for_' + currentFilename)
+        getNotesWithFilename(localStorage.getItem('authToken'), "Cache refreshed.")
     }
 
-    newNotes[newTitle] = newContent
-    
-    const sortedKeys = Object.keys(newNotes).sort()
-    const sortedData = {}
-    sortedKeys.forEach(key => {
-      sortedData[key] = newNotes[key]
-    })
-    saveNotes(sortedData, oldTitle, newTitle,  "Section saved successfully", "Section failed to save. Try again later.")
-  }
 
-  return (
+    return (
     <>
       <div className="m-2 flex flex-col items-center">
         <ToastBox toasts={toasts} setToasts={setToasts}/>
@@ -175,9 +122,22 @@ export default function Notes() {
                 ))}
             </select>
         </form>
+
+        <button className="bg-spearmint hover:bg-spearmint-dark rounded border border-2 text-white p-2 m-1" onClick={refreshCache}>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 27 24"
+                fill="none"
+                stroke="black"
+                strokeWidth={1.5}
+                className="w-6 h-6"
+            >
+                <path d="M13.5 2c-5.621 0-10.211 4.443-10.475 10h-3.025l5 6.625 5-6.625h-2.975c.257-3.351 3.06-6 6.475-6 3.584 0 6.5 2.916 6.5 6.5s-2.916 6.5-6.5 6.5c-1.863 0-3.542-.793-4.728-2.053l-2.427 3.216c1.877 1.754 4.389 2.837 7.155 2.837 5.79 0 10.5-4.71 10.5-10.5s-4.71-10.5-10.5-10.5z"/>
+            </svg>
+        </button>
         {Object.entries(notes).map(([key, value]) => (
           <div key={Date.now() + key} className="border w-full text-center prose max-w-none">
-            <Section key={key} id={key} title={key} content={value} onSectionSave={(updatedSection) => onSectionSave(updatedSection)}/>
+            <Section key={key} id={key} title={key} content={value} />
           </div>
         ))}
       </div>
