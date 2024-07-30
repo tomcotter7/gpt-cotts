@@ -7,7 +7,7 @@ from .utils import timing
 
 
 @timing
-def batch_embed(data: list[dict]) -> list[dict]:
+def batch_embed(data: list[dict], search_type: str = "search_query") -> list[dict]:
     """Embed a batch of texts using Cohere.
 
     `data` is a list of dictionaries, where each dictionary has the following keys
@@ -17,6 +17,7 @@ def batch_embed(data: list[dict]) -> list[dict]:
 
     Args:
         data: The list of dictionaries to be embedded.
+        search_type: The type of search. Either "search_query" or "search_document".
 
     Returns:
         A list of dictionaries containing the embeddings. Of the form, {"id": str, "metadata": dict, "values": np.ndarray}
@@ -31,7 +32,7 @@ def batch_embed(data: list[dict]) -> list[dict]:
         embeddings = cohere_client.embed(
             texts=texts,
             model=os.getenv("COHERE_MODEL", "embed-english-v3.0"),
-            input_type="search_query",
+            input_type=search_type,
         )
         for idx, emb in enumerate(embeddings.embeddings):  # type: ignore
             results.append(
@@ -64,7 +65,7 @@ def upsert(index: str, namespace: str, data: list[dict]) -> None:
     """
     pc = connect_to_pinecone()
     pc_index = pc.Index(index)
-    data = batch_embed(data)
+    data = batch_embed(data, "search_document")
     pc_index.upsert(  # type: ignore
         namespace=namespace, vectors=data
     )
