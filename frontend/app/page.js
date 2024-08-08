@@ -1,15 +1,20 @@
 "use client";
+
 import Chat from '@/components/Chat'
 import NotLoggedIn from '@/components/NotLoggedIn'
 import { useEffect, useState } from "react"
 import axios from 'axios'
 import { ClipLoader } from 'react-spinners'
+import { useSession } from 'next-auth/react'
+
 
 export default function Home() {
 
     const [adjustedHeight, setAdjustedHeight] = useState('93vh')
     const [loggedIn, setLoggedIn] = useState(false)
     const [loading, setLoading] = useState(true)
+
+    const { data: session, status } = useSession()
 
   
   useEffect(() => {
@@ -19,49 +24,21 @@ export default function Home() {
       setAdjustedHeight((98 - vh) + 'vh')
     }
 
-    if (localStorage.getItem('authToken') !== null) {
-        const headers = new Headers();
-        headers.append('Authorization', `Bearer ${localStorage.getItem('authToken')}`)
-        const requestOptions = {
-            method: 'GET',
-            headers: headers,
-            redirect: 'follow'
-        }
-
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/users/me`, requestOptions).then(response => {
-            if (response.ok) {
-                setLoggedIn(true)
-                setLoading(false)
-            } else {
-                setLoggedIn(false)
-                setLoading(false)
-            }
-        }).catch(error => {
-            setLoggedIn(false)
-            setLoading(false)
-        })
-    } else {
-        setLoading(false)
-    }
   }, [])
 
-    if (loading) {
+    if (status === "loading") {
         return (
             <div className="flex flex-col items-center justify-center m-12">
                 <ClipLoader color="#96f4a2" size="150px" />
             </div>
         )
-    }
-
-    
-    if (!loggedIn) {
-        return <NotLoggedIn />
-    }
-    else {
+    } else if (status === "authenticated") {
         return (
             <div className="flex flex-col items-center" style={{height: adjustedHeight}}>
                 <Chat />
             </div>
         )
+    } else {
+        return <NotLoggedIn />
     }
 }
