@@ -1,12 +1,12 @@
 "use client";
 import 'katex/dist/katex.min.css'
 import { useState, useEffect, useRef } from 'react'
+import { useSession } from 'next-auth/react'
 import { Section } from '@/components/NotesSection'
 import { ToastBox } from '@/components/Toast'
-import axios from 'axios'
+import { ClipLoader } from 'react-spinners'
 
-export default function Notes() {
-
+function NotesContent({ authToken }) {
     const [notes, setNotes] = useState({})
     const [currentFilename, setCurrentFilename] = useState("select a file")
     const [filenames, setFilenames] = useState([])
@@ -14,22 +14,22 @@ export default function Notes() {
 
     useEffect(() => {
         const getNotes = async (token) => {
-            const headers = new Headers();
-            headers.append('Authorization', 'Bearer ' + token)
-
+            const requestOptions = {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'accept': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                redirect: 'follow'
+            }
             const response = await fetch(
-                `${process.env.NEXT_PUBLIC_API_URL}/notes/get`,
-                {
-                    method: 'GET',
-                    headers: headers,
-                    redirect: 'follow'
-                }
+                `${process.env.NEXT_PUBLIC_API_URL}/notes/get`, requestOptions
             )
 
             if (response.status === 401) {
                 setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
-                localStorage.removeItem('authToken')
-                window.location.href = "/auth"
+                window.location.href = "/"
             }
 
             const data = await response.json()
@@ -45,12 +45,7 @@ export default function Notes() {
             setCurrentFilename(filenames[0])
         }
 
-        const token = localStorage.getItem('authToken')
-
-        if (!token) {
-            window.location.href = "/auth"
-        }
-        getNotes(token)
+        getNotes(authToken)
     }, [])
 
     useEffect(() => {
@@ -61,11 +56,7 @@ export default function Notes() {
         if (notes) {
             setNotes(JSON.parse(notes))
         } else {
-            const token = localStorage.getItem('authToken')
-            if (!token) {
-                window.location.href = "/auth"
-            }
-            getNotesWithFilename(token)
+            getNotesWithFilename(authToken)
         }
     }, [currentFilename])
 
@@ -91,8 +82,7 @@ export default function Notes() {
                 }
             } else if (response.status === 401) {
                 setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
-                localStorage.removeItem('authToken')
-                window.location.href = "/auth"
+                window.location.href = "/"
             }
     }
 
@@ -143,4 +133,22 @@ export default function Notes() {
       </div>
     </>
   )
+
+}
+
+export default function Notes() {
+
+    const {data: session, status} = useSession()
+
+    if (status === "loading") {
+        return (
+            <div className="flex flex-col items-center justify-center m-12">
+                <ClipLoader color="#96f4a2" size="150px" />
+            </div>
+        )
+    } else if (status === "authenticated") {
+        return <NotesContent authToken={session.accessToken} />
+    } else {
+        return <div> Not Authenticated </div>
+    }
 }

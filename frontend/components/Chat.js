@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react"
+import { useSession } from 'next-auth/react'
 import Markdown from 'react-markdown'
 import { Settings } from '@/components/Settings'
 import { ToastBox } from '@/components/Toast'
@@ -10,36 +11,30 @@ import { ClipLoader } from 'react-spinners'
 
 const BoldText = ({ text }) => <b>{text}</b>;
 
-const sendMessage = async (raw_request, url, authToken) => {
-  const raw = JSON.stringify(raw_request);
+const sendMessage = async (raw_request, url, token) => {
 
-  const myHeaders = new Headers();
-  myHeaders.append("Content-Type", "application/json");
-  myHeaders.append("Cache-Control", "no-cache");
-  myHeaders.append("Connection", "keep-alive");
-  myHeaders.append("Authorization", "Bearer " + authToken);
+    const raw = JSON.stringify(raw_request);
+    const requestOptions = {
+        method: 'POST',
+        headers: {
+            'accept': 'application/json',
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token
+        },
+        body: raw,
+        redirect: 'follow'
+      };
 
-  const requestOptions = {
-    method: 'POST',
-    headers: {
-        'accept': 'application/json',
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + authToken
-    },
-    body: raw,
-    redirect: 'follow'
-  };
-
-  const response = await fetch(url, requestOptions)
+    const response = await fetch(url, requestOptions)
   
-  if (response.ok) {
-    const stream = response.body.pipeThrough(new TextDecoderStream()).getReader();
-    return stream
-  } else {
-    if (response.status === 401) {
-      return "unauthorized"
+    if (response.ok) {
+      const stream = response.body.pipeThrough(new TextDecoderStream()).getReader();
+      return stream
+    } else {
+      if (response.status === 401) {
+        return "Unauthorized"
+      }
     }
-  }
 }
 
 const convertSliderToExpertise = (slider) => {
@@ -69,7 +64,8 @@ export default function Chat() {
         rerank_model: "cohere"
     })
 
-  const [toasts, setToasts] = useState({})
+    const [toasts, setToasts] = useState({})
+    const { data: session, status } = useSession()
 
   function setDisabled(button) {
     button.classList.add('hidden')
@@ -120,17 +116,16 @@ export default function Chat() {
     let stream;
 
     if (rag) {
-      stream = await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`, localStorage.getItem('authToken'))
+      stream = await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`, session.accessToken)
     } else {
-      stream = await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`, localStorage.getItem('authToken'))
+      stream = await sendMessage(request, `${process.env.NEXT_PUBLIC_API_URL}/generation/base`, session.accessToken)
     }
 
-    if (stream === "unauthorized") {
+    if (stream === "Unauthorized") {
         setGenerating(false)
         setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
         setChats([])
-        localStorage.removeItem('authToken')
-        window.location.href = "/auth"
+        window.location.href = "/api/auth/signin"
     }
     
     let response = ""

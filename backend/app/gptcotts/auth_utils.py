@@ -1,21 +1,19 @@
-from datetime import datetime, timedelta, timezone
-from typing import Annotated
+from functools import lru_cache
 
-import boto3
+import requests
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
 from pydantic import BaseModel
-
-from . import config as cfg
 
 
 class TokenData(BaseModel):
     username: str | None = None
 
+
 class User(BaseModel):
     username: str
     email: str
+
 
 class UserInDB(User):
     hashed_password: str
@@ -24,56 +22,26 @@ class UserInDB(User):
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="gptcotts/auth/token")
 
-def create_access_token(data: dict, expires_delta: timedelta | None = None) -> str:
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, cfg.jwt_secret_key(), algorithm=cfg.jwt_algorithm())
-    return encoded_jwt
 
-def get_user(username: str) -> UserInDB | None:
-
-    client = boto3.client("dynamodb")
-    response = client.get_item(
-        TableName="gptcotts-users",
-        Key={"username": {"S": username}},
+@lru_cache(maxsize=10)
+def get_user_info(token: str):
+    headers = {"Authorization": f"Bearer {token}"}
+    response = requests.get(
+        "https://www.googleapis.com/oauth2/v3/userinfo", headers=headers
     )
-
-    if "Item" in response:
-        return UserInDB(
-            username=response["Item"]["username"]["S"],
-            email=response["Item"]["email"]["S"],
-            hashed_password=response["Item"]["hashed_password"]["S"],
-            salt=response["Item"]["salt"]["S"],
-        )
-
+    if response.status_code == 200:
+        return response.json()
     return None
 
-async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> UserInDB:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
 
-    try:
-        payload = jwt.decode(token, cfg.jwt_secret_key(), algorithms=[cfg.jwt_algorithm()])
-        username = payload.get("sub")
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except JWTError:
-        raise credentials_exception
+def verify_google_token(token: str = Depends(oauth2_scheme)) -> User:
+    user_info = get_user_info(token)
+    if user_info is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid Google token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-    if token_data.username is None:
-        raise credentials_exception
-
-    user = get_user(username=token_data.username)
-    if user is None:
-        raise credentials_exception
-
+    user = User(username=user_info["name"], email=user_info["email"])
     return user
-
