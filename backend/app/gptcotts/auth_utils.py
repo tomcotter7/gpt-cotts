@@ -3,6 +3,7 @@ from functools import lru_cache
 import requests
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from gptcotts.utils import timing
 from pydantic import BaseModel
 
 
@@ -34,6 +35,7 @@ def get_user_info(token: str):
     return None
 
 
+@timing
 def verify_google_token(token: str = Depends(oauth2_scheme)) -> User:
     user_info = get_user_info(token)
     if user_info is None:
