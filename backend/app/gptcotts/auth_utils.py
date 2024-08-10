@@ -24,6 +24,7 @@ class UserInDB(User):
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="gptcotts/auth/token")
 
 
+@timing
 @lru_cache(maxsize=10)
 def get_user_info(token: str):
     headers = {"Authorization": f"Bearer {token}"}
@@ -35,7 +36,6 @@ def get_user_info(token: str):
     return None
 
 
-@timing
 def verify_google_token(token: str = Depends(oauth2_scheme)) -> User:
     user_info = get_user_info(token)
     if user_info is None:
