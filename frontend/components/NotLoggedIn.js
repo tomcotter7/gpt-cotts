@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react'
+import { signOut, useSession } from 'next-auth/react'
 
 
 export default function NotLoggedIn() {
 
-    useEffect(() => {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('username');
-    }, [])
+    const { data: session, status } = useSession()
+
+    if (status === "authenticated" && session.expires < Date.now()) {
+        signOut()
+    }
+
 
     return (
         <div className="flex flex-col text-center items-center py-20">

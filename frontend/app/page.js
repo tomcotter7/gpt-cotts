@@ -15,6 +15,8 @@ export default function Home() {
     const [loading, setLoading] = useState(true)
 
     const { data: session, status } = useSession()
+    const not_expired = session && new Date(session.expires).getTime() > Date.now()
+
 
   
   useEffect(() => {
@@ -25,14 +27,14 @@ export default function Home() {
     }
 
   }, [])
-
+    
     if (status === "loading") {
         return (
             <div className="flex flex-col items-center justify-center m-12">
                 <ClipLoader color="#96f4a2" size="150px" />
             </div>
         )
-    } else if (status === "authenticated") {
+    } else if (status === "authenticated" && not_expired) {
         return (
             <div className="flex flex-col items-center" style={{height: adjustedHeight}}>
                 <Chat />

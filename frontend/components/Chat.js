@@ -125,7 +125,7 @@ export default function Chat() {
         setGenerating(false)
         setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
         setChats([])
-        window.location.href = "/api/auth/signin"
+        window.location.href = "/"
     }
     
     let response = ""
