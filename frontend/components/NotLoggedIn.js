@@ -7,7 +7,7 @@ export default function NotLoggedIn() {
     const { data: session, status } = useSession()
 
     if (status === "authenticated" && session.expires < Date.now()) {
-        signOut()
+        signOut({ callbackUrl: '/' })
     }
 
 

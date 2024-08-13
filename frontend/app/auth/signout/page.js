@@ -5,8 +5,7 @@ export default function SignOut() {
     const { data: session, staus } = useSession()
 
     const onSignOut = () => {
-        signOut()
-        window.location.href = "/"
+        signOut({ callbackUrl: '/' })
     }
 
     return (
