@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends
-from gptcotts.auth_utils import User, get_current_user
+from gptcotts.auth_utils import User, verify_google_token
 from gptcotts.indexing import update_notes
 from gptcotts.markdown_processor import (
     convert_to_chunks,
@@ -33,11 +33,11 @@ class UpdateNotesRequest(BaseModel):
 
 
 @router.get("/get")
-def get_notes(current_user: Annotated[User, Depends(get_current_user)]):
+def get_notes(current_user: Annotated[User, Depends(verify_google_token)]):
     """Get the notes for a user and class."""
-    filenames = get_all_objects_from_directory("gptcotts-notes", current_user.username)
+    filenames = get_all_objects_from_directory("gptcotts-notes", current_user.email)
     first_notes = get_object_from_s3(
-        "gptcotts-notes", current_user.username + "/" + filenames[0] + ".md"
+        "gptcotts-notes", current_user.email + "/" + filenames[0] + ".md"
     )
     sections = convert_to_sections(first_notes)
 
@@ -46,12 +46,13 @@ def get_notes(current_user: Annotated[User, Depends(get_current_user)]):
 
 @router.post("/get_with_filename")
 def get_notes_with_filename(
-    current_user: Annotated[User, Depends(get_current_user)], request: FilenameRequest
+    current_user: Annotated[User, Depends(verify_google_token)],
+    request: FilenameRequest,
 ):
     """Get the notes for a user and class."""
     filename = request.filename
     notes = get_object_from_s3(
-        "gptcotts-notes", current_user.username + "/" + filename + ".md"
+        "gptcotts-notes", current_user.email + "/" + filename + ".md"
     )
     sections = convert_to_sections(notes)
 
@@ -60,7 +61,7 @@ def get_notes_with_filename(
 
 @router.post("/update")
 def update_notes_in_s3_and_pinecone(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[User, Depends(verify_google_token)],
     request: UpdateNotesRequest,
 ):
     """Refresh the notes for a user and class."""

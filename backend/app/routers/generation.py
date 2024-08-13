@@ -6,7 +6,7 @@ from typing import Annotated
 import anthropic
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
-from gptcotts.auth_utils import User, get_current_user
+from gptcotts.auth_utils import User, verify_google_token
 from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt
 from gptcotts.retrieval import search
 from openai import OpenAI
@@ -45,7 +45,7 @@ def filter_history(history):
 
 @router.post("/base")
 def generate_response(
-    current_user: Annotated[User, Depends(get_current_user)], request: BaseRequest
+    current_user: Annotated[User, Depends(verify_google_token)], request: BaseRequest
 ):
     try:
         history = filter_history(request.history)
@@ -65,7 +65,7 @@ def generate_response(
 
 @router.post("/rag")
 def generate_rag_response(
-    current_user: Annotated[User, Depends(get_current_user)], request: RAGRequest
+    current_user: Annotated[User, Depends(verify_google_token)], request: RAGRequest
 ):
     try:
         history = filter_history(request.history)
