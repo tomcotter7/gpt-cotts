@@ -228,7 +228,8 @@ def search(
     if not pc_index:
         raise ValueError(f"Index {index} not found")
 
-    query = rewrite_query(query, chat_history)
+    if len(chat_history) > 0:
+        query = rewrite_query(query, chat_history)
 
     embedding = embed(cohere_client, [query])
     pinecone_topk = top_k

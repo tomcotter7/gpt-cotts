@@ -3,12 +3,14 @@ from pydantic import BaseModel
 
 class BasePrompt(BaseModel):
     """Base class for prompts."""
+
     system: str
     expertise: str
 
     def system_prompt(self):
         """Return the system prompt."""
         return self.system.format(expertise=self.expertise)
+
 
 class RAGPrompt(BasePrompt):
     system: str = "You are a AI language model called gpt-cotts. Given a query and a relevant context to that query, you are tasked with generating a response to that query. Explain the answer as if the user had {expertise} knowledge in the topic."
@@ -20,6 +22,7 @@ class RAGPrompt(BasePrompt):
         context = "\n\n".join([f"{c['text']}" for c in self.context])
         return f"""<context>{context}</context>\n<query>{self.query}</query>"""
 
+
 class NoContextPrompt(BasePrompt):
     system: str = "You are a AI language model called gpt-cotts. Given a query, you are tasked with generating a response to that query. Explain the answer as if the user had {expertise} knowledge in the topic."
     query: str
@@ -28,17 +31,20 @@ class NoContextPrompt(BasePrompt):
         """Return the base prompt as a string."""
         return f"""{self.query}"""
 
+
 class RewriteQueryFunction(BaseModel):
     new_query: str
+
 
 class RewriteQueryForRAG(BasePrompt):
     system: str = """You are a AI assistant with one task.
 
 Rewrite the input query (<query>) based on the chat history (<history>) such that is it optimized for retrieval and contains the keywords it is referencing. If it does not need to be re-written, return the original query.
 
-Some tips:
-    - Words like 'it', 'that', 'this', etc. should be replaced with the actual noun they are referencing.
-    - If the query is too vague, make it more specific.
+To improve the query, you should:
+    - Replace words like 'it', 'that', 'this', etc. with the actual noun they are referencing.
+
+Do not do anything else to the query.
 
 Return the results of the task as a JSON output. You must use double quotes ("") for the keys and values in the JSON output.
 """
@@ -48,4 +54,3 @@ Return the results of the task as a JSON output. You must use double quotes ("")
     def __str__(self):
         """Return the prompt as a string."""
         return f""""<history>{self.history}</history><query>{self.query}</query>"""
-

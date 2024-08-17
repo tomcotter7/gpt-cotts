@@ -1,3 +1,4 @@
+import logging
 from functools import lru_cache
 
 import requests
@@ -33,6 +34,8 @@ def get_user_info(token: str):
     )
     if response.status_code == 200:
         return response.json()
+
+    logging.warning(f"Unable to log in via Google. Reason {response}")
     return None
 
 
