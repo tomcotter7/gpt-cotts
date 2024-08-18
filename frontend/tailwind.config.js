@@ -21,7 +21,8 @@ module.exports = {
           'white': '#ffffff',
           'tangerine': {
               DEFAULT: '#fcbe6a',
-              dark: '#fa9712'
+              dark: '#fa9712',
+              light: '#fcbe6a'
           },
           'skyblue': {
               DEFAULT: '#caf7f8',

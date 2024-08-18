@@ -31,7 +31,7 @@ export default function Home() {
     if (status === "loading") {
         return (
             <div className="flex flex-col items-center justify-center m-12">
-                <ClipLoader color="#96f4a2" size="150px" />
+                <ClipLoader color="#96f4a2" size="10vh" />
             </div>
         )
     } else if (status === "authenticated" && not_expired) {

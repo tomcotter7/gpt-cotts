@@ -29,7 +29,7 @@ function NotesContent({ authToken }) {
 
             if (response.status === 401) {
                 setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
-                window.location.href = "/"
+                window.location.href = "/api/auth/signout/google"
             }
 
             const data = await response.json()
@@ -82,7 +82,7 @@ function NotesContent({ authToken }) {
                 }
             } else if (response.status === 401) {
                 setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
-                window.location.href = "/"
+                window.location.href = "/api/auth/signout/google"
             }
     }
 
@@ -149,6 +149,6 @@ export default function Notes() {
     } else if (status === "authenticated") {
         return <NotesContent authToken={session.accessToken} />
     } else {
-        return <div> Not Authenticated </div>
+        window.location.href = "/api/auth/signin/google"
     }
 }

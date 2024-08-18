@@ -4,7 +4,7 @@ export default function UserGuide() {
 
     return (
         <div className="max-w-3xl mx-auto px-4 py">
-            <h1 className="text-spearmint text-5xl font-bold mb text-center">User Guide</h1>
+            <h1 className="text-spearmint text-5xl font-bold m-4 text-center">User Guide</h1>
             <section className="mb-10">
                 <h2 className="text-spearmint text-3xl font-semibold mb-4">Models</h2>
                 <p className="text-lg mb-4">
