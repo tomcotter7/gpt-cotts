@@ -15,6 +15,7 @@ export default function SignOut() {
                 <button className="mt-2 border border-spearmint hover:bg-spearmint hover:border-spearmint-dark font-bold py-2 px-4 rounded-md justify-center w-1/12" onClick={onSignOut}>
                     Sign out
                 </button>
+                <p className="text-tangerine">* If you were redirected here, it's likely your session expired. Please sign out and then sign back in. </p>
             </div>
         </>
     )

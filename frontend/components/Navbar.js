@@ -55,6 +55,7 @@ export default function Navbar() {
                 </div>
             { status === 'authenticated' ? <Link className={validLinkTailwind} href="/"><b>home</b></Link> : <span className={invalidLinkTailwind}>home</span> }
             { status === 'authenticated' ? <Link className={validLinkTailwind} href="/notes"><b>notes</b></Link> : <span className={invalidLinkTailwind}>notes</span> }
+            <Link className={validLinkTailwind} href="/userguide"><b>user guide</b></Link>
             { status === 'authenticated' ? <ProfileButton onClick={() => onLogoutButtonClicked()} username={session.user?.name} /> : <LoginLink status={status}/> }
             </div>
         </nav>
