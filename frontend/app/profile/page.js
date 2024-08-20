@@ -22,10 +22,12 @@ export default function Profile() {
 
 
     return (
-        <div className="flex flex-col justify-center items-center m-4">
+        <div className="flex flex-col  items-center m-4">
+            <div className="w-1/2 rounded-lg shadow-md flex flex-col items-center m-4 p-4">
             <p className="text-tangerine text-4xl">{session.user.name}</p>
             <p>{session.user.email}</p>
-            <button className="mt-2 border border-spearmint hover:bg-spearmint hover:border-spearmint-dark font-bold py-2 px-4 rounded-md justify-center w-1/12" onClick={() => window.location.href = "/api/auth/signout/google"}><b>Sign Out</b></button>
+            </div>
+            <button className="mt-2 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine text-black py-2 px-4 rounded-md justify-center w-1/12" onClick={() => window.location.href = "/api/auth/signout/google"}><b>Sign Out</b></button>
         </div>
         
     )

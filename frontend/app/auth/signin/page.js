@@ -13,7 +13,7 @@ export default function SignIn() {
     return (
         <>
             <div className="flex justify-center mt-10">
-                <button className="mt-2 border border-spearmint hover:bg-spearmint hover:border-spearmint-dark font-bold py-2 px-4 rounded-md justify-center flex" onClick={() => signIn("google", { callbackUrl: "/" })}>
+                <button className="mt-2 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine font-bold py-2 px-4 rounded-md justify-center flex" onClick={() => signIn("google", { callbackUrl: "/" })}>
                     <img className="w-6 h-6 mr-2" src="https://www.svgrepo.com/show/475656/google-color.svg" loading="lazy" alt="google logo" /> Sign in w/ Google
                 </button>
             </div>

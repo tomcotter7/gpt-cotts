@@ -19,7 +19,7 @@ export default function NotLoggedIn() {
             <p className="text-2xl text-gray-200 mb-8">
                 log into to continue to gpt-cotts
             </p>
-            <p className="text-xl font-bold text-spearmint">
+            <p className="text-xl font-bold text-tangerine">
                 <u>pm us (@tcotts / @luizayaara) on twitter for access</u>
             </p>
         </div>

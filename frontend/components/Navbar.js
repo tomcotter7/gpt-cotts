@@ -12,7 +12,7 @@ const LoginLink = ({ status }) => {
     }
 
     return (
-        <Link className="my-1 border text-skyblue bg-tangerine hover:text-skyblue-dark hover:bg-tangerine-dark py-1 px-2 text-center max-h-10" href="/api/auth/signin/google">
+        <Link className="my-1 text-black bg-tangerine hover:border-tangerine hover:bg-tangerine-dark py-1 px-2 text-center max-h-10" href="/api/auth/signin/google">
             <div className="flex flex-col">
                 <b>login</b>
             </div>
@@ -27,7 +27,7 @@ const ProfileButton = ({ onClick, username }) => {
         >
             <div className="flex flex-col m-1 p-1">
                 <div className="flex flex-row">
-                    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA5klEQVR4nO2Tvw7BUByFP5FglGBBZw/Bzs5reAbPU5F0QryBXRMGBmaExsJCmpwmzQ0NccXSLzlDf3/OaXNvIcUSDjACAskDGjbND8Dd0FG9rxnJcAzUpYlqQxsBgcxC4whHtfOvA042AjyZTWQcaqqaayOgoQM1D3lvfNVXODrQs+TaNE95SRZoAQOg/KRfUa+p2bcpAH1gF7sxa6ALFKUesIn1t9oJdxOpAb5h7D+5opF8zUTPC6CaFDDT4BJoAxkgr7ebAxdprlpOMx1gpd3wJ3zJTUMlPqek3WvS0N2S/heQgskDvs9xQtZ6LkgAAAAASUVORK5CYII=" />
+                    <img className="bg-tangerine hover:bg-tangerine-dark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA5klEQVR4nO2Tvw7BUByFP5FglGBBZw/Bzs5reAbPU5F0QryBXRMGBmaExsJCmpwmzQ0NccXSLzlDf3/OaXNvIcUSDjACAskDGjbND8Dd0FG9rxnJcAzUpYlqQxsBgcxC4whHtfOvA042AjyZTWQcaqqaayOgoQM1D3lvfNVXODrQs+TaNE95SRZoAQOg/KRfUa+p2bcpAH1gF7sxa6ALFKUesIn1t9oJdxOpAb5h7D+5opF8zUTPC6CaFDDT4BJoAxkgr7ebAxdprlpOMx1gpd3wJ3zJTUMlPqek3WvS0N2S/heQgskDvs9xQtZ6LkgAAAAASUVORK5CYII=" />
                 </div>
             </div>
         </Link>
@@ -37,7 +37,7 @@ const ProfileButton = ({ onClick, username }) => {
 export default function Navbar() {
 
     const { data: session, status } = useSession()
-    const validLinkTailwind = 'text-tangerine hover:text-tangerine-light text-center py-1 px-2 max-h-10'
+    const validLinkTailwind = 'text-black hover:text-tangerine-light text-center py-1 px-2 max-h-10 shadow-xs'
     const invalidLinkTailwind = 'text-gray py-1 px-2 text-center max-h-10'
 
     return (
