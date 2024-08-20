@@ -12,9 +12,9 @@ const LoginLink = ({ status }) => {
     }
 
     return (
-        <Link className="my-1 border text-tangerine hover:text-tangerine-light hover:bg-skyblue-dark py-1 px-2 text-center max-h-10" href="/api/auth/signin/google">
+        <Link className="my-1 border text-skyblue bg-tangerine hover:text-skyblue-dark hover:bg-tangerine-dark py-1 px-2 text-center max-h-10" href="/api/auth/signin/google">
             <div className="flex flex-col">
-                login
+                <b>login</b>
             </div>
         </Link>
     )
