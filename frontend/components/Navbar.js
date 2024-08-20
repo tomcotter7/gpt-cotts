@@ -44,7 +44,7 @@ export default function Navbar() {
         <nav id="nav" className="flex-no-wrap relative flex w-full bg-skyblue">
             <div className="flex w-full flex-wrap items-center justify-between px-3">
                 <button className="block border-0 bg-transparent lg:hidden" type="button" data-twe-collapse-init data-twe-target="#navContent" aria-expanded="false" aria-label="Toggle navigation" aria-controls="#navContent">
-                    <span class="[&>svg]:w-7 [&>svg]:stroke-black/50 dark:[&>svg]:stroke-neutral-200">
+                    <span className="[&>svg]:w-7 [&>svg]:stroke-black/50 dark:[&>svg]:stroke-neutral-200">
                         <svg                                                                                                                       
                             xmlns="http://www.w3.org/2000/svg"
                             viewBox="0 0 24 24"                                              
