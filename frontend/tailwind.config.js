@@ -21,15 +21,18 @@ module.exports = {
           'white': '#ffffff',
           'tangerine': {
               DEFAULT: '#fcbe6a',
-              dark: '#fa9712'
+              dark: '#ecb66d',
+              light: '#fcc67d'
           },
           'skyblue': {
               DEFAULT: '#caf7f8',
-              dark: '#5fe7ea'
+              dark: '#c1e8e9',
+              light: '#d1f8f9'
           },
           'spearmint': {
               DEFAULT: '#96f4a2',
-              dark: '#60ee72'
+              dark: '#93e59e',
+              light: '#a3f5ae'
           },
           'red': {
               300: '#fca5a5',
