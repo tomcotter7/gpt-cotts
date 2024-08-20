@@ -56,7 +56,7 @@ export function Settings({onSettingsChange, passed_settings}) {
     const selectTailwind = "bg-tangerine border border-tangerine-dark text-black rounded focus:ring-tangerine-dark"
   
     return (
-      <div className="flex justify-center bg-skyblue border-t border-skyblue-dark">
+      <div className="flex justify-center bg-skyblue-dark border-t border-skyblue-dark">
           <form>
               <label htmlFor="rag">
                   <span className="ml-2 text-black">query over your own notes?</span>

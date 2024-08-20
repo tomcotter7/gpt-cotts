@@ -37,7 +37,7 @@ const ProfileButton = ({ onClick, username }) => {
 export default function Navbar() {
 
     const { data: session, status } = useSession()
-    const validLinkTailwind = 'text-tangerine-dark hover:text-tangerine-light text-center py-1 px-2 max-h-10'
+    const validLinkTailwind = 'text-tangerine hover:text-tangerine-light text-center py-1 px-2 max-h-10'
     const invalidLinkTailwind = 'text-gray py-1 px-2 text-center max-h-10'
 
     return (
