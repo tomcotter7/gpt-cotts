@@ -26,7 +26,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="gptcotts/auth/token")
 
 
 @timing
-@lru_cache(maxsize=10)
+@lru_cache()
 def get_user_info(token: str):
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.get(
@@ -35,7 +35,7 @@ def get_user_info(token: str):
     if response.status_code == 200:
         return response.json()
 
-    logging.warning(f"Unable to log in via Google. Reason {response}")
+    logging.warning(f"Unable to log in via Google. Reason {response.text}")
     return None
 
 
