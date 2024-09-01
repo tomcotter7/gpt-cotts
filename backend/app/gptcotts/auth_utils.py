@@ -1,4 +1,5 @@
 import logging
+from functools import lru_cache
 
 import requests
 from fastapi import Depends, HTTPException, status
@@ -25,6 +26,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="gptcotts/auth/token")
 
 
 @timing
+@lru_cache
 def get_user_info(token: str):
     headers = {"Authorization": f"Bearer {token}"}
     response = requests.get(
