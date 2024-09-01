@@ -37,13 +37,25 @@ const ProfileButton = ({ onClick, username }) => {
 export default function Navbar() {
 
     const { data: session, status } = useSession()
+    const [isNavOpen, setIsNavOpen] = useState(false)
     const validLinkTailwind = 'text-black hover:text-tangerine-light text-center py-1 px-2 max-h-10 shadow-xs'
     const invalidLinkTailwind = 'text-gray py-1 px-2 text-center max-h-10'
+
+    const toggleNav = () => {
+        setIsNavOpen(!isNavOpen)
+    }
+
 
     return (
         <nav id="nav" className="flex-no-wrap relative flex w-full bg-skyblue">
             <div className="flex w-full flex-wrap items-center justify-between px-3">
-                <button className="block border-0 bg-transparent lg:hidden" type="button" data-twe-collapse-init data-twe-target="#navContent" aria-expanded="false" aria-label="Toggle navigation" aria-controls="#navContent">
+                <button
+                    className="block border-0 bg-transparent md:hidden"
+                    type="button"
+                    aria-expanded="false"
+                    aria-label="Toggle navigation"
+                    onClick={toggleNav}
+                >
                     <span className="[&>svg]:w-7 [&>svg]:stroke-black/50 dark:[&>svg]:stroke-neutral-200">
                         <svg                                                                                                                       
                             xmlns="http://www.w3.org/2000/svg"
@@ -57,27 +69,30 @@ export default function Navbar() {
                          </svg>
                     </span>
                 </button>
-                <div id="navContent" className="hidden flex-grow basis-[100%] items-center lg:!flex lg:basis-auto" data-twe-collapse-item>
-                    <div className="flex flex-col mr-2">
+                <div className="relative flex items-center md:hidden">
+                    { status === 'authenticated' ? <ProfileButton /> : <LoginLink status={status}/> } 
+                </div>
+                <div id="navContent" className={`${isNavOpen ? 'block pb-2' : 'hidden'} flex-grow basis-[100%] items-center md:!flex md:basis-auto`}>
+                    <div className="flex flex-col mr-2 mb-2 md:mb-0">
                         <Image src="/imgs/for_valued_member.png" alt="logo" width="50" height="50"/>
                     </div>
                     <ul
-                        className="list-style-none flex flex-col lg:flex-row"
+                        className="list-style-none flex flex-col md:flex-row"
                         data-twe-navbar-nav-ref
                     >
-                        <li className="lg:mb-0" data-twe-nav-item-ref>
+                        <li className="md:mb-0" data-twe-nav-item-ref>
                             { status === 'authenticated' ? <Link className={validLinkTailwind} href="/">home</Link> : <span className={invalidLinkTailwind}>home</span> }
                         </li>
-                        <li className="lg:mb-0" data-twe-nav-item-ref>
+                        <li className="md:mb-0" data-twe-nav-item-ref>
                             { status === 'authenticated' ? <Link className={validLinkTailwind} href="/notes">notes</Link> : <span className={invalidLinkTailwind}>notes</span> }
                         </li>
-                        <li className="lg:mb-0" data-twe-nav-item-ref>
+                        <li className="md:mb-0" data-twe-nav-item-ref>
                             <Link className={validLinkTailwind} href="/userguide">userguide</Link>
                         </li>
                     </ul>
                 </div>
-                <div className="relative flex items-center">
-                    { status === 'authenticated' ? <ProfileButton /> : <LoginLink status={status}/> } 
+                <div className="relative flex items-center hidden md:flex">
+                    { status === 'authenticated' ? <ProfileButton /> : <LoginLink status={status}/> }
                 </div>
             </div>
         </nav>

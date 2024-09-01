@@ -157,7 +157,7 @@ export default function Notes() {
             </div>
         )
     } else if (status === "authenticated") {
-        return <NotesContent authToken={session.accessToken} />
+        return <NotesContent authToken={session.access_token} />
     } else {
         window.location.href = "/api/auth/signin/google"
     }
