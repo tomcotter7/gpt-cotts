@@ -18,7 +18,7 @@ async function refreshAccessToken(token) {
             client_id: process.env.GOOGLE_CLIENT_ID,
             client_secret: process.env.GOOGLE_CLIENT_SECRET,
             grant_type: "refresh_token",
-            refresh_token: token.refreshToken,
+            refresh_token: token.refresh_token,
         }),
     })
 
@@ -27,13 +27,13 @@ async function refreshAccessToken(token) {
 
     token.access_token = tokensOrError.access_token
     token.expires_at = Math.floor(
-        Data.now() + tokensOrError.expires_in
+        Date.now() + tokensOrError.expires_in
     )
 
       if (tokensOrError.refresh_token) {
           token.refresh_token = tokensOrError.refresh_token
       }
-
+        console.log("Token refreshed")
       return token
   } catch (error) {
       console.log(error)
@@ -73,6 +73,7 @@ const handler = NextAuth({
                 token.error = "NoError"
                 return token
             }
+            console.log("Attempting to refresh token")
             return refreshAccessToken(token)
         },
         async session({ session, token }) {
