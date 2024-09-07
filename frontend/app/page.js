@@ -15,18 +15,16 @@ export default function Home() {
     const [loading, setLoading] = useState(true)
 
     const { data: session, status } = useSession()
-    const not_expired = session && new Date(session.expires).getTime() > Date.now()
-
 
   
-  useEffect(() => {
-    const nav = document.getElementById('nav')
-    if (nav) {
-      const vh = (nav.offsetHeight / screen.height) * 100
-      setAdjustedHeight((98 - vh) + 'vh')
-    }
+    useEffect(() => {
+        const nav = document.getElementById('nav')
+        if (nav) {
+          const vh = (nav.offsetHeight / screen.height) * 100
+          setAdjustedHeight((98 - vh) + 'vh')
+        }
 
-  }, [])
+    }, [])
     
     if (status === "loading") {
         return (
@@ -34,7 +32,7 @@ export default function Home() {
                 <ClipLoader color="#96f4a2" size="10vh" />
             </div>
         )
-    } else if (status === "authenticated" && not_expired) {
+    } else if (status === "authenticated") {
         return (
             <div className="flex flex-col items-center" style={{height: adjustedHeight}}>
                 <Chat />
