@@ -5,7 +5,6 @@ import { signIn, useSession } from 'next-auth/react'
 export default function SignIn() {
     const { data: session, status } = useSession()
     
-    console.log(session, status)
     const not_expired = session && new Date(session.expires).getTime() > Date.now()
     if (status === "authenticated" && not_expired) {
         window.location.href = "/"
