@@ -1,14 +1,15 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from gptcotts.auth_utils import User, verify_google_token
-from gptcotts.indexing import update_notes
+from gptcotts.indexing import delete_object_from_pinecone, update_notes
 from gptcotts.markdown_processor import (
     convert_to_chunks,
     convert_to_markdown,
     convert_to_sections,
 )
 from gptcotts.s3_connector import (
+    delete_object_from_s3,
     get_all_objects_from_directory,
     get_object_from_s3,
     put_object_to_s3,
@@ -31,6 +32,10 @@ class UpdateNotesRequest(BaseModel):
 def get_notes(current_user: Annotated[User, Depends(verify_google_token)]):
     """Get the notes for a user and class."""
     filenames = get_all_objects_from_directory("gptcotts-notes", current_user.email)
+
+    if len(filenames) == 0:
+        return {"sections": [], "filenames": []}
+
     first_notes = get_object_from_s3(
         "gptcotts-notes", current_user.email + "/" + filenames[0] + ".md"
     )
@@ -45,13 +50,16 @@ def get_notes_with_filename(
     request: FilenameRequest,
 ):
     """Get the notes for a user and class."""
-    filename = request.filename
-    notes = get_object_from_s3(
-        "gptcotts-notes", current_user.email + "/" + filename + ".md"
-    )
-    sections = convert_to_sections(notes)
+    try:
+        filename = request.filename
+        notes = get_object_from_s3(
+            "gptcotts-notes", current_user.email + "/" + filename + ".md"
+        )
+        sections = convert_to_sections(notes)
 
-    return {"sections": sections}
+        return {"sections": sections}
+    except Exception as e:
+        return HTTPException(status_code=404, detail=str(e))
 
 
 @router.post("/update")
@@ -76,10 +84,11 @@ def create_new_note_in_s3(
     request: FilenameRequest,
 ):
     """Add new notes for a user and class."""
+    filename = request.filename.replace(" ", "_").lower()
     put_object_to_s3(
         "gptcotts-notes",
-        f"{current_user.email}/{request.filename}.md",
-        f"# {request.filename}\nLorem Ipsum",
+        f"{current_user.email}/{filename}.md",
+        f"# {request.filename}\n## Section Heading\nLorem ipsum dolor sit amet, consectetur adipiscing elit.",
     )
 
     return {"status": "success"}
@@ -91,4 +100,9 @@ def delete_note_in_s3_and_pinecone(
     request: FilenameRequest,
 ):
     """Delete the notes for a user and class."""
-    pass
+    delete_object_from_s3(
+        "gptcotts-notes", f"{current_user.email}/{request.filename}.md"
+    )
+    delete_object_from_pinecone(current_user.email, request.filename)
+
+    return {"status": "success"}

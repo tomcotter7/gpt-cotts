@@ -106,10 +106,10 @@ def cohere_rerank(
     )
     try:
         results = [
-            {"text": r.document.text, "id": r.document.id, "meta": r.document.meta}
+            {"text": r.document.text, "id": r.document.id, "meta": r.document.meta}  # type: ignore
             for r in response.results
             if r.relevance_score > threshold
-        ]  # type: ignore
+        ]
         return results
     except AttributeError as e:
         logging.warning(f">>> Failed to rerank using Cohere - received error: {e}")
@@ -213,7 +213,10 @@ def search(
     Args:
         user_id: The ID of the user.
         query: The query to be used for searching.
+        chat_history: The chat history to be used for rewriting the query.
+        top_k: The number of results to search pinecone for.
         rerank: Whether to rerank the results using FlashRank.
+        rerank_model: The model to use for reranking. Either "cohere" or "flashrank".
         rerank_threshold: The threshold to filter the results after reranking.
 
     Returns:

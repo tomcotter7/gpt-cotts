@@ -2,7 +2,7 @@ import os
 import uuid
 
 from .cohere_utils import connect_to_cohere
-from .pinecone_utils import connect_to_pinecone
+from .pinecone_utils import connect_to_pinecone, delete_single_class
 from .utils import timing
 
 
@@ -71,6 +71,7 @@ def upsert(index: str, namespace: str, data: list[dict]) -> None:
     )
 
 
+@timing
 def update_notes(
     user_id: str,
     data: list[dict[str, str]],
@@ -81,20 +82,23 @@ def update_notes(
         user_id: The user id of the notes.
         data: The new notes data.
     """
-    pc = connect_to_pinecone()
     index = os.getenv("PINECONE_INDEX_NAME", "notes")
+    delete_single_class(index, user_id, data[0]["class"])
+
+    pc = connect_to_pinecone()
     pc_index = pc.Index(index)
     if pc_index is None:
         raise ValueError(f"Index {index} does not exist.")
-
-    old_data = pc_index.query(
-        namespace=user_id,
-        vector=[0.0 for _ in range(1024)],
-        top_k=500,
-        filter={"class": {"$eq": data[0]["class"]}},
-    )["matches"]
-
-    ids = [d["id"] for d in old_data]
-    if ids:
-        pc_index.delete(ids=ids, namespace=user_id)
     upsert(index, user_id, data)
+
+
+@timing
+def delete_object_from_pinecone(user_id: str, class_name: str) -> None:
+    """Delete an object from a Pinecone index.
+
+    Args:
+        user_id: The user id of the notes to change. This is the namespace.
+        class_name: The class name of the notes to delete.
+    """
+    index = os.getenv("PINECONE_INDEX_NAME", "notes")
+    delete_single_class(index, user_id, class_name)
