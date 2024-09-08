@@ -23,9 +23,7 @@ class BaseRequest(BaseModel):
 
 
 class RAGRequest(BaseRequest):
-    index: str = "notes"
     rerank_model: str = "cohere"
-    namespace: str = "tcotts-notes"
 
 
 class LLMRequest(BaseModel):
@@ -70,8 +68,7 @@ def generate_rag_response(
     try:
         history = filter_history(request.history)
         relevant_context = search(
-            request.index,
-            request.namespace,
+            current_user.email,
             request.query,
             history,
             rerank=True,
@@ -111,46 +108,55 @@ def generate_rag_response(
 
 
 def generate_claude_response(request: LLMRequest, context: list[dict] = []):
-    messages = request.history + [{"role": "user", "content": str(request.prompt)}]
-    client = anthropic.Anthropic()
-    with client.messages.stream(
-        system=request.prompt.system_prompt(),
-        max_tokens=1024,
-        messages=messages,  # type: ignore
-        model=request.model,
-    ) as stream:
-        for chunk in stream.text_stream:
-            yield chunk
+    try:
+        messages = request.history + [{"role": "user", "content": str(request.prompt)}]
+        client = anthropic.Anthropic()
+        with client.messages.stream(
+            system=request.prompt.system_prompt(),
+            max_tokens=1024,
+            messages=messages,  # type: ignore
+            model=request.model,
+        ) as stream:
+            for chunk in stream.text_stream:
+                yield chunk
 
-    if context:
-        yield json.dumps({"context": context})
+        if context:
+            yield json.dumps({"context": context})
+    except Exception as e:
+        logging.error(f"Anthropic error: {e}")
+        yield f"An error occurred while generating the response. See {e}"
 
 
 def generate_openai_response(request: LLMRequest, context: list[dict] = []):
-    if "deepseek" in request.model:
-        client = OpenAI(
-            api_key=os.getenv("DEEPSEEK_API_KEY"), base_url="https://api.deepseek.com"
+    try:
+        if "deepseek" in request.model:
+            client = OpenAI(
+                api_key=os.getenv("DEEPSEEK_API_KEY"),
+                base_url="https://api.deepseek.com",
+            )
+        else:
+            client = OpenAI()
+        model = request.model or "gpt-3.5-turbo"
+        logging.info(f">>> Using model: {model}")
+        system_prompt = request.prompt.system_prompt()
+        messages = (
+            [{"role": "system", "content": system_prompt}]
+            + request.history
+            + [{"role": "user", "content": str(request.prompt)}]
         )
-    else:
-        client = OpenAI()
-    model = request.model or "gpt-3.5-turbo"
-    logging.info(f">>> Using model: {model}")
-    system_prompt = request.prompt.system_prompt()
-    messages = (
-        [{"role": "system", "content": system_prompt}]
-        + request.history
-        + [{"role": "user", "content": str(request.prompt)}]
-    )
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,  # type: ignore
-        temperature=0.4,
-        stream=True,
-    )
-    for chunk in response:
-        value = chunk.choices[0].delta.content
-        if value:
-            yield value
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,  # type: ignore
+            temperature=0.4,
+            stream=True,
+        )
+        for chunk in response:
+            value = chunk.choices[0].delta.content
+            if value:
+                yield value
 
-    if context:
-        yield json.dumps({"context": context})
+        if context:
+            yield json.dumps({"context": context})
+    except Exception as e:
+        logging.error(f"OpenAI/Deepseek error: {e}")
+        yield f"An error occurred while generating the response. See {e}"

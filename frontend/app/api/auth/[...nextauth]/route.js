@@ -44,7 +44,7 @@ async function refreshAccessToken(token) {
   }
 }
 
-const handler = NextAuth({
+export const authOptions = {
     providers: [
         Google({
             clientId: process.env.GOOGLE_CLIENT_ID,
@@ -89,7 +89,8 @@ const handler = NextAuth({
         signIn: '/auth/signin',
         signOut: '/auth/signout',
     }
-})
+}
 
+const handler = NextAuth(authOptions)
 export { handler as GET, handler as POST }
 
