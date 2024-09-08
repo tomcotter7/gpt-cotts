@@ -29,7 +29,7 @@ export default async function Notes() {
     const filenames = data.filenames
 
     return (
-        <div className="max-w-3xl mx-auto px-4 py-8">
+        <div className="mx-auto px-4 py-8">
             <h1 className="text-tangerine text-5xl font-bold mb-8 text-center">Notes</h1>
             <NotesContent initialNotes={sections} initialFilenames={filenames} initialCurrentFilename={filenames[0]} />
         </div>

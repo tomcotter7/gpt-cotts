@@ -8,11 +8,11 @@ import { ClipLoader } from 'react-spinners'
 
 const LoginLink = ({ status }) => {
     if (status === "loading") {
-        return <span className="text-gray py-1 px-2 text-center my-1 max-h-10">login</span>
+        return <span className="text-gray py-1 px-2 text-center my-1 max-h-10 rounded">login</span>
     }
 
     return (
-        <Link className="my-1 text-black bg-tangerine hover:border-tangerine hover:bg-tangerine-dark py-1 px-2 text-center max-h-10" href="/api/auth/signin/google">
+        <Link className="my-1 text-black bg-tangerine hover:border-tangerine hover:bg-tangerine-dark py-1 px-2 text-center max-h-10 rounded" href="/api/auth/signin/google">
             <div className="flex flex-col">
                 <b>login</b>
             </div>
@@ -27,7 +27,7 @@ const ProfileButton = ({ onClick, username }) => {
         >
             <div className="flex flex-col m-1 p-1">
                 <div className="flex flex-row">
-                    <img className="bg-tangerine hover:bg-tangerine-dark" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA5klEQVR4nO2Tvw7BUByFP5FglGBBZw/Bzs5reAbPU5F0QryBXRMGBmaExsJCmpwmzQ0NccXSLzlDf3/OaXNvIcUSDjACAskDGjbND8Dd0FG9rxnJcAzUpYlqQxsBgcxC4whHtfOvA042AjyZTWQcaqqaayOgoQM1D3lvfNVXODrQs+TaNE95SRZoAQOg/KRfUa+p2bcpAH1gF7sxa6ALFKUesIn1t9oJdxOpAb5h7D+5opF8zUTPC6CaFDDT4BJoAxkgr7ebAxdprlpOMx1gpd3wJ3zJTUMlPqek3WvS0N2S/heQgskDvs9xQtZ6LkgAAAAASUVORK5CYII=" />
+                    <img className="bg-tangerine hover:bg-tangerine-dark rounded px-1" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA5klEQVR4nO2Tvw7BUByFP5FglGBBZw/Bzs5reAbPU5F0QryBXRMGBmaExsJCmpwmzQ0NccXSLzlDf3/OaXNvIcUSDjACAskDGjbND8Dd0FG9rxnJcAzUpYlqQxsBgcxC4whHtfOvA042AjyZTWQcaqqaayOgoQM1D3lvfNVXODrQs+TaNE95SRZoAQOg/KRfUa+p2bcpAH1gF7sxa6ALFKUesIn1t9oJdxOpAb5h7D+5opF8zUTPC6CaFDDT4BJoAxkgr7ebAxdprlpOMx1gpd3wJ3zJTUMlPqek3WvS0N2S/heQgskDvs9xQtZ6LkgAAAAASUVORK5CYII=" />
                 </div>
             </div>
         </Link>
