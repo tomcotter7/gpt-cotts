@@ -202,8 +202,6 @@ export function NotesContent(
         }
     }
 
-    console.log(notes)
-    
     const buttonTailwind = "bg-tangerine hover:bg-tangerine-dark rounded shadow-lg text-black p-1 ml-1"
 
     return (

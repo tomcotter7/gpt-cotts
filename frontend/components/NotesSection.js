@@ -34,7 +34,7 @@ function MarkdownSection({ title, content }) {
 
 export function Section({ id, title, content }) {
     return (
-        <div className="flex justify-center py-2 rounded-xl border border-black text-center prose p-4 max-w-full lg:min-w-full m-2">
+        <div className="flex justify-center py-2 rounded-xl border border-black text-center prose p-4 max-w-full md:min-w-full m-2">
             <MarkdownSection title={title} content={content} />
         </div>
     )
