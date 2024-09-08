@@ -46,25 +46,27 @@ export default function UserGuide() {
                     </div>
                     <div className="p-4 rounded-lg">
                         <h3 className="text-2xl font-semibold mb-2">Notes Format</h3>
-                        The format of the notes has been optimised for high quality retrieval and answers. Therefore, it is recommended to follow to use headings ('#' of varying lengths) to separate the sections which will be used for retrieval. For example, a note could be:
+                        The format of the notes has been optimised for high quality retrieval and answers. Therefore, it is recommended to follow to use headings ('#' of varying lengths) to separate the sections which will be used for retrieval. For example, a note titled 'Neovim' could look like this:
 
                         <p className="text-skyblue-dark font-medium">
-                            ## Neovim
+                            ## What is Neovim?
                             <br />
                             Neovim is a highly configurable, next-generation text editor. It is a fork of Vim, with a focus on extensibility and usability.
                             <br />
-                            ### Keybindings
+                            ## Keybindings
                             <br />
                             - `:w` - write the file
                             <br />
-                            #### Custom Keybindings
+                            ### Custom Keybindings
                             <br />
                             I have set up 'jk' to exit insert mode and return to normal mode.
                             <br />
-                            ### Plugins
+                            ## Plugins
                             <br />
                             ...
                         </p>
+
+                        Ensure that you don't use a single '#' as a heading, as it is used for the title of the note. Other than that, any markdown is valid, including code and math blocks.
                     </div>
 
                             
