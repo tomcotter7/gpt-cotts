@@ -187,7 +187,7 @@ export default function Chat() {
     return (
       <>
         <ToastBox toasts={toasts} setToasts={setToasts}/>
-        <div className="lg:w-screen w-11/12 h-full flex flex-col">
+        <div className="md:w-screen w-11/12 h-full flex flex-col">
             <Settings passed_settings={settings} onSettingsChange={handleSettingsChange}/>
           <div className="m-4 grow">
             <div className="flex justify-center">

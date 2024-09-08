@@ -200,8 +200,7 @@ def embed(cohere_client: cohere.Client, texts: list[str]) -> list[float]:
 
 @timing
 def search(
-    index: str,
-    namespace: str,
+    user_id: str,
     query: str,
     chat_history: list[dict],
     top_k: int = 5,
@@ -212,8 +211,7 @@ def search(
     """Search for similar texts in a Pinecone index.
 
     Args:
-        index: The name of the Pinecone index.
-        namespace: The name of the namespace.
+        user_id: The ID of the user.
         query: The query to be used for searching.
         rerank: Whether to rerank the results using FlashRank.
         rerank_threshold: The threshold to filter the results after reranking.
@@ -221,21 +219,26 @@ def search(
     Returns:
         A list of dictionaries containing the search results.
     """
+    index = os.getenv("PINECONE_INDEX_NAME", "notes")
+
     pc = connect_to_pinecone()
     cohere_client = connect_to_cohere()
+
     pc_index = pc.Index(index)
 
     if not pc_index:
         raise ValueError(f"Index {index} not found")
 
-    if len(chat_history) > 0:
+    if len(chat_history) > 1:
         query = rewrite_query(query, chat_history)
 
     embedding = embed(cohere_client, [query])
     pinecone_topk = top_k
     if rerank:
         pinecone_topk = top_k * 10
-    results = query_pinecone(pc_index, embedding, namespace, top_k=pinecone_topk)
+    results = query_pinecone(
+        pc_index, embedding, namespace=user_id, top_k=pinecone_topk
+    )
 
     if rerank:
         if rerank_model == "cohere":

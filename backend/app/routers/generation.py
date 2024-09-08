@@ -23,9 +23,7 @@ class BaseRequest(BaseModel):
 
 
 class RAGRequest(BaseRequest):
-    index: str = "notes"
     rerank_model: str = "cohere"
-    namespace: str = "tcotts-notes"
 
 
 class LLMRequest(BaseModel):
@@ -70,8 +68,7 @@ def generate_rag_response(
     try:
         history = filter_history(request.history)
         relevant_context = search(
-            request.index,
-            request.namespace,
+            current_user.email,
             request.query,
             history,
             rerank=True,

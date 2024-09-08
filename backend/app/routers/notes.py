@@ -23,13 +23,8 @@ class FilenameRequest(BaseModel):
 
 
 class UpdateNotesRequest(BaseModel):
-    user_id: str = "tom"
-    notes_class: str = "cs_notes"
-    pinecone_index: str = "notes"
-    pinecone_namespace: str = "tcotts-notes"
+    notes_class: str
     new_notes: dict
-    old_section_name: str
-    new_section_name: str
 
 
 @router.get("/get")
@@ -67,15 +62,33 @@ def update_notes_in_s3_and_pinecone(
     """Refresh the notes for a user and class."""
     markdown = convert_to_markdown(request.new_notes)
     put_object_to_s3(
-        "gptcotts-notes", f"{request.user_id}/{request.notes_class}.md", markdown
+        "gptcotts-notes", f"{current_user.email}/{request.notes_class}.md", markdown
     )
     notes_data = convert_to_chunks(markdown, request.notes_class)
-    update_notes(
-        request.pinecone_index,
-        request.old_section_name,
-        request.new_section_name,
-        request.pinecone_namespace,
-        notes_data,
+    update_notes(current_user.email, notes_data)
+
+    return {"status": "success"}
+
+
+@router.post("/add")
+def create_new_note_in_s3(
+    current_user: Annotated[User, Depends(verify_google_token)],
+    request: FilenameRequest,
+):
+    """Add new notes for a user and class."""
+    put_object_to_s3(
+        "gptcotts-notes",
+        f"{current_user.email}/{request.filename}.md",
+        f"# {request.filename}\nLorem Ipsum",
     )
 
     return {"status": "success"}
+
+
+@router.post("/delete")
+def delete_note_in_s3_and_pinecone(
+    current_user: Annotated[User, Depends(verify_google_token)],
+    request: FilenameRequest,
+):
+    """Delete the notes for a user and class."""
+    pass
