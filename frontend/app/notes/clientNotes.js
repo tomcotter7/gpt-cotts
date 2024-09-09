@@ -136,7 +136,7 @@ export function NotesContent(
         )
         if (response.ok) {
             updateToasts("Note deleted", true)
-            refreshCache(e)
+            await refreshCache(e)
         } else if (response.status === 401) {
             updateToasts("Your session has expired. Please log in again.", false)
             window.location.href = "/api/auth/signout/google"
@@ -162,9 +162,10 @@ export function NotesContent(
         const newFilename = e.target[0].value.replace(/\s/g, '_')
         if (response.ok) {
             updateToasts("Note added", true)
-            setNotes({})
-            setFilenames([...filenames, newFilename])
-            setCurrentFilename(newFilename)
+            await refreshCache(e)
+            if (filenames.length !== 0) {
+                setCurrentFilename(newFilename)
+            }
         } else if (response.status === 401) {
             updateToasts("Your session has expired. Please log in again.", false)
             window.location.href = "/api/auth/signout/google"
@@ -246,7 +247,7 @@ export function NotesContent(
                     <DeleteIcon />
                 </button>
             </form>
-            { filenames.length === 0 ? (
+            { filenames.length === 0  ? (
                 <p className="text-black">
                     No notes found. Click '+' to get started! (Click 'refresh' if you think this is in error)
                 </p> 
