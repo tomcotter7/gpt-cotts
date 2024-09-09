@@ -1,3 +1,4 @@
+import logging
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -52,6 +53,7 @@ def get_notes_with_filename(
     """Get the notes for a user and class."""
     try:
         filename = request.filename
+        logging.info(f">> Getting notes for {filename}")
         notes = get_object_from_s3(
             "gptcotts-notes", current_user.email + "/" + filename + ".md"
         )

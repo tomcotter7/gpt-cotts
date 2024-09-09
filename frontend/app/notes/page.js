@@ -7,7 +7,7 @@ export default async function Notes() {
 
     const session = await getServerSession(authOptions)
     if (!session) {
-        return redirect("/api/auth/signin/google")
+        return redirect("/api/auth/signout/google")
     }
 
     const request_options = {
@@ -22,6 +22,10 @@ export default async function Notes() {
     const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/notes/get`, request_options
     )
+
+    if (response.status !== 200) {
+        return redirect("/api/auth/signout/google")
+    }
 
 
     const data = await response.json()

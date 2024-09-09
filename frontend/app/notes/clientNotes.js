@@ -14,9 +14,13 @@ export function NotesContent(
 ) {
     
     const [editMode, setEditMode] = useState(false)
-    const [notes, setNotes] = useState(initialNotes)
-    const [currentFilename, setCurrentFilename] = useState(initialCurrentFilename)
-    const [filenames, setFilenames] = useState(initialFilenames)
+    
+    const [notesData, setNotesData] = useState({
+        notes: initialNotes,
+        currentFilename: initialCurrentFilename,
+        filenames: initialFilenames
+    })
+
     const [toasts, setToasts] = useState({})
     const [addNotesModal, setAddNotesModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
@@ -29,7 +33,7 @@ export function NotesContent(
 
     useEffect(() => {
         sessionStorage.clear()
-        sessionStorage.setItem('notes_for_' + currentFilename, JSON.stringify(notes))
+        sessionStorage.setItem('notes_for_' + notesData.currentFilename, JSON.stringify(notesData.notes))
     }, [])
 
     const { data: session, status } = useSession()
@@ -41,8 +45,19 @@ export function NotesContent(
         })
     }
 
-    const getNotesWithFilename = async (success_message = "") => {
-        if (!session || filenames.length === 0 || currentFilename === "") {
+    const getNotesWithFilename = async (filename, success_message = "") => {
+        if (!session) {
+            return
+        }
+
+
+        const cached_notes = sessionStorage.getItem('notes_for_' + filename)
+        if (cached_notes) {
+            setNotesData({
+                ...notesData,
+                currentFilename: filename,
+                notes: JSON.parse(cached_notes)
+            })
             return
         }
         const requestOptions = {
@@ -52,7 +67,7 @@ export function NotesContent(
                 'accept': 'application/json',
                 'Authorization': 'Bearer ' + session.access_token
             },
-            body: JSON.stringify({ filename: currentFilename }),
+            body: JSON.stringify({ filename: filename }),
         };
         const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/notes/get_with_filename`, requestOptions
@@ -61,9 +76,21 @@ export function NotesContent(
             const data = await response.json()
             const sections = data.sections
             sessionStorage.setItem(
-                'notes_for_' + currentFilename, JSON.stringify(sections)
+                'notes_for_' + filename, JSON.stringify(sections)
             )
-            setNotes(sections)
+            if ( notesData.filenames.includes(filename)) {
+                setNotesData({
+                    ...notesData,
+                    currentFilename: filename,
+                    notes: sections
+                })
+            } else {
+                setNotesData({
+                    notes: sections,
+                    currentFilename: filename,
+                    filenames: [...notesData.filenames, filename]
+                })
+            }
             if (success_message != "") { updateToasts(success_message, true); }
         } else if (response.status === 401) {
             updateToasts("Your session has expired. Please log in again.", false)
@@ -73,17 +100,9 @@ export function NotesContent(
         }
     }
 
-    useEffect(() => {
-        const cached_notes = sessionStorage.getItem('notes_for_' + currentFilename)
-        if (cached_notes) {
-            setNotes(JSON.parse(cached_notes))
-        } else {
-            getNotesWithFilename()
-        }
-    }, [currentFilename])
-
     const handleFileNameChange = (e) => {
-        setCurrentFilename(e.target.value)
+        e.preventDefault()
+        getNotesWithFilename(e.target.value)
     }
 
     const refreshCache = async (e) => {
@@ -105,13 +124,17 @@ export function NotesContent(
         const filenames = data.filenames
 
         if (filenames.length == 0) {
-            setNotes({})
-            setFilenames([])
-            setCurrentFilename("")
+            setNotesData({
+                notes: {},
+                currentFilename: "",
+                filenames: []
+            })
         } else { 
-            setNotes(sections)
-            setFilenames(filenames)
-            setCurrentFilename(filenames[0])
+            setNotesData({
+                notes: sections,
+                currentFilename: filenames[0],
+                filenames: filenames
+            })
         }
     }
 
@@ -131,12 +154,20 @@ export function NotesContent(
                     'accept': 'application/json',
                     'Authorization': 'Bearer ' + session.access_token
                 },
-                body: JSON.stringify({ filename: currentFilename })
+                body: JSON.stringify({ filename: notesData.currentFilename })
             }
         )
         if (response.ok) {
-            updateToasts("Note deleted", true)
-            await refreshCache(e)
+            updateToasts("Note " + notesData.currentFilename + " deleted", true)
+            if (notesData.filenames.length === 1) {
+                setNotesData({
+                    notes: {},
+                    currentFilename: "",
+                    filenames: []
+                })
+            } else {
+                refreshCache(e)
+            }
         } else if (response.status === 401) {
             updateToasts("Your session has expired. Please log in again.", false)
             window.location.href = "/api/auth/signout/google"
@@ -153,19 +184,17 @@ export function NotesContent(
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+
                     'accept': 'application/json',
                     'Authorization': 'Bearer ' + session.access_token
                 },
                 body: JSON.stringify({ filename: e.target[0].value })
             }
         )
-        const newFilename = e.target[0].value.replace(/\s/g, '_')
+        const newFilename = e.target[0].value.replace(/\s/g, '_').toLowerCase()
         if (response.ok) {
-            updateToasts("Note added", true)
-            await refreshCache(e)
-            if (filenames.length !== 0) {
-                setCurrentFilename(newFilename)
-            }
+            await updateToasts("Note " + e.target[0].value + " added", true)
+            await getNotesWithFilename(newFilename)
         } else if (response.status === 401) {
             updateToasts("Your session has expired. Please log in again.", false)
             window.location.href = "/api/auth/signout/google"
@@ -184,15 +213,18 @@ export function NotesContent(
                 'accept': 'application/json',
                 'Authorization': 'Bearer ' + session.access_token
             },
-            body: JSON.stringify({ notes_class: currentFilename, new_notes: newNotes })
+            body: JSON.stringify({ notes_class: notesData.currentFilename, new_notes: newNotes })
         };
         const response = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/notes/update`, requestOptions
         )
 
         if (response.ok) {
-            updateToasts("Notes updated", true)
-            setNotes(newNotes)
+            updateToasts("Notes for " + title + " updated", true)
+            setNotesData({
+                ...notesData,
+                notes: newNotes
+            })
             setEditMode(false)
         } else if (response.status === 401) {
             updateToasts("Your session has expired. Please log in again.", false)
@@ -211,14 +243,14 @@ export function NotesContent(
             <ToastBox toasts={toasts} setToasts={setToasts}/>
           </div>
             <ModalAddNotes open={addNotesModal} onClose={closeModal} onSave={addNote}/>
-            <ModalDeleteConfirmation open={deleteModal} title={currentFilename} onClose={closeModal} onDelete={deleteNote} />
+            <ModalDeleteConfirmation open={deleteModal} title={notesData.currentFilename} onClose={closeModal} onDelete={deleteNote} />
           <div className="flex flex-col items-center">
             <form className="flex flex-row m-2">
-                { filenames.length > 0 ?
+                { notesData.filenames.length > 0 ?
                     <select className="border border-gray text-sm bg-gray rounded shadow-lg focus:border-skyblue block w-full h-6" onChange={handleFileNameChange}>
-                        <option defaultValue key={currentFilename} value={currentFilename}>{currentFilename}</option>
-                        {filenames.map((filename) => (
-                            (filename !== currentFilename) && (<option key={filename} value={filename}>{filename}</option>)
+                        <option defaultValue key={notesData.currentFilename} value={notesData.currentFilename}>{notesData.currentFilename}</option>
+                        {notesData.filenames.map((filename) => (
+                            (filename !== notesData.currentFilename) && (<option key={filename} value={filename}>{filename}</option>)
                         ))}
                     </select>
                     : null
@@ -227,7 +259,7 @@ export function NotesContent(
                     <RefreshIcon />
                 </button>
                 { 
-                    !editMode && filenames.length > 0 ? 
+                    !editMode && notesData.filenames.length > 0 ? 
                         <button
                             className={buttonTailwind}
                             onClick={updateEditMode}>
@@ -247,24 +279,24 @@ export function NotesContent(
                     <DeleteIcon />
                 </button>
             </form>
-            { filenames.length === 0  ? (
+            { notesData.filenames.length === 0  ? (
                 <p className="text-black">
                     No notes found. Click '+' to get started! (Click 'refresh' if you think this is in error)
                 </p> 
             ) : (
                 editMode ? (
                     <EditableNotesSection
-                        id={currentFilename}
-                        title={Object.keys(notes)[0]}
-                        content={notes[Object.keys(notes)[0]]}
+                        id={notesData.currentFilename}
+                        title={Object.keys(notesData.notes)[0]}
+                        content={notesData.notes[Object.keys(notesData.notes)[0]]}
                         onSave={updateNotesContent}
                         onCancel={() => setEditMode(false)}
                     /> 
                 ) : (
                     <Section
-                        id={currentFilename}
-                        title={Object.keys(notes)[0]}
-                        content={notes[Object.keys(notes)[0]]}
+                        id={notesData.currentFilename}
+                        title={Object.keys(notesData.notes)[0]}
+                        content={notesData.notes[Object.keys(notesData.notes)[0]]}
                     />
                 )
             )}
