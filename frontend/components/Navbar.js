@@ -87,6 +87,9 @@ export default function Navbar() {
                             { status === 'authenticated' ? <Link className={validLinkTailwind} href="/notes">notes</Link> : <span className={invalidLinkTailwind}>notes</span> }
                         </li>
                         <li className="md:mb-0" data-twe-nav-item-ref>
+        { status === 'authenticated' ? <Link className={validLinkTailwind} href="/tldraw">tldraw</Link> : <span className={invalidLinkTailwind}>tldraw</span> }
+                        </li>
+                        <li className="md:mb-0" data-twe-nav-item-ref>
                             <Link className={validLinkTailwind} href="/userguide">userguide</Link>
                         </li>
                     </ul>
