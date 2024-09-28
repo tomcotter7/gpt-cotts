@@ -15,7 +15,7 @@ export default function TlDraw() {
         const nav = document.getElementById('nav')
         if (nav) {
           const vh = (nav.offsetHeight / screen.height) * 100
-          setAdjustedHeight((95 - vh) + 'vh')
+          setAdjustedHeight((97.5 - vh) + 'vh')
         }
 
     }, [])

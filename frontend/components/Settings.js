@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from "react"
-import { HideIcon, ShowIcon } from "@/components/Icons"
+import { HideIcon, ShowIcon, RubberDuckIcon } from "@/components/Icons"
 
 export function Settings({onSettingsChange, passed_settings}) {
 
     const [settings, setSettings] = useState({
-      rag: passed_settings.rag,
-      model: passed_settings.model,
-      rerank_model: passed_settings.rerank_model, 
-      slider: passed_settings.slider
+        rag: passed_settings.rag,
+        model: passed_settings.model,
+        rerank_model: passed_settings.rerank_model, 
+        expertise_slider: passed_settings.expertise_slider,
+        rubber_duck_mode: passed_settings.rubber_duck_mode
     })
     const [showSettings, setShowSettings] = useState(false)
     const didMount = useRef(false);
@@ -47,7 +48,11 @@ export function Settings({onSettingsChange, passed_settings}) {
     }
 
     function handleSlideChange(event) {
-        setSettings({...settings, slider: parseInt(event.target.value)})
+        setSettings({...settings, expertise_slider: parseInt(event.target.value)})
+    }
+
+    function handleRubberDuckCheckboxChange() {
+        setSettings({...settings, rubber_duck_mode: !settings.rubber_duck_mode})
     }
 
     if (!showSettings) {
@@ -102,10 +107,20 @@ export function Settings({onSettingsChange, passed_settings}) {
                   min="0"
                   max="100"
                   step="25"
-                  value={settings.slider}
+                  value={settings.expertise_slider}
                   className="h-3 m-2 cursor-pointer appearance-none rounded-md accent-tangerine"
                   onChange={handleSlideChange}
               />
+            </div>
+            <div className="flex flex-wrap justify-center">
+                <label htmlFor="rubberDuckMode"><RubberDuckIcon /></label>
+                <input
+                    id="rubberDuckMode"
+                    type="checkbox"
+                    checked={settings.rubber_duck_mode}
+                    className="form-checkbox mx-2 accent-tangerine rounded focus:ring-tangerine-dark focus:ring-1"
+                    onChange={handleRubberDuckCheckboxChange}
+                />
             </div>
               { settings.rag ? <div className="text-center"> <label htmlFor="rerank_model"> <span className="ml-2 text-black">which model to use for reranking? </span> </label> <select id="rerank_model" value={settings.rerank_model} onChange={handleRerankDropdownChange} className={selectTailwind}> <option value="cohere">cohere</option> <option value="flashrank">flashrank</option> </select> </div> : null }
           </form>

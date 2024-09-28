@@ -29,7 +29,16 @@ class NoContextPrompt(BasePrompt):
 
     def __str__(self):
         """Return the base prompt as a string."""
-        return f"""{self.query}"""
+        return f"""<query>{self.query}</query>"""
+
+
+class RubberDuckPrompt(BasePrompt):
+    system: str = "You are an AI language model called gpt-cotts. Given a query, you are tasked with acting as a 'Rubber Duck' for the query. Therefore, you may not provide any solutions to problems provided by the user, but you may ask questions and provide guidance to help the user solve the problem. For queries that don't require a solution, you may answer them directly. Explain all responses as if the user had {expertise} knowledge in the topic."
+    query: str
+
+    def __str__(self):
+        """Return the base prompt as a string."""
+        return f"""<query>{self.query}</query>"""
 
 
 class RewriteQueryFunction(BaseModel):

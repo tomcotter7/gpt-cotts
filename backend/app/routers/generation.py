@@ -7,7 +7,7 @@ import anthropic
 from fastapi import APIRouter, Depends
 from fastapi.responses import StreamingResponse
 from gptcotts.auth_utils import User, verify_google_token
-from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt
+from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt, RubberDuckPrompt
 from gptcotts.retrieval import search
 from openai import OpenAI
 from pydantic import BaseModel
@@ -20,6 +20,7 @@ class BaseRequest(BaseModel):
     model: str
     history: list
     expertise: str = "normal"
+    rubber_duck_mode: bool = False
 
 
 class RAGRequest(BaseRequest):
@@ -37,7 +38,7 @@ def filter_history(history):
     history = [
         {k: v for k, v in item.items() if k in ["role", "content"]} for item in history
     ]
-    history = history[-4:]
+    history = history[-6:]
     return history
 
 
@@ -48,8 +49,13 @@ def generate_response(
     try:
         history = filter_history(request.history)
         model = request.model or "claude-3-haiku-20240307"
+        prompt = (
+            NoContextPrompt(query=request.query, expertise=request.expertise)
+            if not request.rubber_duck_mode
+            else RubberDuckPrompt(query=request.query, expertise=request.expertise)
+        )
         llm_request = LLMRequest(
-            prompt=NoContextPrompt(query=request.query, expertise=request.expertise),
+            prompt=prompt,
             model=model,
             history=history,
         )
