@@ -7,7 +7,7 @@ import { Section } from '@/components/NotesSection'
 import EditableNotesSection from '@/components/EditableNotesSection'
 import { EditIcon, RefreshIcon, AddIcon, DeleteIcon } from '@/components/Icons'
 import { ModalAddNotes, ModalDeleteConfirmation } from '@/components/Modals'
-import { ToastBox } from '@/components/Toast'
+import { updateToasts, ToastBox } from '@/components/Toast'
 
 export function NotesContent(
     { initialNotes, initialCurrentFilename, initialFilenames }
@@ -21,7 +21,7 @@ export function NotesContent(
         filenames: initialFilenames
     })
 
-    const [toasts, setToasts] = useState({})
+    const [toasts, setToasts] = useState([])
     const [addNotesModal, setAddNotesModal] = useState(false)
     const [deleteModal, setDeleteModal] = useState(false)
 
@@ -38,18 +38,11 @@ export function NotesContent(
 
     const { data: session, status } = useSession()
 
-    const updateToasts = (message, success) => {
-        setToasts({
-            ...toasts,
-            [Date.now()]: { message: message, success: success }
-        })
-    }
-
     const getNotesWithFilename = async (filename, success_message = "") => {
+
         if (!session) {
             return
         }
-
 
         const cached_notes = sessionStorage.getItem('notes_for_' + filename)
         if (cached_notes) {
@@ -91,12 +84,12 @@ export function NotesContent(
                     filenames: [...notesData.filenames, filename]
                 })
             }
-            if (success_message != "") { updateToasts(success_message, true); }
+            if (success_message != "") { updateToasts(success_message, true, setToasts); }
         } else if (response.status === 401) {
-            updateToasts("Your session has expired. Please log in again.", false)
+            updateToasts("Your session has expired. Please log in again.", false, setToasts)
             window.location.href = "/api/auth/signout/google"
         } else {
-            updateToasts("Error getting notes", false)
+            updateToasts("Error getting notes", false, setToasts)
         }
     }
 
@@ -158,7 +151,8 @@ export function NotesContent(
             }
         )
         if (response.ok) {
-            updateToasts("Note " + notesData.currentFilename + " deleted", true)
+            updateToasts("Note " + notesData.currentFilename + " deleted", true, setToasts)
+            sessionStorage.removeItem('notes_for_' + notesData.currentFilename)
             if (notesData.filenames.length === 1) {
                 setNotesData({
                     notes: {},
@@ -169,10 +163,10 @@ export function NotesContent(
                 refreshCache(e)
             }
         } else if (response.status === 401) {
-            updateToasts("Your session has expired. Please log in again.", false)
+            updateToasts("Your session has expired. Please log in again.", false, setToasts)
             window.location.href = "/api/auth/signout/google"
         } else {
-            updateToasts("Error deleting note", false)
+            updateToasts("Error deleting note", false, setToasts)
         }
     }
 
@@ -193,13 +187,13 @@ export function NotesContent(
         )
         const newFilename = e.target[0].value.replace(/\s/g, '_').toLowerCase()
         if (response.ok) {
-            await updateToasts("Note " + e.target[0].value + " added", true)
+            await updateToasts("Note " + e.target[0].value + " added", true, setToasts)
             await getNotesWithFilename(newFilename)
         } else if (response.status === 401) {
-            updateToasts("Your session has expired. Please log in again.", false)
+            updateToasts("Your session has expired. Please log in again.", false, setToasts)
             window.location.href = "/api/auth/signout/google"
         } else {
-            updateToasts("Error adding note", false)
+            updateToasts("Error adding note", false, setToasts)
         }
     }
 
@@ -220,17 +214,17 @@ export function NotesContent(
         )
 
         if (response.ok) {
-            updateToasts("Notes for " + title + " updated", true)
+            updateToasts("Notes for " + title + " updated", true, setToasts)
             setNotesData({
                 ...notesData,
                 notes: newNotes
             })
             setEditMode(false)
         } else if (response.status === 401) {
-            updateToasts("Your session has expired. Please log in again.", false)
+            updateToasts("Your session has expired. Please log in again.", false, setToasts)
             window.location.href = "/api/auth/signout/google"
         } else {
-            updateToasts("Error updating notes", false)
+            updateToasts("Error updating notes", false, setToasts)
             onCancel()
         }
     }

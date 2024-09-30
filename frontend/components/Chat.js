@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react"
 import { useSession } from 'next-auth/react'
 import Markdown from 'react-markdown'
 import { Settings } from '@/components/Settings'
-import { ToastBox } from '@/components/Toast'
+import { updateToasts, ToastBox } from '@/components/Toast'
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter'
 import {dark} from 'react-syntax-highlighter/dist/esm/styles/prism'
 import Image from 'next/image'
@@ -66,8 +66,10 @@ export default function Chat() {
     })
 
 
-    const [toasts, setToasts] = useState({})
+    const [toasts, setToasts] = useState([])
     const { data: session, status } = useSession()
+
+
 
 
   function setDisabled(button) {
@@ -126,7 +128,7 @@ export default function Chat() {
 
     if (stream === "Unauthorized") {
         setGenerating(false)
-        setToasts({...toasts, [Date.now()]: {message: "Your session has expired. Please log in again.", success: false}})
+        updateToasts("Your session has expired. Please log in again.", false, setToasts)
         setChats([])
         window.location.href = "/api/auth/signout/google"
     }
