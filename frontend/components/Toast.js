@@ -1,29 +1,47 @@
+"use client"
+
+import { useEffect } from 'react'
+
+export function updateToasts( message, success, setToasts ) {
+    setToasts(prevToasts => {
+        const newToast = { id: Date.now(), message, success };
+        const updatedToasts = [newToast, ...prevToasts];
+        return updatedToasts.slice(0, 2);
+    });
+}
+
 export function ToastBox({ toasts, setToasts }) {
-  
-  function deleteToast(key) {
-    var newToasts = { ...toasts }
-    delete newToasts[key]
-    setToasts(newToasts)
-  }
+
+    function deleteToast(key) {
+        setToasts((prevToasts) => prevToasts.filter(toast => toast.id !== key))
+    }
 
   return (
     <div className="fixed right-5 flex flex-col space-y-12">
-      {Object.keys(toasts).map((key) => {
-        return (
-          <Toast
-            key={key}
-            id={key}
-            message={toasts[key].message}
-            success={toasts[key].success}
-            onDelete={deleteToast}
-            />
-        )
+      {toasts.map((toast) => {
+          return (
+              <Toast
+                key={toast.id}
+                id={toast.id}
+                message={toast.message}
+                success={toast.success}
+                onDelete={deleteToast}
+              />
+          )
       })}
     </div>
   )
 }
 
-export function Toast({ id, message, success, onDelete }) {
+export function Toast({ id, message, success, onDelete, timeout = 3000 }) {
+
+     useEffect(() => {
+         const timer = setTimeout(() => {
+             onDelete(id)
+         }, timeout)
+         return () => clearTimeout(timer)
+     }, [])
+
   var color = "bg-red-400"
 
   var icon = () => {
