@@ -31,7 +31,7 @@ const sendMessage = async (raw_request, url, token) => {
       const stream = response.body.pipeThrough(new TextDecoderStream()).getReader();
       return stream
     } else {
-      if (response.status === 401) {
+        if (response.status === 401) {
         return "Unauthorized"
       }
     }
