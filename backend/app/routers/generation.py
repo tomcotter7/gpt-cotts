@@ -47,6 +47,7 @@ def generate_response(
     current_user: Annotated[User, Depends(verify_google_token)], request: BaseRequest
 ):
     try:
+        logging.info(f">> Received query: {request.query} from {current_user.email}")
         history = filter_history(request.history)
         model = request.model or "claude-3-haiku-20240307"
         prompt = (
@@ -72,6 +73,7 @@ def generate_rag_response(
     current_user: Annotated[User, Depends(verify_google_token)], request: RAGRequest
 ):
     try:
+        logging.info(f">> Received query: {request.query} from {current_user.email}")
         history = filter_history(request.history)
         relevant_context = search(
             current_user.email,
