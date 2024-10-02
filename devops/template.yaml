@@ -13,7 +13,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       PackageType: Image
-      MemorySize: 512
+      MemorySize: 1024
       Environment:
         Variables:
           AWS_LWA_INVOKE_MODE: RESPONSE_STREAM

@@ -13,6 +13,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/gptcotts/generation")
+logging.basicConfig(level=logging.INFO)
 
 
 class BaseRequest(BaseModel):
@@ -47,6 +48,7 @@ def generate_response(
     current_user: Annotated[User, Depends(verify_google_token)], request: BaseRequest
 ):
     try:
+        logging.info(f">> Received query: {request.query} from {current_user.email}")
         history = filter_history(request.history)
         model = request.model or "claude-3-haiku-20240307"
         prompt = (
@@ -72,6 +74,7 @@ def generate_rag_response(
     current_user: Annotated[User, Depends(verify_google_token)], request: RAGRequest
 ):
     try:
+        logging.info(f">> Received query: {request.query} from {current_user.email}")
         history = filter_history(request.history)
         relevant_context = search(
             current_user.email,
@@ -124,6 +127,7 @@ def generate_claude_response(request: LLMRequest, context: list[dict] = []):
             model=request.model,
         ) as stream:
             for chunk in stream.text_stream:
+                logging.info(f">> Received chunk from Claude: {chunk}")
                 yield chunk
 
         if context:
@@ -159,6 +163,7 @@ def generate_openai_response(request: LLMRequest, context: list[dict] = []):
         for chunk in response:
             value = chunk.choices[0].delta.content
             if value:
+                logging.info(f">> Received chunk from OpenAI/DeepSeek: {value}")
                 yield value
 
         if context:
