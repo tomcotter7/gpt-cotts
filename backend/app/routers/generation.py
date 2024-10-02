@@ -13,6 +13,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/gptcotts/generation")
+logging.basicConfig(level=logging.INFO)
 
 
 class BaseRequest(BaseModel):
@@ -126,6 +127,7 @@ def generate_claude_response(request: LLMRequest, context: list[dict] = []):
             model=request.model,
         ) as stream:
             for chunk in stream.text_stream:
+                logging.info(f">> Received chunk from Claude: {chunk}")
                 yield chunk
 
         if context:
@@ -161,6 +163,7 @@ def generate_openai_response(request: LLMRequest, context: list[dict] = []):
         for chunk in response:
             value = chunk.choices[0].delta.content
             if value:
+                logging.info(f">> Received chunk from OpenAI/DeepSeek: {value}")
                 yield value
 
         if context:
