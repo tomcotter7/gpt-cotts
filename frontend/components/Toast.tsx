@@ -1,43 +1,56 @@
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect } from "react"
 
-export function updateToasts( message, success, setToasts ) {
-    setToasts(prevToasts => {
-        const newToast = { id: Date.now(), message, success };
-        const updatedToasts = [newToast, ...prevToasts];
+interface Toast {
+    id: number;
+    message: string;
+    success: boolean;
+}
+
+interface ToastBoxProps {
+    toasts: Array<Toast>;
+    setToasts: any;
+}
+
+export function updateToasts( message: string, success: boolean, setToasts: any ) {
+    setToasts((prev: Array<Toast>) => {
+        const newToast: Toast = { id: Date.now(), message, success };
+        const updatedToasts = [newToast, ...prev];
         return updatedToasts.slice(0, 2);
     });
 }
 
-export function ToastBox({ toasts, setToasts }) {
-
-    function deleteToast(key) {
-        setToasts((prevToasts) => prevToasts.filter(toast => toast.id !== key))
+export function ToastBox({ toasts, setToasts }: ToastBoxProps) {
+    
+    function deleteToast(id: number) {
+        setToasts((prev: Array<Toast>) => prev.filter((toast: Toast) => toast.id !== id));
     }
 
-  return (
-    <div className="fixed right-5 flex flex-col space-y-12">
-      {toasts.map((toast) => {
-          return (
-              <Toast
-                key={toast.id}
-                id={toast.id}
-                message={toast.message}
-                success={toast.success}
-                onDelete={deleteToast}
-              />
-          )
-      })}
-    </div>
-  )
+    return (
+        <div className="fixed right-5 flex flex-col space-y-12">
+            {toasts.map((toast: Toast) => (
+                <ToastComponent
+                    key={toast.id}
+                    toast={toast}
+                    onDelete={deleteToast}
+                />
+            ))}
+        </div>
+    )
 }
 
-export function Toast({ id, message, success, onDelete, timeout = 3000 }) {
+interface ToastComponentProps {
+    toast: Toast;
+    onDelete: any;
+    timeout?: number;
+}
+
+export function ToastComponent({ toast, onDelete, timeout = 3000 }: ToastComponentProps) {
 
      useEffect(() => {
          const timer = setTimeout(() => {
-             onDelete(id)
+             onDelete(toast.id)
          }, timeout)
          return () => clearTimeout(timer)
      }, [])
@@ -61,7 +74,7 @@ export function Toast({ id, message, success, onDelete, timeout = 3000 }) {
     )
   }
 
-  if (success) {
+  if (toast.success) {
     color = "bg-spearmint"
     icon = () => {
       return (
@@ -80,8 +93,8 @@ export function Toast({ id, message, success, onDelete, timeout = 3000 }) {
     }
   }
 
-  const rootClassNames = "fixed right-5 pointer-events-auto mx-auto mb-4 w-96 rounded-lg text-sm shadow-lg shadow-black/5 " + color
-  
+  const rootClassNames = "fixed right-5 pointer-events-auto mx-auto mb-4 w-96 rounded-lg text-sm shadow-md shadow-black text-black " + color
+
   return (
     <div
       className={rootClassNames}
@@ -90,13 +103,13 @@ export function Toast({ id, message, success, onDelete, timeout = 3000 }) {
       className="flex items-center justify-between px-4 pb-2 pt-2.5">
       <p className="flex items-center font-bold text-success-700">
         {icon()}
-        {message}
+        {toast.message}
       </p>
       <div className="flex items-center">
         <button
           type="button"
           className="ml-2 box-content rounded-none border-none opacity-80 hover:no-underline hover:opacity-75 focus:opacity-100 focus:shadow-none focus:outline-none"
-          onClick={() => onDelete(id)}
+          onClick={() => onDelete(toast.id)}
           >
           <span
             className="w-[1em]">

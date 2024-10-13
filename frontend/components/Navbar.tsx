@@ -1,12 +1,11 @@
 "use client";
-import Link from 'next/link'
-import Image from 'next/image'
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import axios from 'axios';
-import { ClipLoader } from 'react-spinners'
 
-const LoginLink = ({ status }) => {
+import Link from 'next/link';
+import Image from 'next/image';
+import { useState } from 'react';
+import { useSession } from 'next-auth/react';
+
+const LoginLink = ({ status }: {status: string}) => {
     if (status === "loading") {
         return <span className="text-gray py-1 px-2 text-center my-1 max-h-10 rounded">login</span>
     }
@@ -20,7 +19,7 @@ const LoginLink = ({ status }) => {
     )
 }
 
-const ProfileButton = ({ onClick, username }) => {
+const ProfileButton = () => {
     return (
         <Link
             href="/profile"
@@ -36,7 +35,7 @@ const ProfileButton = ({ onClick, username }) => {
 
 export default function Navbar() {
 
-    const { data: session, status } = useSession()
+    const { data: _, status } = useSession()
     const [isNavOpen, setIsNavOpen] = useState(false)
     const validLinkTailwind = 'text-black hover:text-tangerine-light text-center py-1 px-2 max-h-10 shadow-xs'
     const invalidLinkTailwind = 'text-gray py-1 px-2 text-center max-h-10'
@@ -44,7 +43,6 @@ export default function Navbar() {
     const toggleNav = () => {
         setIsNavOpen(!isNavOpen)
     }
-
 
     return (
         <nav id="nav" className="flex-no-wrap relative flex w-full bg-skyblue">
@@ -100,5 +98,7 @@ export default function Navbar() {
             </div>
         </nav>
     )
-}                                                       
-                                                                                                                                                                                    
+
+    
+}
+

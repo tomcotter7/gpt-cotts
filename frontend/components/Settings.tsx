@@ -1,68 +1,71 @@
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect } from "react";
 import { HideIcon, ShowIcon, RubberDuckIcon } from "@/components/Icons"
 
-export function Settings({onSettingsChange, passed_settings}) {
+export interface SettingsInterface {
+    rag: boolean;
+    rubberDuck: boolean;
+    expertiseSlider: number;
+    model: string;
+    rerankModel: string;
+}
 
-    const [settings, setSettings] = useState({
-        rag: passed_settings.rag,
-        model: passed_settings.model,
-        rerank_model: passed_settings.rerank_model, 
-        expertise_slider: passed_settings.expertise_slider,
-        rubber_duck_mode: passed_settings.rubber_duck_mode
-    })
-    const [showSettings, setShowSettings] = useState(false)
-    const didMount = useRef(false);
+interface SettingsProps {
+    passedSettings: SettingsInterface;
+    onSettingsChange: (settings: SettingsInterface) => void;
+}
+
+export function SettingsDisplay({ onSettingsChange, passedSettings}: SettingsProps) {
+    
+    const [settings, setSettings] = useState<SettingsInterface>(passedSettings);
+    const [showSettings, setShowSettings] = useState(false);
 
     useEffect(() => {
-        function handleKeyDown(e) {
-            if (e.key === 'r' && e.altKey) {
-                e.preventDefault()
-                setSettings((prevSettings) => {
-                    return {...prevSettings, rag: !prevSettings.rag}
-                })
-            } 
+        function handleKeyDown(e: KeyboardEvent) {
+            if (e.key === "r" && e.altKey) {
+                e.preventDefault();
+                setSettings((prev) => ({...prev, rag: !prev.rag}));
+            }
         }
-
-        window.addEventListener('keydown', handleKeyDown)
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown)
-        }
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
     }, [])
 
-
-  useEffect(() => {
-      onSettingsChange(settings)
-  }, [settings])
+    useEffect(() => {
+        onSettingsChange(settings);
+    }, [settings])
 
     function handleRAGCheckboxChange() {
         setSettings({...settings, rag: !settings.rag})
     }
 
-    function handleLLMDropdownChange(event) {
+    function handleLLMDropdownChange(event: React.ChangeEvent<HTMLSelectElement>) {
         setSettings({...settings, model: event.target.value})
     }
 
-    function handleRerankDropdownChange(event) {
-        setSettings({...settings, rerank_model: event.target.value})
+    function handleRerankDropdownChange(event: React.ChangeEvent<HTMLSelectElement>) {
+        setSettings({...settings, rerankModel: event.target.value})
     }
 
-    function handleSlideChange(event) {
-        setSettings({...settings, expertise_slider: parseInt(event.target.value)})
+    function handleSlideChange(event: React.ChangeEvent<HTMLInputElement>) {
+        setSettings({...settings, expertiseSlider: parseInt(event.target.value)})
     }
 
     function handleRubberDuckCheckboxChange() {
-        setSettings({...settings, rubber_duck_mode: !settings.rubber_duck_mode})
+        setSettings({...settings, rubberDuck: !settings.rubberDuck})
     }
 
     if (!showSettings) {
         return (
             <div className="flex justify-center bg-skyblue-dark border-t border-skyblue-dark">
-                <button className="hover:bg-skyblue text-black rounded p-1" onClick={() => setShowSettings(true)}><ShowIcon /></button>
+                <button
+                    className="hover:bg-skyblue text-black rounded p-1"
+                    onClick={() => setShowSettings(true)}
+                >
+                    <ShowIcon />
+                </button>
             </div>
         )
     }
-
     const selectTailwind = "bg-tangerine border border-tangerine-dark text-black rounded focus:ring-tangerine-dark mx-2"
   
     return (
@@ -77,7 +80,7 @@ export function Settings({onSettingsChange, passed_settings}) {
                   type="checkbox"
                   checked={settings.rag}
                   className="form-checkbox mx-2 accent-tangerine rounded focus:ring-tangerine-dark focus:ring-1"
-                  onChange={() => handleRAGCheckboxChange('RAG')}
+                  onChange={() => handleRAGCheckboxChange()}
               />
             </div>
             <div className="flex flex-wrap justify-center items-center">
@@ -107,7 +110,7 @@ export function Settings({onSettingsChange, passed_settings}) {
                   min="0"
                   max="100"
                   step="25"
-                  value={settings.expertise_slider}
+                  value={settings.expertiseSlider}
                   className="h-3 m-2 cursor-pointer appearance-none rounded-md accent-tangerine"
                   onChange={handleSlideChange}
               />
@@ -117,12 +120,12 @@ export function Settings({onSettingsChange, passed_settings}) {
                 <input
                     id="rubberDuckMode"
                     type="checkbox"
-                    checked={settings.rubber_duck_mode}
+                    checked={settings.rubberDuck}
                     className="form-checkbox mx-2 accent-tangerine rounded focus:ring-tangerine-dark focus:ring-1"
                     onChange={handleRubberDuckCheckboxChange}
                 />
             </div>
-              { settings.rag ? <div className="text-center"> <label htmlFor="rerank_model"> <span className="ml-2 text-black">which model to use for reranking? </span> </label> <select id="rerank_model" value={settings.rerank_model} onChange={handleRerankDropdownChange} className={selectTailwind}> <option value="cohere">cohere</option> <option value="flashrank">flashrank</option> </select> </div> : null }
+              { settings.rag ? <div className="text-center"> <label htmlFor="rerank_model"> <span className="ml-2 text-black">which model to use for reranking? </span> </label> <select id="rerank_model" value={settings.rerankModel} onChange={handleRerankDropdownChange} className={selectTailwind}> <option value="cohere">cohere</option> <option value="flashrank">flashrank</option> </select> </div> : null }
           </form>
         <div className="flex justify-center items-center py-1">
             <button className="bg-skyblue-dark hover:bg-skyblue text-black rounded" onClick={() => setShowSettings(false)}><HideIcon /></button>
@@ -132,5 +135,5 @@ export function Settings({onSettingsChange, passed_settings}) {
       </div>
       
     )
-}
 
+}

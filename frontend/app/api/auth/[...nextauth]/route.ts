@@ -1,22 +1,42 @@
 import NextAuth from 'next-auth'
 import Google from 'next-auth/providers/google'
 
-const GOOGLE_AUTHORIZATION_URL =
-  "https://accounts.google.com/o/oauth2/v2/auth?" +
-  new URLSearchParams({
-    prompt: "consent",
-    access_type: "offline",
-    response_type: "code",
-  })
+// const GOOGLE_AUTHORIZATION_URL =
+//   "https://accounts.google.com/o/oauth2/v2/auth?" +
+//   new URLSearchParams({
+//     prompt: "consent",
+//     access_type: "offline",
+//     response_type: "code",
+//   })
 
-async function refreshAccessToken(token) {
+function validateProcessEnv(): {clientId: string, clientSecret: string} {
+    var clientId: string;
+    if (process.env.GOOGLE_CLIENT_ID) {
+        clientId = process.env.GOOGLE_CLIENT_ID;
+    } else {
+        throw new Error('GOOGLE_CLIENT_ID is not defined');
+    }
+
+    var clientSecret: string;
+    if (process.env.GOOGLE_CLIENT_SECRET) {
+        clientSecret = process.env.GOOGLE_CLIENT_SECRET;
+    } else {
+        throw new Error('GOOGLE_CLIENT_SECRET is not defined');
+    }
+
+    return {clientId, clientSecret}
+}
+
+async function refreshAccessToken(token: any) {
   try {
-
+    
+    var {clientId, clientSecret} = validateProcessEnv()
+     
     const response = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         body: new URLSearchParams({
-            client_id: process.env.GOOGLE_CLIENT_ID,
-            client_secret: process.env.GOOGLE_CLIENT_SECRET,
+            client_id: clientId,
+            client_secret: clientSecret,
             grant_type: "refresh_token",
             refresh_token: token.refresh_token,
         }),
@@ -44,11 +64,13 @@ async function refreshAccessToken(token) {
   }
 }
 
+var {clientId, clientSecret} = validateProcessEnv()
+
 export const authOptions = {
     providers: [
         Google({
-            clientId: process.env.GOOGLE_CLIENT_ID,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            clientId: clientId,
+            clientSecret: clientSecret,
             authorization: {
                 params: {
                     prompt: "consent",
@@ -59,7 +81,7 @@ export const authOptions = {
         }),
       ],
       callbacks: {
-        async jwt({ token, user, account }) {
+        async jwt({ token, user, account }: any) {
             if (account && user) {
                 return {
                     access_token: account.access_token,
@@ -76,7 +98,7 @@ export const authOptions = {
             console.log("Attempting to refresh token")
             return refreshAccessToken(token)
         },
-        async session({ session, token }) {
+        async session({ session, token }: any) {
             if (token) {
                 session.user = token.user
                 session.access_token = token.access_token

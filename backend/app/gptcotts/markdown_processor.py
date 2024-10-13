@@ -14,14 +14,31 @@ def convert_to_markdown(notes: dict) -> str:
     Returns:
         Markdown file (as a string).
     """
-    markdown = ""
-    for header, section in notes.items():
-        markdown += f"# {header}\n\n{section}\n"
+    markdown = f"# {notes['title']}\n\n{notes['content']}"
     return markdown
 
 
 @timing
-def convert_to_sections(text: str, max_depth: int = 5) -> dict:
+def convert_to_obj(text: str) -> dict:
+    """Convert a notes file (as a string) to a dictionary object.
+
+    The dictionary has the keys 'title' (the first line of the file) and 'content' (the rest of the file).
+    """
+
+    note_obj = text.splitlines()
+    if len(note_obj) > 0:
+        note_obj = {
+            "title": note_obj[0].replace("#", "").strip(),
+            "content": "\n".join(note_obj[1:]),
+        }
+    else:
+        note_obj = {"title": "", "content": ""}
+
+    return note_obj
+
+
+@timing
+def convert_to_sections(text: str, max_depth: int | None = 5) -> dict:
     """Convert a notes file (as a string) to a dictionary of sections.
 
     This function works best with markdown files that are highly structured.

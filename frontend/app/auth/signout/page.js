@@ -1,8 +1,7 @@
 "use client"
-import { signOut, useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 
 export default function SignOut() {
-    const { data: session, staus } = useSession()
 
     const onSignOut = () => {
         signOut({ callbackUrl: '/' })

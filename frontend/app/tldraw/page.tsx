@@ -20,7 +20,7 @@ export default function TlDraw() {
 
     }, [])
 
-    if (status === "loading") {
+    if (status === "loading" || !session?.user?.email) {
         return null
     }
 

@@ -16,7 +16,6 @@ def get_all_objects_from_directory(bucket: str, prefix: str) -> list[str]:
     """
     client = boto3.client("s3")
     response = client.list_objects_v2(Bucket=bucket, Prefix=prefix)
-    print(response)
     contents = response.get("Contents", [])
     filenames = [
         obj["Key"].replace(prefix + "/", "").replace(".md", "")
