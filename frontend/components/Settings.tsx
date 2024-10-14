@@ -28,11 +28,11 @@ export function SettingsDisplay({ onSettingsChange, passedSettings}: SettingsPro
         }
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [])
+    }, [setSettings])
 
     useEffect(() => {
         onSettingsChange(settings);
-    }, [settings])
+    }, [settings, onSettingsChange])
 
     function handleRAGCheckboxChange() {
         setSettings({...settings, rag: !settings.rag})
@@ -102,7 +102,7 @@ export function SettingsDisplay({ onSettingsChange, passedSettings}: SettingsPro
             </div>
             <div className="flex flex-wrap justify-center items-center">
               <label htmlFor="slider">
-                  <span className="text-black">what's your expertise on the topic?</span>
+                  <span className="text-black">what&apos;s your expertise on the topic?</span>
               </label>
               <input
                     id="slider"

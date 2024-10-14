@@ -1,39 +1,24 @@
 "use client"
 
 import { useEffect } from "react"
+import { useToast } from "@/providers/Toast"
 
-interface Toast {
+export type ToastType = {
     id: number;
     message: string;
     success: boolean;
 }
 
-interface ToastBoxProps {
-    toasts: Array<Toast>;
-    setToasts: any;
-}
+export function ToastBox() {
 
-export function updateToasts( message: string, success: boolean, setToasts: any ) {
-    setToasts((prev: Array<Toast>) => {
-        const newToast: Toast = { id: Date.now(), message, success };
-        const updatedToasts = [newToast, ...prev];
-        return updatedToasts.slice(0, 2);
-    });
-}
-
-export function ToastBox({ toasts, setToasts }: ToastBoxProps) {
+    const { toasts } = useToast();
     
-    function deleteToast(id: number) {
-        setToasts((prev: Array<Toast>) => prev.filter((toast: Toast) => toast.id !== id));
-    }
-
     return (
         <div className="fixed right-5 flex flex-col space-y-12">
-            {toasts.map((toast: Toast) => (
+            {toasts.map((toast: ToastType) => (
                 <ToastComponent
                     key={toast.id}
                     toast={toast}
-                    onDelete={deleteToast}
                 />
             ))}
         </div>
@@ -41,23 +26,28 @@ export function ToastBox({ toasts, setToasts }: ToastBoxProps) {
 }
 
 interface ToastComponentProps {
-    toast: Toast;
-    onDelete: any;
+    toast: ToastType;
     timeout?: number;
 }
 
-export function ToastComponent({ toast, onDelete, timeout = 3000 }: ToastComponentProps) {
+export function ToastComponent({ toast, timeout = 3000 }: ToastComponentProps) {
+
+    const { setToasts } = useToast();
+
+    function onDelete(id: number) {
+        setToasts((prev: Array<ToastType>) => prev.filter((t: ToastType) => t.id !== id));
+    }
 
      useEffect(() => {
          const timer = setTimeout(() => {
-             onDelete(toast.id)
+             setToasts((prev: Array<ToastType>) => prev.filter((t: ToastType) => t.id !== toast.id));
          }, timeout)
          return () => clearTimeout(timer)
-     }, [])
+     }, [setToasts, toast.id, timeout])
 
-  var color = "bg-red-400"
+  let color = "bg-red-400"
 
-  var icon = () => {
+  let icon = () => {
     
     return (
         <span className="mr-2 h-4 w-4">

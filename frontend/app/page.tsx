@@ -8,7 +8,8 @@ import { ClipLoader } from 'react-spinners';
 
 export default function Home() {
     
-    const { data: _, status } = useSession();
+    const { data: session, status } = useSession();
+    void session;
     const [adjustedHeight, setAdjustedHeight] = useState('93vh')
 
     useEffect(() => {
@@ -39,3 +40,4 @@ export default function Home() {
 
 
 }
+

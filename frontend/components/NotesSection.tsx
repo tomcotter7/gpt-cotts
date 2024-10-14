@@ -18,11 +18,11 @@ function MarkdownSection({ title, content }: MarkdownSectionProps) {
         <Markdown
             remarkPlugins={[remarkMath, remarkGfm]}
             rehypePlugins={[rehypeKatex]}
-            children={content}
             components={{
-              code({ node, className, children, ...props }) {
+              code({ className, children, ...props }) {
                 const match = /language-(\w+)/.exec(className || '')
                 return match ? (
+                    // @ts-expect-error This follows the documentation  - https://github.com/remarkjs/react-markdown.
                   <SyntaxHighlighter style={dark} language={match[1]} PreTag="div" {...props}>
                     {String(children).replace(/\n$/, '')}
                   </SyntaxHighlighter>
@@ -33,7 +33,7 @@ function MarkdownSection({ title, content }: MarkdownSectionProps) {
                 )
               },
             }}
-        />
+        >{content}</Markdown>
     </div>
   )
 }

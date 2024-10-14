@@ -15,6 +15,7 @@ export function EditableNotesSection({ title, content, save, cancel }: EditableN
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
     const [contentValue, setContentValue] = useState(content);
     const [titleValue, setTitleValue] = useState(title);
+    void setTitleValue;
 
     useEffect(() => {
         if (textAreaRef.current) {

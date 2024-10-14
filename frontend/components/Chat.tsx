@@ -72,7 +72,7 @@ async function* processStream(stream: ReadableStream<Uint8Array> | null) {
 
 interface ChatMessage {
     content: string;
-    context: Array<any>;
+    context: Array<ContextItem>;
     role: string;
     id: number;
 }
@@ -80,6 +80,7 @@ interface ChatMessage {
 export function Chat() {
     
     const { data: session, status } = useSession();
+    void status;
 
     const contentRef = useRef<HTMLDivElement>(null);
     const stop = useRef<boolean>(false);
@@ -132,12 +133,17 @@ export function Chat() {
     }, [generating]);
 
     async function makeLLMRequest(request: BackendRequest, rag: boolean) {
-        setGenerating(true);
-        var url = `${process.env.NEXT_PUBLIC_API_URL}/generation/base`;
-        if (rag) {
-            var url = `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`;
+
+        if (!session) {
+            return;
         }
-        var response = await sendMessage(request, url, session.access_token);
+
+        setGenerating(true);
+        let url = `${process.env.NEXT_PUBLIC_API_URL}/generation/base`;
+        if (rag) {
+            url = `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`;
+        }
+        const response = await sendMessage(request, url, session.access_token);
         
         if (typeof response === "string") {
             if (response === "Unauthorized") {
@@ -150,14 +156,14 @@ export function Chat() {
         } else {
             let value = ""
 
-            var context = response.headers.get('x-relevant-context');
+            const context = response.headers.get('x-relevant-context');
 
-            var parsedContext: Array<any> = [];
+            let parsedContext: Array<ContextItem> = [];
             if (context) {
-                parsedContext = JSON.parse(context);
+                parsedContext = JSON.parse(context) as Array<ContextItem>;
             }
 
-            var stream = response.body;
+            const stream = response.body;
             setChats((prev) => [...prev, {role: "assistant", content: value, id: Date.now(), context: parsedContext}]);
             for await (const chunk of processStream(stream)) {
                 if (stop.current) {
@@ -201,6 +207,15 @@ export function Chat() {
         msOverflowStyle: 'none',
     }
 
+    if (!session) {
+        return <> </>;
+    }
+
+    let username = session.user?.name;
+    if (!username) {
+        username = "User";
+    }
+
     return (
         <div className="h-full flex flex-col">
             <SettingsDisplay passedSettings={settings} onSettingsChange={(settings) => setSettings(settings)} />
@@ -208,7 +223,7 @@ export function Chat() {
                 <div ref={contentRef} style={scrollbarHideStyle} className="h-full">
                 {chats.map((chat) => {
                     return (
-                        <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context} name={session.user?.name} />
+                        <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} />
                     )
                 })}
                 </div>
@@ -321,13 +336,13 @@ function ChatForm({ onChatSubmit, settings }: ChatFormProps) {
 interface ChatBoxProps {
     role: string;
     text: string;
-    context: Array<any>;
+    context: Array<ContextItem>;
     name: string;
 }
 
 function ChatBox({ role, text, context, name }: ChatBoxProps) {
     
-    var containerClasses = `mb-2 w-11/12 p-2 shadow-md m-3`
+    let containerClasses = `mb-2 w-11/12 p-2 shadow-md m-3`
     if (role === 'user') {
         containerClasses += ` bg-tangerine rounded-e-xl rounded-es-xl`
     } else {
@@ -342,12 +357,12 @@ function ChatBox({ role, text, context, name }: ChatBoxProps) {
                     className="text-black"
                     remarkPlugins={[remarkMath, remarkGfm]}
                     rehypePlugins={[rehypeKatex]}
-                    children={text}
                     components={{
                     code(props) {
-                    const {children, className, node, ...rest} = props;
+                    const {children, className, ...rest} = props;
                         const match = /language-(\w+)/.exec(className || '')
                         return match ? (
+                            // @ts-expect-error This follows the documentation - https://github.com/remarkjs/react-markdown.
                             <SyntaxHighlighter
                                 {...rest}
                                 PreTag="div"
@@ -361,7 +376,7 @@ function ChatBox({ role, text, context, name }: ChatBoxProps) {
                         )
                         }
                     }}
-                />
+                >{text}</Markdown>
             </div>
             { context.length > 0 ? <ContextBox context={context} /> : null }
         </div>
@@ -369,11 +384,20 @@ function ChatBox({ role, text, context, name }: ChatBoxProps) {
 
 }
 
+interface ContextItem {
+    id: number;
+    text: string;
+    meta: {
+        class: string;
+    }
+}
+
 interface ContextBoxProps {
-    context: Array<any>;
+    context: Array<ContextItem>;
 }
 
 function ContextBox({context}: ContextBoxProps) {
+
     
     const [open, setOpen] = useState(false)
 
@@ -391,7 +415,7 @@ function ContextBox({context}: ContextBoxProps) {
             <button className="m-1 bg-skyblue text-black p-1 rounded bg-skyblue-dark hover:bg-skyblue-light hover:border-skyblue-dark" onClick={() => setOpen(false)}>Hide context</button>
                 {context.map((context_item) => 
                     <>
-                    <p key={context_item['id']} className="mx-2 text-black shadow-lg my-2 p-2"> {context_item['text']} | This context came from the topic <b>{context_item['meta']['class']}</b></p>
+                    <p key={context_item.id} className="mx-2 text-black shadow-lg my-2 p-2"> {context_item.text} | This context came from the topic <b>{context_item.meta.class}</b></p>
                     </>
                 )}
             </div>

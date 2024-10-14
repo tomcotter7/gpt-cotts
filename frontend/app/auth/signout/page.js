@@ -14,7 +14,7 @@ export default function SignOut() {
                 <button className="mt-2 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine font-bold py-2 px-4 rounded-md justify-center w-1/12" onClick={onSignOut}>
                     Sign out
                 </button>
-                <p className="text-skyblue">* If you were redirected here, it's likely your session expired. Please sign out and then sign back in. </p>
+                <p className="text-skyblue">* If you were redirected here, it&apos;s likely your session expired. Please sign out and then sign back in. </p>
             </div>
         </>
     )
