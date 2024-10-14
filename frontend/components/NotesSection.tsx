@@ -45,7 +45,7 @@ interface SectionProps {
 
 export function NotesSection({ title, content }: SectionProps) {
     return (
-        <div className="flex justify-center py-2 rounded-xl text-center prose p-4 max-w-full md:min-w-full m-2 text-black">
+        <div className="flex justify-center rounded-xl text-center prose px-4 max-w-full md:min-w-full m-2 text-black">
             <MarkdownSection title={title} content={content} />
         </div>
     )
