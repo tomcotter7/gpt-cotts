@@ -107,13 +107,6 @@ export function Chat() {
     }, []);
 
     useEffect(() => {
-        function scrollToBottom() {
-            if (contentRef.current) {
-                contentRef.current.scrollTop = contentRef.current.scrollHeight;
-            }
-        };
-
-        scrollToBottom();
 
         const clearButton = document.getElementById("clearButton");
         if (chats.length === 0 && clearButton) {
@@ -124,6 +117,11 @@ export function Chat() {
     }, [chats]);
 
     useEffect(() => {
+
+        if (generating) {
+            scrollToBottom();
+        }
+
         const stopButton = document.getElementById("stopButton");
         if (generating && stopButton) {
             stopButton.classList.remove("hidden");
@@ -132,13 +130,18 @@ export function Chat() {
         }
     }, [generating]);
 
+    function scrollToBottom() {
+        if (contentRef.current) {
+            contentRef.current.scrollTop = contentRef.current.scrollHeight;
+        }
+    };
+
     async function makeLLMRequest(request: BackendRequest, rag: boolean) {
 
         if (!session) {
             return;
         }
 
-        setGenerating(true);
         let url = `${process.env.NEXT_PUBLIC_API_URL}/generation/base`;
         if (rag) {
             url = `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`;
@@ -165,6 +168,7 @@ export function Chat() {
 
             const stream = response.body;
             setChats((prev) => [...prev, {role: "assistant", content: value, id: Date.now(), context: parsedContext}]);
+            setGenerating(true);
             for await (const chunk of processStream(stream)) {
                 if (stop.current) {
                     stop.current = false;
@@ -296,7 +300,14 @@ function ChatForm({ onChatSubmit, settings }: ChatFormProps) {
             resetChatInput();
         } else {
             e.currentTarget.style.height = "auto";
-            e.currentTarget.style.height = (e.currentTarget.scrollHeight) + "px";
+            const newHeight = Math.min(e.currentTarget.scrollHeight, 200);
+            e.currentTarget.style.height = newHeight + "px";
+
+            if (e.currentTarget.scrollHeight > 200) {
+                e.currentTarget.style.overflow = "auto";
+            } else {
+                e.currentTarget.style.overflow = "hidden";
+            }
         }
     }
 
@@ -352,7 +363,7 @@ function ChatBox({ role, text, context, name }: ChatBoxProps) {
     return (
         <div className={containerClasses}>
             {role === 'user'? <p className="text-black text-xs"><b>{name}</b> (You)</p>: <p className="text-black text-xs"><b>gpt-cotts</b></p>}
-            <div className="max-w-full">
+            <div className="max-w-full min-h-5">
                 <Markdown
                     className="text-black markdown-content"
                     remarkPlugins={[remarkMath, remarkGfm]}
