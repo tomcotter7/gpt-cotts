@@ -282,7 +282,7 @@ body: JSON.stringify({ filename: filename })
 
 
 
-    const buttonTailwind = "bg-tangerine hover:bg-tangerine-dark hover:border hover:border-tangerine rounded shadow-md text-black p-1 ml-1";
+    const buttonTailwind = "bg-tangerine hover:bg-tangerine-dark hover:border hover:border-tangerine rounded shadow-md text-black p-1 ml-1 w-1/12 md:h-4/6 flex justify-center items-center";
 
     return (
         <>  
@@ -292,9 +292,9 @@ body: JSON.stringify({ filename: filename })
             <ModalAddNotes open={addNotesModal} onClose={closeModal} onSave={(title) => addNote(title)} />
             <ModalDeleteConfirmation open={deleteNotesModal} title={notesData.currentFilename} onClose={closeModal} onDelete={deleteNote} />
             <div className="flex flex-col items-center">
-                <form className="flex flex-row m-2">
+                <form className="flex flex-row w-full px-8 justify-center md:items-center md:px-12 md:h-12">
                     { notesData.filenames.length > 0 ?
-                    <select className="border border-gray text-sm bg-gray rounded shadow-lg focus:border-skyblue block w-full h-6" onChange={handleFileNameChange}>
+                    <select className="border border-gray text-sm bg-gray rounded shadow-lg block focus:border-skyblue w-3/6 md:w-1/6 md:h-4/6" onChange={handleFileNameChange}>
                         <option key={notesData.currentFilename} value={notesData.currentFilename}>{notesData.currentFilename}</option>
                         {notesData.filenames.map((filename) => (
                             (filename !== notesData.currentFilename) && (<option key={filename} value={filename}>{filename}</option>)

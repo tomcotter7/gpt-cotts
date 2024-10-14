@@ -221,7 +221,7 @@ export function Chat() {
     }
 
     return (
-        <div className="h-full flex flex-col">
+        <div className="max-h-full flex flex-col">
             <SettingsDisplay passedSettings={settings} onSettingsChange={(settings) => setSettings(settings)} />
             <div className="flex justify-center mt-2 mb-1">
                 <button
@@ -239,8 +239,8 @@ export function Chat() {
                     <b> clear </b>
                 </button>
             </div>
-            <div className="h-3/4">
-                <div ref={contentRef} style={scrollbarHideStyle} className="h-full">
+            <div className="h-1/4 flex flex-grow w-full">
+                <div ref={contentRef} style={scrollbarHideStyle} className="h-full w-full">
                 {chats.map((chat) => {
                     return (
                         <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} />
