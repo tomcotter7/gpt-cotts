@@ -133,6 +133,7 @@ export const authOptions = {
                 session.user = token.user
                 session.access_token = token.access_token
                 session.error = token.error
+                session.expires = token.expires_at
             }
             return session
         },
