@@ -22,9 +22,9 @@ export default async function Profile() {
 
     return (
         <div className="flex flex-col items-center m-4">
-            <div className="w-1/2 rounded-lg shadow-md flex flex-col items-center m-4 p-4">
+            <div className="w-1/2 rounded-lg shadow-md flex flex-col items-center m-4 p-4 bg-skyblue border">
                 <p className="text-tangerine text-4xl">{username}</p>
-                <p>{email}</p>
+                <p className="text-black">{email}</p>
             </div>
             <form action="/api/auth/signout" method="POST">
                 <button 
