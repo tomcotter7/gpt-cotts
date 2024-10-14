@@ -7,7 +7,7 @@ from gptcotts.indexing import delete_object_from_pinecone, update_notes
 from gptcotts.markdown_processor import (
     convert_to_chunks,
     convert_to_markdown,
-    convert_to_sections,
+    convert_to_obj,
 )
 from gptcotts.s3_connector import (
     delete_object_from_s3,
@@ -35,14 +35,15 @@ def get_notes(current_user: Annotated[User, Depends(verify_google_token)]):
     filenames = get_all_objects_from_directory("gptcotts-notes", current_user.email)
 
     if len(filenames) == 0:
-        return {"sections": [], "filenames": []}
+        return {"note": {"title": "", "content": ""}, "filenames": []}
 
     first_notes = get_object_from_s3(
         "gptcotts-notes", current_user.email + "/" + filenames[0] + ".md"
     )
-    sections = convert_to_sections(first_notes)
 
-    return {"sections": sections, "filenames": filenames}
+    note_obj = convert_to_obj(first_notes)
+
+    return {"note": note_obj, "filenames": filenames}
 
 
 @router.post("/get_with_filename")
@@ -57,9 +58,9 @@ def get_notes_with_filename(
         notes = get_object_from_s3(
             "gptcotts-notes", current_user.email + "/" + filename + ".md"
         )
-        sections = convert_to_sections(notes)
+        note_obj = convert_to_obj(notes)
 
-        return {"sections": sections}
+        return {"note": note_obj}
     except Exception as e:
         return HTTPException(status_code=404, detail=str(e))
 

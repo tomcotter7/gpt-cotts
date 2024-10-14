@@ -105,13 +105,17 @@ def generate_rag_response(
             )
 
         if "claude" in model:
-            return StreamingResponse(
-                generate_claude_response(llm_request, relevant_context)
+            response = StreamingResponse(
+                generate_claude_response(llm_request, relevant_context),
+                headers={"X-Relevant-Context": json.dumps(relevant_context)},
             )
         else:
-            return StreamingResponse(
-                generate_openai_response(llm_request, relevant_context)
+            response = StreamingResponse(
+                generate_openai_response(llm_request, relevant_context),
+                headers={"X-Relevant-Context": json.dumps(relevant_context)},
             )
+        print(response.headers)
+        return response
     except Exception as e:
         return {"status": "400", "message": str(e)}
 
@@ -127,11 +131,10 @@ def generate_claude_response(request: LLMRequest, context: list[dict] = []):
             model=request.model,
         ) as stream:
             for chunk in stream.text_stream:
-                logging.info(f">> Received chunk from Claude: {chunk}")
                 yield chunk
 
-        if context:
-            yield json.dumps({"context": context})
+        # if context:
+        # yield json.dumps({"context": context})
     except Exception as e:
         logging.error(f"Anthropic error: {e}")
         yield f"An error occurred while generating the response. See {e}"
@@ -163,11 +166,10 @@ def generate_openai_response(request: LLMRequest, context: list[dict] = []):
         for chunk in response:
             value = chunk.choices[0].delta.content
             if value:
-                logging.info(f">> Received chunk from OpenAI/DeepSeek: {value}")
                 yield value
 
-        if context:
-            yield json.dumps({"context": context})
+        # if context:
+        # yield json.dumps({"context": context})
     except Exception as e:
         logging.error(f"OpenAI/Deepseek error: {e}")
         yield f"An error occurred while generating the response. See {e}"

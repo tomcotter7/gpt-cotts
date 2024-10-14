@@ -97,6 +97,10 @@ def cohere_rerank(
     Returns:
         A list of dictionaries containing the reranked results. All chunks with a score lower than the threshold are removed. Same keys as the input.
     """
+
+    if len(results) == 0:
+        return results
+
     cohere_client = connect_to_cohere()
     response = cohere_client.rerank(
         model="rerank-english-v3.0",
