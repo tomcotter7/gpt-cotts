@@ -2,9 +2,12 @@
 
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+
+import { ClipLoader } from 'react-spinners';
+
+import { AlertBanner } from '@/components/AlertBanner';
 import { NotLoggedIn } from '@/components/NotLoggedIn';
 import { Chat } from '@/components/Chat';
-import { ClipLoader } from 'react-spinners';
 
 export default function Home() {
     
@@ -31,9 +34,7 @@ export default function Home() {
     } else if (status === "authenticated") {
         return (
             <div className="flex justify-center" style={{height: adjustedHeight}}>
-            <div className="fixed top-45 right-2 bg-red-400 w-1/6 rounded shadow-md p-1">
-                <p className="text-white text-sm"> ! A major code rewrite was just released. If you have any issues, please let me know. ! </p>
-            </div>
+                <AlertBanner />
                 <Chat />
             </div>
         )
