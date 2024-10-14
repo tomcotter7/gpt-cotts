@@ -88,7 +88,7 @@ export const authOptions = {
             { token, user, account }
         ) {
 
-            if (!token?.expires_at) {
+            if (!token) {
                 console.log("No token")
                 return {
                     access_token: "",
@@ -111,7 +111,6 @@ export const authOptions = {
                 token.error = "NoError"
                 return {
                     ...token,
-                    user: user
                 }
             }
 
@@ -121,7 +120,7 @@ export const authOptions = {
                 expires_at: refreshedToken.expires_at,
                 refresh_token: refreshedToken.refresh_token,
                 error: refreshedToken.error,
-                user: user
+                user: refreshedToken.user
             }
 
 
@@ -130,7 +129,8 @@ export const authOptions = {
         async session({ session, token }) {
             
             if (token) {
-                session.user = token.user
+                session.user.name = token.user.name
+                session.user.email = token.user.email
                 session.access_token = token.access_token
                 session.error = token.error
                 session.expires = token.expires_at

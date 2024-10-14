@@ -21,6 +21,7 @@ export default function Home() {
 
     }, [])
 
+
     if ( status === "loading" ) {
         return (
             <div className="flex justify-center m-4">
@@ -33,7 +34,7 @@ export default function Home() {
                 <Chat />
             </div>
         )
-    } else {   
+    } else {
         return <NotLoggedIn />
     }
 

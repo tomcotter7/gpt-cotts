@@ -10,11 +10,21 @@ export default async function Profile() {
         return redirect("/api/auth/signin/google")
     }
 
+    let username = session.user?.name
+    if (!username) {
+        username = "User"
+    }
+
+    let email = session.user?.email
+    if (!email) {
+        email = "Email"
+    }
+
     return (
         <div className="flex flex-col items-center m-4">
             <div className="w-1/2 rounded-lg shadow-md flex flex-col items-center m-4 p-4">
-                <p className="text-tangerine text-4xl">{session.user.name}</p>
-                <p>{session.user.email}</p>
+                <p className="text-tangerine text-4xl">{username}</p>
+                <p>{email}</p>
             </div>
             <form action="/api/auth/signout" method="POST">
                 <button 

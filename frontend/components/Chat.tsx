@@ -219,16 +219,7 @@ export function Chat() {
     return (
         <div className="h-full flex flex-col">
             <SettingsDisplay passedSettings={settings} onSettingsChange={(settings) => setSettings(settings)} />
-            <div className="h-4/5">
-                <div ref={contentRef} style={scrollbarHideStyle} className="h-full">
-                {chats.map((chat) => {
-                    return (
-                        <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} />
-                    )
-                })}
-                </div>
-            </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center mt-2">
                 <button
                     id="stopButton"
                     className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
@@ -243,6 +234,15 @@ export function Chat() {
                 >
                     <b> clear </b>
                 </button>
+            </div>
+            <div className="h-3/4">
+                <div ref={contentRef} style={scrollbarHideStyle} className="h-full">
+                {chats.map((chat) => {
+                    return (
+                        <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} />
+                    )
+                })}
+                </div>
             </div>
             <ChatForm settings={settings} onChatSubmit={onChatSubmit} />
         </div>
