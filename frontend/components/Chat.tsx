@@ -219,7 +219,7 @@ export function Chat() {
     return (
         <div className="h-full flex flex-col">
             <SettingsDisplay passedSettings={settings} onSettingsChange={(settings) => setSettings(settings)} />
-            <div className="flex justify-center mt-2">
+            <div className="flex justify-center mt-2 mb-1">
                 <button
                     id="stopButton"
                     className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
@@ -354,7 +354,7 @@ function ChatBox({ role, text, context, name }: ChatBoxProps) {
             {role === 'user'? <p className="text-black text-xs"><b>{name}</b> (You)</p>: <p className="text-black text-xs"><b>gpt-cotts</b></p>}
             <div className="max-w-full">
                 <Markdown
-                    className="text-black"
+                    className="text-black markdown-content"
                     remarkPlugins={[remarkMath, remarkGfm]}
                     rehypePlugins={[rehypeKatex]}
                     components={{
@@ -370,7 +370,7 @@ function ChatBox({ role, text, context, name }: ChatBoxProps) {
                                 style={dark}
                             >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
                         ) : (
-                            <code {...rest} className={className}>
+                            <code {...rest} className={className} style={{"whiteSpace": "pre-wrap", "wordWrap": "break-word", "display": "inline-block", "maxWidth": "100%"}}>
                                 {children}
                             </code>
                         )

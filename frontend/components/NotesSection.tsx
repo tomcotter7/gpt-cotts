@@ -12,6 +12,7 @@ interface MarkdownSectionProps {
 }
 
 function MarkdownSection({ title, content }: MarkdownSectionProps) {
+    console.log(content)
     return (
     <div className="max-w-full">
         <h2 className="text-tangerine text-center"><b> {title} </b></h2>
@@ -27,7 +28,7 @@ function MarkdownSection({ title, content }: MarkdownSectionProps) {
                     {String(children).replace(/\n$/, '')}
                   </SyntaxHighlighter>
                 ) : (
-                  <code className={className} {...props}>
+                  <code className={className} {...props} style={{"whiteSpace": "pre-wrap", "wordWrap": "break-word", "display": "inline-block", "maxWidth": "100%"}}>
                     {children}
                   </code>
                 )
