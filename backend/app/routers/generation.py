@@ -5,7 +5,7 @@ import os
 from typing import Annotated
 
 import anthropic
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends
 from fastapi.responses import StreamingResponse
 from gptcotts.auth_utils import User, verify_google_token
 from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt, RubberDuckPrompt
@@ -46,7 +46,9 @@ def filter_history(history):
 
 @router.post("/base")
 def generate_response(
-    current_user: Annotated[User, Depends(verify_google_token)], request: BaseRequest
+    current_user: Annotated[User, Depends(verify_google_token)],
+    request: BaseRequest,
+    background_tasks: BackgroundTasks,
 ):
     try:
         logging.info(f">> Received query: {request.query} from {current_user.email}")
@@ -63,7 +65,9 @@ def generate_response(
             history=history,
         )
         if "claude" in model:
-            return StreamingResponse(generate_claude_response(llm_request))
+            return StreamingResponse(
+                generate_claude_response(llm_request, background_tasks=background_tasks)
+            )
         else:
             return StreamingResponse(generate_openai_response(llm_request))
     except Exception as e:
@@ -72,7 +76,9 @@ def generate_response(
 
 @router.post("/rag")
 def generate_rag_response(
-    current_user: Annotated[User, Depends(verify_google_token)], request: RAGRequest
+    current_user: Annotated[User, Depends(verify_google_token)],
+    request: RAGRequest,
+    background_tasks: BackgroundTasks,
 ):
     try:
         logging.info(f">> Received query: {request.query} from {current_user.email}")
@@ -110,7 +116,11 @@ def generate_rag_response(
         ).decode()
         if "claude" in model:
             response = StreamingResponse(
-                generate_claude_response(llm_request, relevant_context),
+                generate_claude_response(
+                    llm_request,
+                    context=relevant_context,
+                    background_tasks=background_tasks,
+                ),
                 headers={"X-Relevant-Context": encoded_context},
             )
         else:
@@ -124,7 +134,13 @@ def generate_rag_response(
         return {"status": "400", "message": str(e)}
 
 
-def generate_claude_response(request: LLMRequest, context: list[dict] = []):
+def process_accum(accum: anthropic.types.Message):
+    logging.info(f"Processing accum: {accum}")
+
+
+def generate_claude_response(
+    request: LLMRequest, background_tasks: BackgroundTasks, context: list[dict] = []
+):
     try:
         messages = request.history + [{"role": "user", "content": str(request.prompt)}]
         client = anthropic.Anthropic()
@@ -137,8 +153,9 @@ def generate_claude_response(request: LLMRequest, context: list[dict] = []):
             for chunk in stream.text_stream:
                 yield chunk
 
-        # if context:
-        # yield json.dumps({"context": context})
+        accum = stream.get_final_message()
+        background_tasks.add_task(process_accum, accum)
+
     except Exception as e:
         logging.error(f"Anthropic error: {e}")
         yield f"An error occurred while generating the response. See {e}"
@@ -172,8 +189,6 @@ def generate_openai_response(request: LLMRequest, context: list[dict] = []):
             if value:
                 yield value
 
-        # if context:
-        # yield json.dumps({"context": context})
     except Exception as e:
         logging.error(f"OpenAI/Deepseek error: {e}")
         yield f"An error occurred while generating the response. See {e}"
