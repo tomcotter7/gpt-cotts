@@ -11,7 +11,7 @@ from routers import generation, notes
 origins = [
     "https://gptcotts.uk",
     "http://localhost:3000",
-    "https://gpt-cotts-git-staging-toms-projects-e1381325.vercel.app/",
+    "https://gpt-cotts-git-staging-toms-projects-e1381325.vercel.app",
 ]
 # origins = ["*"]
 
