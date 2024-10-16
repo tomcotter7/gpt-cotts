@@ -8,7 +8,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from routers import generation, notes
 
-origins = ["https://gptcotts.uk", "http://localhost:3000"]
+origins = [
+    "https://gptcotts.uk",
+    "http://localhost:3000",
+    "https://gpt-cotts-git-staging-toms-projects-e1381325.vercel.app/",
+]
 # origins = ["*"]
 
 logging.basicConfig(level=logging.INFO)
