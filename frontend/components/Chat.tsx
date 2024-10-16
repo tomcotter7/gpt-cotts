@@ -163,7 +163,7 @@ export function Chat() {
 
             let parsedContext: Array<ContextItem> = [];
             if (context) {
-                parsedContext = JSON.parse(context) as Array<ContextItem>;
+                parsedContext = JSON.parse(atob(context)) as Array<ContextItem>;
             }
 
             const stream = response.body;

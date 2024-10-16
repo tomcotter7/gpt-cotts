@@ -1,3 +1,4 @@
+import base64
 import json
 import logging
 import os
@@ -104,15 +105,18 @@ def generate_rag_response(
                 history=history,
             )
 
+        encoded_context = base64.b64encode(
+            json.dumps(relevant_context).encode()
+        ).decode()
         if "claude" in model:
             response = StreamingResponse(
                 generate_claude_response(llm_request, relevant_context),
-                headers={"X-Relevant-Context": json.dumps(relevant_context)},
+                headers={"X-Relevant-Context": encoded_context},
             )
         else:
             response = StreamingResponse(
                 generate_openai_response(llm_request, relevant_context),
-                headers={"X-Relevant-Context": json.dumps(relevant_context)},
+                headers={"X-Relevant-Context": encoded_context},
             )
         print(response.headers)
         return response
