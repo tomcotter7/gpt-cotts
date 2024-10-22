@@ -93,9 +93,9 @@ export function SettingsDisplay({ onSettingsChange, passedSettings}: SettingsPro
                   onChange={handleLLMDropdownChange}
                   className={selectTailwind}
               >
-                  <option value="gpt-3.5-turbo-0125">gpt-3.5</option>
-                  <option value="gpt-4-0125-preview">gpt-4</option>
-                  <option value="deepseek-coder">deepseek-coder</option>
+                  <option value="gpt-4o-mini-2024-07-18">gpt-4o-mini</option>
+                  <option value="gpt-4o-2024-08-06">gpt-4o</option>
+                  <option value="deepseek-chat">deepseek-v2.5</option>
                   <option value="claude-3-haiku-20240307">claude3-haiku</option>
                   <option value="claude-3-5-sonnet-20241022">claude3.5-sonnet</option>
               </select>

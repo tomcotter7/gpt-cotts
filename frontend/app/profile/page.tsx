@@ -11,13 +11,10 @@ export default async function Profile() {
     }
 
     let username = session.user?.name
-    if (!username) {
-        username = "User"
-    }
-
     let email = session.user?.email
-    if (!email) {
-        email = "Email"
+
+    if (!username || !email) {
+        return redirect("/api/auth/signin/google")
     }
 
     return (

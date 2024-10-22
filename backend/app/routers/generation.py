@@ -7,10 +7,13 @@ from typing import Annotated
 import anthropic
 from fastapi import APIRouter, BackgroundTasks, Depends
 from fastapi.responses import StreamingResponse
+from gptcotts import config as cfg
 from gptcotts.auth_utils import User, verify_google_token
+from gptcotts.dynamodb_utils import get_table_item, update_table_item
 from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt, RubberDuckPrompt
 from gptcotts.retrieval import search
 from openai import OpenAI
+from openai.types.chat import ChatCompletionChunk
 from pydantic import BaseModel
 
 router = APIRouter(prefix="/gptcotts/generation")
@@ -44,6 +47,54 @@ def filter_history(history):
     return history
 
 
+def update_token_count(user: User, model: str, input_tokens: int, output_tokens: int):
+    price = (
+        input_tokens
+        * cfg.API_PRICING.get(model, cfg.API_PRICING["default"])[
+            "input_price_per_one_token"
+        ]
+        + output_tokens
+        * cfg.API_PRICING.get(model, cfg.API_PRICING["default"])[
+            "output_price_per_one_token"
+        ]
+    )
+
+    logging.info(
+        f"Usage from {user.email} on model {model}: {input_tokens} input tokens, {output_tokens} output tokens, ${price:.10f} total price"
+    )
+
+    old_values = get_table_item(cfg.USER_TABLE, {"email": user.email})
+
+    total_price = float(old_values["Item"]["spent"]["N"]) + price
+    input_tokens = int(old_values["Item"]["input_tokens"]["N"]) + input_tokens
+    output_tokens = int(old_values["Item"]["output_tokens"]["N"]) + output_tokens
+
+    update_table_item(
+        cfg.USER_TABLE,
+        {
+            "email": {"S": user.email},
+            "spent": {"N": str(total_price)},
+            "input_tokens": {"N": str(input_tokens)},
+            "output_tokens": {"N": str(output_tokens)},
+        },
+    )
+
+
+def process_anthropic_accum(accum: anthropic.types.Message, user: User):
+    update_token_count(
+        user, accum.model, accum.usage.input_tokens, accum.usage.output_tokens
+    )
+
+
+def process_openai_accum(accum: ChatCompletionChunk, user: User):
+    if accum.usage is None:
+        logging.error("Unable to extract usage from OpenAI completion")
+        return
+    update_token_count(
+        user, accum.model, accum.usage.prompt_tokens, accum.usage.completion_tokens
+    )
+
+
 @router.post("/base")
 def generate_response(
     current_user: Annotated[User, Depends(verify_google_token)],
@@ -66,10 +117,16 @@ def generate_response(
         )
         if "claude" in model:
             return StreamingResponse(
-                generate_claude_response(llm_request, background_tasks=background_tasks)
+                generate_claude_response(
+                    llm_request, user=current_user, background_tasks=background_tasks
+                )
             )
         else:
-            return StreamingResponse(generate_openai_response(llm_request))
+            return StreamingResponse(
+                generate_openai_response(
+                    llm_request, user=current_user, background_tasks=background_tasks
+                )
+            )
     except Exception as e:
         return {"status": "400", "message": str(e)}
 
@@ -118,28 +175,25 @@ def generate_rag_response(
             response = StreamingResponse(
                 generate_claude_response(
                     llm_request,
-                    context=relevant_context,
+                    user=current_user,
                     background_tasks=background_tasks,
                 ),
                 headers={"X-Relevant-Context": encoded_context},
             )
         else:
             response = StreamingResponse(
-                generate_openai_response(llm_request, relevant_context),
+                generate_openai_response(
+                    llm_request, user=current_user, background_tasks=background_tasks
+                ),
                 headers={"X-Relevant-Context": encoded_context},
             )
-        print(response.headers)
         return response
     except Exception as e:
         return {"status": "400", "message": str(e)}
 
 
-def process_accum(accum: anthropic.types.Message):
-    logging.info(f"Processing accum: {accum}")
-
-
 def generate_claude_response(
-    request: LLMRequest, background_tasks: BackgroundTasks, context: list[dict] = []
+    request: LLMRequest, user: User, background_tasks: BackgroundTasks
 ):
     try:
         messages = request.history + [{"role": "user", "content": str(request.prompt)}]
@@ -154,14 +208,16 @@ def generate_claude_response(
                 yield chunk
 
         accum = stream.get_final_message()
-        background_tasks.add_task(process_accum, accum)
+        background_tasks.add_task(process_anthropic_accum, accum, user)
 
     except Exception as e:
         logging.error(f"Anthropic error: {e}")
         yield f"An error occurred while generating the response. See {e}"
 
 
-def generate_openai_response(request: LLMRequest, context: list[dict] = []):
+def generate_openai_response(
+    request: LLMRequest, user: User, background_tasks: BackgroundTasks
+):
     try:
         if "deepseek" in request.model:
             client = OpenAI(
@@ -170,7 +226,7 @@ def generate_openai_response(request: LLMRequest, context: list[dict] = []):
             )
         else:
             client = OpenAI()
-        model = request.model or "gpt-3.5-turbo"
+        model = request.model or "gpt-4o-mini-2024-07-18"
         logging.info(f">>> Using model: {model}")
         system_prompt = request.prompt.system_prompt()
         messages = (
@@ -183,12 +239,24 @@ def generate_openai_response(request: LLMRequest, context: list[dict] = []):
             messages=messages,  # type: ignore
             temperature=0.4,
             stream=True,
+            stream_options={"include_usage": True},
         )
+        chunk = None
         for chunk in response:
-            value = chunk.choices[0].delta.content
+            choice = chunk.choices[0]
+            if choice.finish_reason is not None:
+                break
+
+            value = choice.delta.content
             if value:
                 yield value
 
+        if "deepseek" in request.model and chunk is not None:
+            accum = chunk
+        else:
+            accum = next(response)
+        background_tasks.add_task(process_openai_accum, accum, user)
+
     except Exception as e:
-        logging.error(f"OpenAI/Deepseek error: {e}")
+        logging.error(f"OpenAI/Deepseek error: {str(e)}")
         yield f"An error occurred while generating the response. See {e}"
