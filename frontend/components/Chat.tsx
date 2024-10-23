@@ -91,7 +91,7 @@ export function Chat() {
         rag: false,
         rubberDuck: false,
         expertiseSlider: 50,
-        model: "claude-3-5-sonnet-20240620",
+        model: "claude-3-5-sonnet-20241022",
         rerankModel: "cohere"
     });
 
