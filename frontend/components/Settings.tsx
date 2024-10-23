@@ -97,7 +97,7 @@ export function SettingsDisplay({ onSettingsChange, passedSettings}: SettingsPro
                   <option value="gpt-4-0125-preview">gpt-4</option>
                   <option value="deepseek-coder">deepseek-coder</option>
                   <option value="claude-3-haiku-20240307">claude3-haiku</option>
-                  <option value="claude-3-5-sonnet-20240620">claude3.5-sonnet</option>
+                  <option value="claude-3-5-sonnet-20241022">claude3.5-sonnet</option>
               </select>
             </div>
             <div className="flex flex-wrap justify-center items-center">
