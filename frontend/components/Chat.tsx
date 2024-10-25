@@ -14,6 +14,8 @@ import 'katex/dist/katex.min.css'
 import { SendIcon, RubberDuckIcon } from "./Icons";
 import { SettingsInterface } from "./Settings";
 import { SettingsDisplay } from '@/components/Settings';
+import { useToast } from '@/providers/Toast';
+import { ToastBox } from '@/components/Toast';
 
 interface BackendRequest {
     query: string;
@@ -77,7 +79,7 @@ interface ChatMessage {
     id: number;
 }
 
-export function Chat() {
+export function Chat({ valid }: { valid: boolean }) {
     
     const { data: session, status } = useSession();
     void status;
@@ -95,6 +97,9 @@ export function Chat() {
         rerankModel: "cohere"
     });
 
+    const { updateToasts } = useToast();
+
+
     useEffect(() => {
         function handleKeyDown(e: KeyboardEvent) {
             if (e.key === "l" && e.altKey) {
@@ -105,6 +110,10 @@ export function Chat() {
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
+
+    useEffect(() => {
+        notifyUser();
+    }, [valid]);
 
     useEffect(() => {
 
@@ -130,6 +139,12 @@ export function Chat() {
         }
     }, [generating]);
 
+    function notifyUser() {
+        if (!valid) {
+            updateToasts("Uhoh! You've ran out of those sweet sweet credits. Please buy some more to continue using the service", false);
+        }
+    }
+
     function scrollToBottom() {
         if (contentRef.current) {
             contentRef.current.scrollTop = contentRef.current.scrollHeight;
@@ -139,6 +154,12 @@ export function Chat() {
     async function makeLLMRequest(request: BackendRequest, rag: boolean) {
 
         if (!session) {
+            return;
+        }
+
+        if (!valid) {
+            notifyUser()
+            setChats((prev) => [...prev.slice(0, prev.length-1)])
             return;
         }
 
@@ -222,6 +243,7 @@ export function Chat() {
 
     return (
         <div className="max-h-full flex flex-col">
+            <ToastBox />
             <SettingsDisplay passedSettings={settings} onSettingsChange={(settings) => setSettings(settings)} />
             <div className="flex justify-center mt-2 mb-1">
                 <button

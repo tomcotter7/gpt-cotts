@@ -9,7 +9,9 @@ from fastapi import APIRouter, BackgroundTasks, Depends
 from fastapi.responses import StreamingResponse
 from gptcotts import config as cfg
 from gptcotts.auth_utils import User, verify_google_token
+from gptcotts.credit_utils import validate_credits
 from gptcotts.dynamodb_utils import get_table_item, update_table_item
+from gptcotts.exceptions import NotEnoughCreditsError
 from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt, RubberDuckPrompt
 from gptcotts.retrieval import search
 from openai import OpenAI
@@ -65,15 +67,25 @@ def update_token_count(user: User, model: str, input_tokens: int, output_tokens:
 
     old_values = get_table_item(cfg.USER_TABLE, {"email": user.email})
 
-    total_price = float(old_values["Item"]["spent"]["N"]) + price
-    input_tokens = int(old_values["Item"]["input_tokens"]["N"]) + input_tokens
-    output_tokens = int(old_values["Item"]["output_tokens"]["N"]) + output_tokens
+    if not old_values.get("Item"):
+        available_credits = 10
+        admin = False
+    else:
+        available_credits = max(
+            float(old_values["Item"].get("available_credits", {"N": 0})["N"]) - price, 0
+        )
+        input_tokens = int(old_values["Item"]["input_tokens"]["N"]) + input_tokens
+        output_tokens = int(old_values["Item"]["output_tokens"]["N"]) + output_tokens
+        admin = (
+            str(old_values["Item"].get("admin", {"S": "false"})["S"]).lower() == "true"
+        )
 
     update_table_item(
         cfg.USER_TABLE,
         {
             "email": {"S": user.email},
-            "spent": {"N": str(total_price)},
+            "admin": {"S": str(admin).lower()},
+            "available_credits": {"N": str(available_credits)},
             "input_tokens": {"N": str(input_tokens)},
             "output_tokens": {"N": str(output_tokens)},
         },
@@ -103,6 +115,9 @@ def generate_response(
 ):
     try:
         logging.info(f">> Received query: {request.query} from {current_user.email}")
+        valid = validate_credits(current_user.email)
+        if not valid:
+            raise NotEnoughCreditsError()
         history = filter_history(request.history)
         model = request.model or "claude-3-haiku-20240307"
         prompt = (
