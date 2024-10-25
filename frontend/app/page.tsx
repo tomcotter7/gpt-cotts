@@ -54,7 +54,7 @@ export default function Home() {
 
         getValidity()
 
-    }, [status])
+    }, [status, session])
 
     if ( status === "loading" ) {
         return (

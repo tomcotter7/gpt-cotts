@@ -12,8 +12,8 @@ export default async function Profile() {
         return redirect("/api/auth/signout/google")
     }
 
-    let username = session.user?.name
-    let email = session.user?.email
+    const username = session.user?.name
+    const email = session.user?.email
 
     if (!username || !email) {
         return redirect("/api/auth/signout/google")

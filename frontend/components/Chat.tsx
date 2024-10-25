@@ -112,6 +112,11 @@ export function Chat({ valid }: { valid: boolean }) {
     }, []);
 
     useEffect(() => {
+        function notifyUser() {
+            if (!valid) {
+                updateToasts("Uhoh! You've ran out of those sweet sweet credits. Please buy some more to continue using the service", false);
+            }
+        }
         notifyUser();
     }, [valid]);
 
@@ -139,12 +144,6 @@ export function Chat({ valid }: { valid: boolean }) {
         }
     }, [generating]);
 
-    function notifyUser() {
-        if (!valid) {
-            updateToasts("Uhoh! You've ran out of those sweet sweet credits. Please buy some more to continue using the service", false);
-        }
-    }
-
     function scrollToBottom() {
         if (contentRef.current) {
             contentRef.current.scrollTop = contentRef.current.scrollHeight;
@@ -158,7 +157,7 @@ export function Chat({ valid }: { valid: boolean }) {
         }
 
         if (!valid) {
-            notifyUser()
+            updateToasts("Uhoh! You've ran out of those sweet sweet credits. Please buy some more to continue using the service", false);
             setChats((prev) => [...prev.slice(0, prev.length-1)])
             return;
         }

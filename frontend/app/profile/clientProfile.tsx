@@ -41,7 +41,7 @@ export default function ClientProfile() {
             setUsage(usage)
         }
         getUsageData()
-    }, [status])
+    }, [status, session])
 
     if (status === "loading" || usage === undefined) {
         return <ClipLoader className="text-tangerine" />
