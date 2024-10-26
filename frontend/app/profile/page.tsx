@@ -2,22 +2,21 @@ import { getServerSession }  from 'next-auth/next'
 import { authOptions } from '../api/auth/[...nextauth]/authOptions'
 import { redirect } from 'next/navigation'
 
+import ClientProfile from './clientProfile'
+
 
 export default async function Profile() {
 
     const session = await getServerSession(authOptions)
     if (!session) {
-        return redirect("/api/auth/signin/google")
+        return redirect("/api/auth/signout/google")
     }
 
-    let username = session.user?.name
-    if (!username) {
-        username = "User"
-    }
+    const username = session.user?.name
+    const email = session.user?.email
 
-    let email = session.user?.email
-    if (!email) {
-        email = "Email"
+    if (!username || !email) {
+        return redirect("/api/auth/signout/google")
     }
 
     return (
@@ -25,6 +24,8 @@ export default async function Profile() {
             <div className="w-1/2 rounded-lg shadow-md flex flex-col items-center m-4 p-4 bg-skyblue border">
                 <p className="text-tangerine text-4xl">{username}</p>
                 <p className="text-black">{email}</p>
+
+                <ClientProfile />
             </div>
             <form action="/api/auth/signout" method="POST">
                 <button 
