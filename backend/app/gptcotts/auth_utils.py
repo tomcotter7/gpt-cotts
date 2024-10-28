@@ -7,6 +7,8 @@ from fastapi.security import OAuth2PasswordBearer
 from gptcotts.utils import timing
 from pydantic import BaseModel
 
+logging.basicConfig(level=logging.INFO)
+
 
 class TokenData(BaseModel):
     username: str | None = None
