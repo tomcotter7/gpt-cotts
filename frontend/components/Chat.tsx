@@ -72,14 +72,14 @@ async function* processStream(stream: ReadableStream<Uint8Array> | null) {
 }
 
 
-interface ChatMessage {
+export interface ChatMessage {
     content: string;
     context: Array<ContextItem>;
     role: string;
     id: number;
 }
 
-export function Chat({ valid }: { valid: boolean }) {
+export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMessage[] }) {
     
     const { data: session, status } = useSession();
     void status;
@@ -87,7 +87,7 @@ export function Chat({ valid }: { valid: boolean }) {
     const contentRef = useRef<HTMLDivElement>(null);
     const stop = useRef<boolean>(false);
 
-    const [chats, setChats] = useState<ChatMessage[]>([]);
+    const [chats, setChats] = useState<ChatMessage[]>(initChats);
     const [generating, setGenerating] = useState<boolean>(false);
     const [settings, setSettings] = useState<SettingsInterface>({
         rag: false,
@@ -123,11 +123,15 @@ export function Chat({ valid }: { valid: boolean }) {
     useEffect(() => {
 
         const clearButton = document.getElementById("clearButton");
-        if (chats.length === 0 && clearButton) {
-            clearButton.classList.add("hidden");
-        } else if (clearButton) {
-            clearButton.classList.remove("hidden");
+        const saveButton = document.getElementById("saveButton");
+        if (chats.length === 0) {
+            saveButton?.classList.add("hidden");
+            clearButton?.classList.add("hidden");
+        } else {
+            saveButton?.classList.remove("hidden");
+            clearButton?.classList.remove("hidden");
         }
+        localStorage.setItem("chats", JSON.stringify(chats));
     }, [chats]);
 
     useEffect(() => {
@@ -135,12 +139,14 @@ export function Chat({ valid }: { valid: boolean }) {
         if (generating) {
             scrollToBottom();
         }
-
         const stopButton = document.getElementById("stopButton");
-        if (generating && stopButton) {
-            stopButton.classList.remove("hidden");
-        } else if (stopButton) {
-            stopButton.classList.add("hidden");
+        const saveButton = document.getElementById("saveButton");
+        if (generating) {
+            stopButton?.classList.remove("hidden");
+            saveButton?.classList.add("hidden");
+        } else {
+            stopButton?.classList.add("hidden");
+            saveButton?.classList.remove("hidden");
         }
     }, [generating]);
 
@@ -203,6 +209,32 @@ export function Chat({ valid }: { valid: boolean }) {
         }
     }
 
+    async function saveChatsToServer() {
+        if (!session) {
+            return;
+        }
+
+        const requestOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "accept": "application/json",
+                "Authorization": `Bearer ${session.access_token}`
+            },
+            body: JSON.stringify({chats: chats})
+        }
+
+        console.log(requestOptions);
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat_data/save`, requestOptions);
+        if (response.ok) {
+            updateToasts("Chat saved successfully!", true);
+        } else {
+            updateToasts("Error saving chat. Please try again.", false);
+        }
+        
+    }
+
     function onChatSubmit() {
         const chatInput = document.getElementById("chat-input") as HTMLTextAreaElement;
         const message = chatInput.value;
@@ -223,6 +255,10 @@ export function Chat({ valid }: { valid: boolean }) {
             stop.current = true;
         }
         setChats([]);
+    }
+
+    function saveChat() {   
+        saveChatsToServer();   
     }
 
     const scrollbarHideStyle: CSSProperties = {
@@ -254,10 +290,17 @@ export function Chat({ valid }: { valid: boolean }) {
                 </button>
                 <button
                     id="clearButton"
-                    className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded w-1/12 hidden"
+                    className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
                     onClick={clearChat}
                 >
                     <b> clear </b>
+                </button>
+                <button
+                    id="saveButton"
+                    className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
+                    onClick={saveChat}
+                >
+                    <b> save </b>
                 </button>
             </div>
             <div className="h-1/4 flex flex-grow w-full">

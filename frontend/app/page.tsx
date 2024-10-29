@@ -7,7 +7,7 @@ import { ClipLoader } from 'react-spinners';
 
 // import { AlertBanner } from '@/components/AlertBanner';
 import { NotLoggedIn } from '@/components/NotLoggedIn';
-import { Chat } from '@/components/Chat';
+import { Chat, ChatMessage } from '@/components/Chat';
 import { ToastProvider } from '@/providers/Toast';
 
 export default function Home() {
@@ -65,11 +65,16 @@ export default function Home() {
     } else if (!session || status !== "authenticated") {
         return <NotLoggedIn />
     } else {
+        var rawChats = localStorage.getItem('chats')
+        var initChats: ChatMessage[] = []
+        if (rawChats !== null) {
+            initChats = JSON.parse(rawChats)
+        }
         return (
             <ToastProvider>
                 <div className="flex justify-center" style={{height: adjustedHeight}}>
                     { /** <AlertBanner /> **/ }
-                    <Chat valid={valid} />
+                    <Chat valid={valid} initChats={initChats} />
                 </div>
             </ToastProvider>
         )
