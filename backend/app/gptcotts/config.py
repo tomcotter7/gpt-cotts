@@ -23,3 +23,4 @@ API_PRICING = {
 
 
 USER_TABLE = "gptcotts-users"
+CHAT_TABLE = "gptcotts-chats"

@@ -5,7 +5,7 @@ class BasePrompt(BaseModel):
     """Base class for prompts."""
 
     system: str
-    expertise: str
+    expertise: str = "normal"
 
     def system_prompt(self):
         """Return the system prompt."""
@@ -63,3 +63,15 @@ Return the results of the task as a JSON output. You must use double quotes ("")
     def __str__(self):
         """Return the prompt as a string."""
         return f""""<history>{self.history}</history><query>{self.query}</query>"""
+
+
+class ChatTitlePrompt(BasePrompt):
+    system: str = """You are a AI assistant with one task.
+
+Given a list of chats (<chats></chats>) between a user & a assistant generate a short, snappy title for the conversation. Return the title as a string between <title></title> tags.
+"""
+    chats: list[dict]
+
+    def __str__(self):
+        """Return the prompt as a string."""
+        return f"""<chats>{self.chats}</chats>"""

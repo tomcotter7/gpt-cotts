@@ -16,6 +16,15 @@ import { SettingsInterface } from "./Settings";
 import { SettingsDisplay } from '@/components/Settings';
 import { useToast } from '@/providers/Toast';
 import { ToastBox } from '@/components/Toast';
+import { PreviousConversationsMenu, PrevConversation } from '@/components/PreviousConversations';
+
+interface ContextItem {
+    id: number;
+    text: string;
+    meta: {
+        class: string;
+    }
+}
 
 interface BackendRequest {
     query: string;
@@ -24,6 +33,31 @@ interface BackendRequest {
     expertise: string;
     rubberDuck: boolean;
 }
+
+async function save(chats: ChatMessage[], id: string | null, title: string | null, access_token: string): Promise<{conversation_id: string, title: string} | null> {
+        let body = JSON.stringify({chats: chats})
+        if (id !== null) {
+            body = JSON.stringify({chats: chats, conversation_id: id, title: title});
+        }
+
+        const requestOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "accept": "application/json",
+                "Authorization": `Bearer ${access_token}`
+            },
+            body: body
+        }
+    
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat_data/save`, requestOptions);
+        if (response.ok) {
+            const data = await response.json();
+            return data
+        } else {
+            return null;
+        }
+    }
 
 async function sendMessage( request: BackendRequest, url: string, token: string): Promise<Response | string> {
 
@@ -72,14 +106,19 @@ async function* processStream(stream: ReadableStream<Uint8Array> | null) {
 }
 
 
-interface ChatMessage {
+interface Conversation {
+    title: string | null;
+    conversation_id: string | null;
+}
+
+export interface ChatMessage {
     content: string;
     context: Array<ContextItem>;
     role: string;
     id: number;
 }
 
-export function Chat({ valid }: { valid: boolean }) {
+export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMessage[] }) {
     
     const { data: session, status } = useSession();
     void status;
@@ -87,17 +126,48 @@ export function Chat({ valid }: { valid: boolean }) {
     const contentRef = useRef<HTMLDivElement>(null);
     const stop = useRef<boolean>(false);
 
-    const [chats, setChats] = useState<ChatMessage[]>([]);
+    const [chats, setChats] = useState<ChatMessage[]>(initChats);
     const [generating, setGenerating] = useState<boolean>(false);
     const [settings, setSettings] = useState<SettingsInterface>({
         rag: false,
         rubberDuck: false,
         expertiseSlider: 50,
         model: "claude-3-5-sonnet-20241022",
-        rerankModel: "cohere"
+        rerankModel: "cohere",
+        autoSave: false
     });
+    const [prevConversations, setPrevConversations] = useState<PrevConversation[]>([]);
+
+    const [currentConv, setCurrentConv] = useState<Conversation>({title: null, conversation_id: null});
+
 
     const { updateToasts } = useToast();
+
+    useEffect(() => {
+        async function getPreviousConversations() {
+            if (!session) return;
+
+            const requestOptions = {
+                method: "GET",
+                headers: { 
+                    "Content-Type": "application/json",
+                    "accept": "application/json",
+                    "Authorization": `Bearer ${session.access_token}`
+                },
+            }
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat_data/all`, requestOptions);
+            const data = await response.json();
+            const conversations = data.conversations;
+            const pcs: PrevConversation[] = [];
+            for (let i = 0; i < conversations.length; i++) {
+                pcs.push({title: conversations[i].title, id: conversations[i].conversation_id});
+            }
+            setPrevConversations(pcs);
+        }
+
+        getPreviousConversations();
+    }, [session]);
 
 
     useEffect(() => {
@@ -105,6 +175,7 @@ export function Chat({ valid }: { valid: boolean }) {
             if (e.key === "l" && e.altKey) {
                 e.preventDefault();
                 setChats([]);
+                setCurrentConv({title: null, conversation_id: null});
             }
         }
         window.addEventListener("keydown", handleKeyDown);
@@ -118,17 +189,40 @@ export function Chat({ valid }: { valid: boolean }) {
             }
         }
         notifyUser();
-    }, [valid]);
+    }, [valid, updateToasts]);
 
     useEffect(() => {
 
         const clearButton = document.getElementById("clearButton");
-        if (chats.length === 0 && clearButton) {
-            clearButton.classList.add("hidden");
-        } else if (clearButton) {
-            clearButton.classList.remove("hidden");
+        const saveButton = document.getElementById("saveButton");
+        if (chats.length === 0) {
+            saveButton?.classList.add("hidden");
+            clearButton?.classList.add("hidden");
+        } else {
+            saveButton?.classList.remove("hidden");
+            clearButton?.classList.remove("hidden");
         }
-    }, [chats]);
+        localStorage.setItem("chats", JSON.stringify(chats));
+        
+        if (settings.autoSave && !generating && session?.access_token && chats.length > 0) {
+            const debouncedSave = setTimeout(() => {
+                save(chats, currentConv.conversation_id, currentConv.title, session.access_token || "")
+                    .then((data) => {
+                        if (data !== null && currentConv.conversation_id !== data.conversation_id) {
+                            setCurrentConv({
+                                conversation_id: data.conversation_id,
+                                title: data.title
+                            });
+                            setPrevConversations((prev) => {
+                                return prev.concat({title: data.title, id: data.conversation_id});
+                            })
+                        }
+                    });
+            }, 2000); 
+            return () => clearTimeout(debouncedSave);
+        }
+
+    }, [chats, currentConv.conversation_id, currentConv.title, generating, settings.autoSave, session?.access_token]);
 
     useEffect(() => {
 
@@ -137,10 +231,13 @@ export function Chat({ valid }: { valid: boolean }) {
         }
 
         const stopButton = document.getElementById("stopButton");
-        if (generating && stopButton) {
-            stopButton.classList.remove("hidden");
-        } else if (stopButton) {
-            stopButton.classList.add("hidden");
+        const saveButton = document.getElementById("saveButton");
+        if (generating) {
+            stopButton?.classList.remove("hidden");
+            saveButton?.classList.add("hidden");
+        } else {
+            stopButton?.classList.add("hidden");
+            saveButton?.classList.remove("hidden");
         }
     }, [generating]);
 
@@ -203,6 +300,29 @@ export function Chat({ valid }: { valid: boolean }) {
         }
     }
 
+    async function saveChatsToServer() {
+        if (!session) {
+            return;
+        }
+
+       const data = await save(chats, currentConv.conversation_id, currentConv.title, session.access_token);
+    
+        if (data !== null) {
+            updateToasts("Chat saved successfully!", true);
+            let oldConvs = prevConversations;
+            if (currentConv.conversation_id === data.conversation_id) {
+                  oldConvs = oldConvs.filter((conv) => conv.id !== currentConv.conversation_id);
+            }
+
+            oldConvs.push({title: data.title, id: data.conversation_id});
+            setPrevConversations(oldConvs);
+            setCurrentConv({conversation_id: data.conversation_id, title: data.title});
+        } else {
+            updateToasts("Error saving chat. Please try again.", false);
+        }
+        
+    }
+
     function onChatSubmit() {
         const chatInput = document.getElementById("chat-input") as HTMLTextAreaElement;
         const message = chatInput.value;
@@ -223,81 +343,135 @@ export function Chat({ valid }: { valid: boolean }) {
             stop.current = true;
         }
         setChats([]);
+        setCurrentConv({title: null, conversation_id: null});
     }
 
-    const scrollbarHideStyle: CSSProperties = {
-        overflowY: 'auto',
-        scrollbarWidth: 'none',
-        msOverflowStyle: 'none',
+async function handlePrevConversationSelected(conversation_id: string, title: string) {
+    const requestOptions = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "accept": "application/json",
+            "Authorization": `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({conversation_id: conversation_id})
     }
 
-    if (!session) {
-        return <> </>;
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat_data/single_chat`, requestOptions);
+    const data = await response.json();
+    const conversation = data.chats;
+    const newChats: ChatMessage[] = [];
+    for (let i = 0; i < conversation.length; i++) {
+        newChats.push({role: conversation[i].role, content: conversation[i].content, id: i, context: conversation[i].context});
     }
+    setCurrentConv({conversation_id: conversation_id, title: title});
+    setChats(newChats);
+}
 
-    let username = session.user?.name;
-    if (!username) {
-        username = "User";
+async function handlePrevConversationDeleted(conversation_id: string) {
+    setPrevConversations((prev) => prev.filter((conv) => conv.id !== conversation_id));
+    if (conversation_id === currentConv.conversation_id) {
+        setCurrentConv({title: null, conversation_id: null});
+        setChats([]);
     }
+    const requestOptions = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "accept": "application/json",
+            "Authorization": `Bearer ${session?.access_token}`
+        },
+        body: JSON.stringify({conversation_id: conversation_id})
+    }
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat_data/delete`, requestOptions);
+    if (!response.ok) {
+        updateToasts("Error deleting conversation. Please try again.", false);
+        return;
+    }
+    updateToasts("Conversation deleted successfully!", true);
+}
 
-    return (
-        <div className="max-h-full flex flex-col">
-            <ToastBox />
-            <SettingsDisplay passedSettings={settings} onSettingsChange={(settings) => setSettings(settings)} />
-            <div className="flex justify-center mt-2 mb-1">
-                <button
-                    id="stopButton"
-                    className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
-                    onClick={() => stop.current = true}
-                >
-                    <b> stop </b>
-                </button>
-                <button
-                    id="clearButton"
-                    className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded w-1/12 hidden"
-                    onClick={clearChat}
-                >
-                    <b> clear </b>
-                </button>
-            </div>
-            <div className="h-1/4 flex flex-grow w-full">
-                <div ref={contentRef} style={scrollbarHideStyle} className="h-full w-full">
-                {chats.map((chat) => {
-                    return (
-                        <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} />
-                    )
-                })}
-                </div>
-            </div>
-            <ChatForm settings={settings} onChatSubmit={onChatSubmit} />
+const scrollbarHideStyle: CSSProperties = {
+    overflowY: 'auto',
+    scrollbarWidth: 'none',
+    msOverflowStyle: 'none',
+}
+
+if (!session) {
+    return <> </>;
+}
+
+let username = session.user?.name;
+if (!username) {
+    username = "User";
+}
+
+return (
+    <div className="max-h-full flex flex-col">
+        <ToastBox />
+        <SettingsDisplay passedSettings={settings} onSettingsChange={(settings) => setSettings(settings)} />
+        <PreviousConversationsMenu prevConversations={prevConversations} onConversationSelect={handlePrevConversationSelected} onConversationDelete={handlePrevConversationDeleted} />
+        <div className="flex justify-center mt-2 mb-1">
+            <button
+                id="stopButton"
+                className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
+                onClick={() => stop.current = true}
+            >
+                <b> stop </b>
+            </button>
+            <button
+                id="clearButton"
+                className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
+                onClick={clearChat}
+            >
+                <b> clear </b>
+            </button>
+            <button
+                id="saveButton"
+                className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
+                onClick={saveChatsToServer}
+            >
+                <b> save </b>
+            </button>
         </div>
-    )
+        <div className="h-1/4 flex flex-grow w-full">
+            <div ref={contentRef} style={scrollbarHideStyle} className="h-full w-full">
+            {chats.map((chat) => {
+                return (
+                    <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} />
+                )
+            })}
+            </div>
+        </div>
+        <ChatForm settings={settings} onChatSubmit={onChatSubmit} />
+    </div>
+)
 }
 
 interface ChatFormProps {
-    onChatSubmit: () => void;
-    settings: SettingsInterface;
+onChatSubmit: () => void;
+settings: SettingsInterface;
 }
 
 const sliderToExpertiseMap: Record<number, string> = {
-  0: "baby-like",
-  25: "basic",
-  50: "normal",
-  75: "expert",
-  100: "masterful"
+0: "baby-like",
+25: "basic",
+50: "normal",
+75: "expert",
+100: "masterful"
 };
 
 const convertSliderToExpertise = (slider: number): string => {
-  return sliderToExpertiseMap[slider] || "masterful";
+return sliderToExpertiseMap[slider] || "masterful";
 };
 
 function ChatForm({ onChatSubmit, settings }: ChatFormProps) {
 
-    const textAreaRef = useRef<HTMLTextAreaElement>(null);
+const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
-    useEffect(() => {
-        function handleKeyDown(e: KeyboardEvent) {
-            if (e.key === "k" && e.altKey) {
+useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+        if (e.key === "k" && e.altKey) {
                 e.preventDefault();
                 textAreaRef.current?.focus();
             }
@@ -416,13 +590,6 @@ function ChatBox({ role, text, context, name }: ChatBoxProps) {
 
 }
 
-interface ContextItem {
-    id: number;
-    text: string;
-    meta: {
-        class: string;
-    }
-}
 
 interface ContextBoxProps {
     context: Array<ContextItem>;
