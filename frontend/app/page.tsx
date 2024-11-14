@@ -65,8 +65,8 @@ export default function Home() {
     } else if (!session || status !== "authenticated") {
         return <NotLoggedIn />
     } else {
-        var rawChats = localStorage.getItem('chats')
-        var initChats: ChatMessage[] = []
+        const rawChats = localStorage.getItem('chats')
+        let initChats: ChatMessage[] = []
         if (rawChats !== null) {
             initChats = JSON.parse(rawChats)
         }

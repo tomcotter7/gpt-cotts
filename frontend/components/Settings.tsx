@@ -7,6 +7,7 @@ export interface SettingsInterface {
     expertiseSlider: number;
     model: string;
     rerankModel: string;
+    autoSave: boolean;
 }
 
 interface SettingsProps {
@@ -14,7 +15,7 @@ interface SettingsProps {
     onSettingsChange: (settings: SettingsInterface) => void;
 }
 
-export function SettingsDisplay({ onSettingsChange, passedSettings}: SettingsProps) {
+export function SettingsDisplay({ passedSettings, onSettingsChange }: SettingsProps) {
     
     const [settings, setSettings] = useState<SettingsInterface>(passedSettings);
     const [showSettings, setShowSettings] = useState(false);
@@ -52,6 +53,10 @@ export function SettingsDisplay({ onSettingsChange, passedSettings}: SettingsPro
 
     function handleRubberDuckCheckboxChange() {
         setSettings({...settings, rubberDuck: !settings.rubberDuck})
+    }
+    
+    function handleAutoSaveCheckboxChange() {
+        setSettings({...settings, autoSave: !settings.autoSave})
     }
 
     if (!showSettings) {
@@ -123,6 +128,16 @@ export function SettingsDisplay({ onSettingsChange, passedSettings}: SettingsPro
                     checked={settings.rubberDuck}
                     className="form-checkbox mx-2 accent-tangerine rounded focus:ring-tangerine-dark focus:ring-1"
                     onChange={handleRubberDuckCheckboxChange}
+                />
+            </div>
+            <div className="flex flex-wrap justify-center">
+                <label htmlFor="autoSave"><span className="text-black">auto save your notes?</span></label>
+                <input
+                    id="autoSave"
+                    type="checkbox"
+                    checked={settings.autoSave}
+                    className="form-checkbox mx-2 accent-tangerine rounded focus:ring-tangerine-dark focus:ring-1"
+                    onChange={handleAutoSaveCheckboxChange}
                 />
             </div>
               { settings.rag ? <div className="text-center"> <label htmlFor="rerank_model"> <span className="ml-2 text-black">which model to use for reranking? </span> </label> <select id="rerank_model" value={settings.rerankModel} onChange={handleRerankDropdownChange} className={selectTailwind}> <option value="cohere">cohere</option> <option value="flashrank">flashrank</option> </select> </div> : null }
