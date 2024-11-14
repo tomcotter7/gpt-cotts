@@ -10,11 +10,10 @@ interface PreviousConversationsMenuProps {
     prevConversations: PrevConversation[];
     onConversationSelect: (id: string, title: string) => void;
     onConversationDelete: (id: string) => void;
-    onConversationRename: (id: string, title: string) => void;
 }
 
 export function PreviousConversationsMenu(
-    {prevConversations, onConversationSelect, onConversationDelete, onConversationRename}: PreviousConversationsMenuProps
+    {prevConversations, onConversationSelect, onConversationDelete}: PreviousConversationsMenuProps
 ) {
     const [open, setOpen] = useState(false);
     const windowRef = useRef<HTMLDivElement>(null);

@@ -174,7 +174,8 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
         function handleKeyDown(e: KeyboardEvent) {
             if (e.key === "l" && e.altKey) {
                 e.preventDefault();
-                clearChat();
+                setChats([]);
+                setCurrentConv({title: null, conversation_id: null});
             }
         }
         window.addEventListener("keydown", handleKeyDown);
@@ -337,13 +338,13 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
             }, settings.rag);
     }
 
-function clearChat() {
-    if (generating) {
-        stop.current = true;
+    function clearChat() {
+        if (generating) {
+            stop.current = true;
+        }
+        setChats([]);
+        setCurrentConv({title: null, conversation_id: null});
     }
-    setChats([]);
-    setCurrentConv({title: null, conversation_id: null});
-}
 
 async function handlePrevConversationSelected(conversation_id: string, title: string) {
     const requestOptions = {
