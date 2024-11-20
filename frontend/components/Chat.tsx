@@ -231,13 +231,16 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
         }
 
         const stopButton = document.getElementById("stopButton");
-        const saveButton = document.getElementById("saveButton");
+        const saveButton = document.getElementById("saveButton") as HTMLButtonElement;
+        const clearButton = document.getElementById("clearButton") as HTMLButtonElement;
         if (generating) {
             stopButton?.classList.remove("hidden");
-            saveButton?.classList.add("hidden");
+            saveButton.disabled = true;
+            clearButton.disabled = true;
         } else {
             stopButton?.classList.add("hidden");
-            saveButton?.classList.remove("hidden");
+            saveButton.disabled = false;
+            clearButton.disabled = false; 
         }
     }, [generating]);
 
@@ -414,21 +417,21 @@ return (
         <div className="flex justify-center mt-2 mb-1">
             <button
                 id="stopButton"
-                className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
+                className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden disabled:opacity-50"
                 onClick={() => stop.current = true}
             >
                 <b> stop </b>
             </button>
             <button
                 id="clearButton"
-                className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
+                className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden disabled:opacity-50"
                 onClick={clearChat}
             >
                 <b> clear </b>
             </button>
             <button
                 id="saveButton"
-                className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden"
+                className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden disabled:opacity-50"
                 onClick={saveChatsToServer}
             >
                 <b> save </b>
