@@ -176,9 +176,8 @@ def delete(
     current_user: Annotated[User, Depends(verify_google_token)],
     chat_request: GetChatRequest,
 ):
-    response = delete_table_item(
+    delete_table_item(
         cfg.CHAT_TABLE,
         {"email": current_user.email, "conversation_id": chat_request.conversation_id},
     )
-    logging.info(f"Delete response: {response}")
     return {"status": "success", "message": "Conversation deleted."}
