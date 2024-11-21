@@ -9,7 +9,7 @@ class BasePrompt(BaseModel):
     system: str
     expertise: str = "normal"
     guidelines: list[str] = [
-        "If required, collect further information from the user by asking questions.",
+        "If you missing information, prior to providing a solution, ask the user questions to gather the necessary information.",
         "Before attempting to solve any problems, first detail what you plan to do, using a markdown list. Mark your plan with 'My Plan:\n'",
         "Be brief in your responses, but provide enough detail to be helpful.",
     ]
