@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from routers import generation, notes, user_data
+from routers import chat_data, generation, notes, user_data
 
 origins = [
     "https://gptcotts.uk",
@@ -22,6 +22,7 @@ app = FastAPI()
 app.include_router(generation.router)
 app.include_router(notes.router)
 app.include_router(user_data.router)
+app.include_router(chat_data.router)
 
 app.add_middleware(
     CORSMiddleware,

@@ -4,6 +4,7 @@ import { signOut } from 'next-auth/react'
 export default function SignOut() {
 
     const onSignOut = () => {
+        localStorage.removeItem('chats')
         signOut({ callbackUrl: '/' })
     }
 
