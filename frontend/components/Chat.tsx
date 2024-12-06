@@ -31,7 +31,7 @@ interface BackendRequest {
     history: ChatMessage[];
     model: string;
     expertise: string;
-    rubberDuck: boolean;
+    rubber_duck_mode: boolean;
 }
 
 async function save(chats: ChatMessage[], id: string | null, title: string | null, access_token: string): Promise<{conversation_id: string, title: string} | null> {
@@ -251,7 +251,7 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
     };
 
     async function makeLLMRequest(request: BackendRequest, rag: boolean) {
-
+        console.log(request);
         if (!session) {
             return;
         }
@@ -337,7 +337,7 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
                 history: chats,
                 model: settings.model,
                 expertise: convertSliderToExpertise(settings.expertiseSlider),
-                rubberDuck: settings.rubberDuck
+                rubber_duck_mode: settings.rubberDuck
             }, settings.rag);
     }
 

@@ -125,6 +125,8 @@ def generate_response(
             if not request.rubber_duck_mode
             else RubberDuckPrompt(query=request.query, expertise=request.expertise)
         )
+
+        print(prompt.system_prompt())
         llm_request = LLMRequest(
             prompt=prompt,
             model=model,
