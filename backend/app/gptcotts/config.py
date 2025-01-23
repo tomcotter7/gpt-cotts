@@ -24,3 +24,11 @@ API_PRICING = {
 
 USER_TABLE = "gptcotts-users"
 CHAT_TABLE = "gptcotts-chats"
+
+STARTING_CREDIT = 10  # £10 GBP
+DEFAULT_USER_CONFIGURATION = {
+    "available_credits": STARTING_CREDIT,
+    "admin": False,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+}
