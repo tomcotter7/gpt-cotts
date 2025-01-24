@@ -14,6 +14,7 @@ from gptcotts.dynamodb_utils import (
     delete_table_item,
     get_all_items_with_partition_key,
     get_table_item,
+    put_table_item,
     update_table_item,
 )
 from gptcotts.utils import timing
@@ -47,7 +48,7 @@ class ChatData(BaseModel):
 
 
 @timing
-def get_chat_title(chats: list[Chat], converstation_id: str) -> str:
+def get_chat_title(chats: list[Chat]) -> str | None:
     try:
         chats_dict = [
             {"role": chat.role, "content": chat.content, "context": chat.context}
@@ -71,11 +72,12 @@ def get_chat_title(chats: list[Chat], converstation_id: str) -> str:
             logging.info(f"Title: {title.group(1)}")
             return title.group(1)
         else:
-            raise Exception("Failed to generate title, no title found in response.")
+            logging.error("Failed to generate title, no title found in response.")
+            return None
 
     except Exception as e:
         logging.error(f"Failed to generate title: {e}")
-        return f"Conversation {converstation_id}"
+        return None
 
 
 def format_chat(chat: Chat) -> dict:
@@ -100,30 +102,32 @@ def save_chat_data(
 ):
     if len(chat_data.chats) == 0:
         return {"status": "error", "message": "No chats to save."}
-
+    title = chat_data.title if chat_data.title else get_chat_title(chat_data.chats)
+    chats = [{"M": format_chat(chat)} for chat in chat_data.chats]
     if chat_data.conversation_id is None:
         chat_data.conversation_id = (
             datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "-" + str(uuid.uuid4())
         )
-
-    title = (
-        chat_data.title
-        if chat_data.title
-        else get_chat_title(chat_data.chats, chat_data.conversation_id)
-    )
-    structured_chat_data = {
-        "email": {"S": current_user.email},
-        "conversation_id": {"S": chat_data.conversation_id},
-        "title": {"S": title},
-        "chats": {"L": [{"M": format_chat(chat)} for chat in chat_data.chats]},
-    }
-
-    update_table_item(cfg.CHAT_TABLE, structured_chat_data)
+        title = f"Conversation: {chat_data.conversation_id}" if title is None else title
+        item = {
+            "email": {"S": current_user.email},
+            "conversation_id": {"S": chat_data.conversation_id},
+            "title": {"S": title},
+            "chats": {"L": chats},
+        }
+        put_table_item(cfg.CHAT_TABLE, item)
+    else:
+        update_table_item(
+            cfg.CHAT_TABLE,
+            {"email": current_user.email, "conversation_id": chat_data.conversation_id},
+            "SET chats = :chats",
+            {":chats": {"L": chats}},
+        )
 
     return {
         "status": "success",
         "conversation_id": chat_data.conversation_id,
-        "title": structured_chat_data["title"]["S"],
+        "title": title,
     }
 
 
