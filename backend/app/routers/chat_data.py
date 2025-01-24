@@ -105,11 +105,12 @@ def save_chat_data(
     title = chat_data.title if chat_data.title else get_chat_title(chat_data.chats)
     chats = [{"M": format_chat(chat)} for chat in chat_data.chats]
     if chat_data.conversation_id is None:
-        conversation_id = (
+        chat_data.conversation_id = (
             datetime.datetime.now().strftime("%Y%m%d%H%M%S") + "-" + str(uuid.uuid4())
         )
-        title = f"Conversation: {conversation_id}" if title is None else title
+        title = f"Conversation: {chat_data.conversation_id}" if title is None else title
         item = {
+            "email": {"S": current_user.email},
             "conversation_id": {"S": chat_data.conversation_id},
             "title": {"S": title},
             "chats": {"L": chats},
@@ -118,7 +119,7 @@ def save_chat_data(
     else:
         update_table_item(
             cfg.CHAT_TABLE,
-            {"conversation_id": chat_data.conversation_id},
+            {"email": current_user.email, "conversation_id": chat_data.conversation_id},
             "SET chats = :chats",
             {":chats": {"L": chats}},
         )
