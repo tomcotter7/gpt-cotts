@@ -247,9 +247,20 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
         setChats([]);
         setCurrentConv({ title: null, conversation_id: null });
       }
+      if (e.key === "G" && e.altKey) {
+        e.preventDefault();
+        scrollToBottom()
+      }
+
+      if (e.key === "g" && e.altKey) {
+        e.preventDefault()
+        scrollToTop()
+      }
+
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
+
   }, []);
 
   useEffect(() => {
@@ -263,14 +274,14 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
 
   useEffect(() => {
 
-    const clearButton = document.getElementById("clearButton");
-    const saveButton = document.getElementById("saveButton");
+    const clearButton = document.getElementById("clearButton") as HTMLButtonElement;
+    const saveButton = document.getElementById("saveButton") as HTMLButtonElement;
     if (chats.length === 0) {
-      saveButton?.classList.add("hidden");
-      clearButton?.classList.add("hidden");
+      saveButton.disabled = true;
+      clearButton.disabled = true;
     } else {
-      saveButton?.classList.remove("hidden");
-      clearButton?.classList.remove("hidden");
+      saveButton.disabled = false;
+      clearButton.disabled = false;
     }
     localStorage.setItem("chats", JSON.stringify(chats));
 
@@ -300,15 +311,15 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       scrollToBottom();
     }
 
-    const stopButton = document.getElementById("stopButton");
+    const stopButton = document.getElementById("stopButton") as HTMLButtonElement;
     const saveButton = document.getElementById("saveButton") as HTMLButtonElement;
     const clearButton = document.getElementById("clearButton") as HTMLButtonElement;
     if (generating) {
-      stopButton?.classList.remove("hidden");
+      stopButton.disabled = false;
       saveButton.disabled = true;
       clearButton.disabled = true;
     } else {
-      stopButton?.classList.add("hidden");
+      stopButton.disabled = true;
       saveButton.disabled = false;
       clearButton.disabled = false;
     }
@@ -318,6 +329,12 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
     setUserModified(true);
     setSettings(newSettings)
   };
+
+  function scrollToTop() {
+    if (contentRef.current) {
+      contentRef.current.scrollTop = 0;
+    }
+  }
 
   function scrollToBottom() {
     if (contentRef.current) {
@@ -491,21 +508,21 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       <div className="flex justify-center mt-2 mb-1">
         <button
           id="stopButton"
-          className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden disabled:opacity-50"
+          className="relative inline-flex h-8 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
           onClick={() => stop.current = true}
         >
           <b> stop </b>
         </button>
         <button
           id="clearButton"
-          className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden disabled:opacity-50"
+          className="relative inline-flex h-8 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
           onClick={clearChat}
         >
           <b> clear </b>
         </button>
         <button
           id="saveButton"
-          className="px-4 bg-tangerine hover:bg-tangerine-dark hover:border-tangerine hover:border text-black rounded mr-2 w-1/12 hidden disabled:opacity-50"
+          className="relative inline-flex h-8 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
           onClick={saveChatsToServer}
         >
           <b> save </b>
@@ -608,7 +625,10 @@ function ChatForm({ onChatSubmit, settings }: ChatFormProps) {
             onKeyDown={(e) => handleKeyDown(e)}
           />
         </div>
-        <button className="bg-tangerine rounded border-2 border-tangerine p-2 hover:bg-tangerine-dark" onClick={onButtonClick}>
+        <button
+          className="relative inline-flex w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
+          onClick={onButtonClick}
+        >
           {settings.rubberDuck ? <RubberDuckIcon height={48} width={48} /> : <SendIcon />}
         </button>
       </div>

@@ -73,7 +73,7 @@ export function PreviousConversationsMenu(
                     </button>
                     <button
                       onClick={() => deleteConversation(conversation.id)}
-                      className="relative inline-flex items-center h-8 cursor-pointer border-0 bg-transparent p-1 before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-red-400 before:shadow hover:before:border-black hover:before:border active:before:shadow-none active:before:bg-red-500"
+                      className="relative inline-flex items-center h-8 cursor-pointer border-0 bg-transparent p-1 before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-red-400 before:shadow hover:before:border-red-400 hover:before:bg-red-500 hover:before:border active:border-t-2 active:border-transparent active:py-1 active:before:shadow-none"
                     >
                       <DeleteIcon />
                     </button>
