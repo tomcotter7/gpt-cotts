@@ -1,10 +1,10 @@
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends
 from gptcotts import config as cfg
 from gptcotts.auth_utils import User, verify_google_token
 from gptcotts.credit_utils import cache, validate_credits
-from gptcotts.dynamodb_utils import get_table_item, update_table_item
+from gptcotts.dynamodb_utils import create_new_user, get_table_item, update_table_item
 
 router = APIRouter(prefix="/gptcotts/user_data")
 
@@ -24,24 +24,9 @@ def get_usage_data(current_user: Annotated[User, Depends(verify_google_token)]):
     usage_data = get_table_item(cfg.USER_TABLE, {"email": current_user.email})
     cache.pop((current_user.email,), None)
 
-    if "Item" not in usage_data:
-        update_table_item(
-            cfg.USER_TABLE,
-            {
-                "email": {"S": current_user.email},
-                "available_credits": {"N": str(10)},
-                "admin": {"S": str(False)},
-                "input_tokens": {"N": str(0)},
-                "output_tokens": {"N": str(0)},
-            },
-        )
-
-        return {
-            "available_credits": 10,
-            "admin": False,
-            "total_input_tokens": 0,
-            "total_output_tokens": 0,
-        }
+    if "Item" not in usage_data:  # a.k.a the user has never made a query before.
+        create_new_user(current_user.email)
+        return cfg.DEFAULT_USER_CONFIGURATION
 
     available_credits = round(
         float(usage_data["Item"].get("available_credits", {"N": 0})["N"]), 2
@@ -56,3 +41,33 @@ def get_usage_data(current_user: Annotated[User, Depends(verify_google_token)]):
         "total_input_tokens": input_tokens,
         "total_output_tokens": output_tokens,
     }
+
+
+@router.get("/settings")
+def get_user_settings(current_user: Annotated[User, Depends(verify_google_token)]):
+    settings_data = get_table_item(cfg.USER_TABLE, {"email": current_user.email})
+
+    if "Item" not in settings_data:
+        create_new_user(current_user.email)
+        return cfg.DEFAULT_USER_CONFIGURATION
+    print(settings_data)
+    settings = settings_data["Item"].get("settings", {"M": {}})["M"]
+    print(settings)
+    settings = {k: v["S"] for k, v in settings.items()}
+
+    return settings
+
+
+@router.patch("/settings")
+def update_user_settings(
+    current_user: Annotated[User, Depends(verify_google_token)],
+    settings: dict[str, Any],
+):
+    f_settings = {key: {"S": str(value).lower()} for key, value in settings.items()}
+
+    update_table_item(
+        cfg.USER_TABLE,
+        {"email": current_user.email},
+        "SET settings = :settings",
+        {":settings": {"M": f_settings}},
+    )

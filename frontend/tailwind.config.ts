@@ -12,27 +12,30 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         gray: {
-            DEFAULT: '#64748b',
+          DEFAULT: '#64748b',
         },
         tangerine: {
-            DEFAULT: '#fcbe6a',
-            dark: '#ecb66d',
-            light: '#fcc67d'
+          DEFAULT: '#fcbe6a',
+          dark: '#ecb66d',
+          light: '#fcc67d'
         },
         skyblue: {
-            DEFAULT: '#caf7f8',
-            dark: '#c1e8e9',
-            light: '#d1f8f9'
+          DEFAULT: '#caf7f8',
+          dark: '#c1e8e9',
+          light: '#d1f8f9'
         },
         spearmint: {
-            DEFAULT: "#96f4a2"
+          DEFAULT: "#96f4a2"
         },
         red: {
-            300: '#fca5a5',
-            400: '#f87171',
+          300: '#fca5a5',
+          400: '#f87171',
+          500: '#f44336',
+          700: '#d32f2f',
+          900: '#b71c1c'
         },
         green: {
-            400: '#4ade80'
+          400: '#4ade80'
         }
       },
     },

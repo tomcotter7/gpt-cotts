@@ -10,7 +10,7 @@ from fastapi.responses import StreamingResponse
 from gptcotts import config as cfg
 from gptcotts.auth_utils import User, verify_google_token
 from gptcotts.credit_utils import validate_credits
-from gptcotts.dynamodb_utils import get_table_item, update_table_item
+from gptcotts.dynamodb_utils import update_table_item
 from gptcotts.exceptions import NotEnoughCreditsError
 from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt, RubberDuckPrompt
 from gptcotts.retrieval import search
@@ -65,29 +65,16 @@ def update_token_count(user: User, model: str, input_tokens: int, output_tokens:
         f"Usage from {user.email} on model {model}: {input_tokens} input tokens, {output_tokens} output tokens, ${price:.10f} total price"
     )
 
-    old_values = get_table_item(cfg.USER_TABLE, {"email": user.email})
-
-    if not old_values.get("Item"):
-        available_credits = 10
-        admin = False
-    else:
-        available_credits = max(
-            float(old_values["Item"].get("available_credits", {"N": 0})["N"]) - price, 0
-        )
-        input_tokens = int(old_values["Item"]["input_tokens"]["N"]) + input_tokens
-        output_tokens = int(old_values["Item"]["output_tokens"]["N"]) + output_tokens
-        admin = (
-            str(old_values["Item"].get("admin", {"S": "false"})["S"]).lower() == "true"
-        )
-
     update_table_item(
         cfg.USER_TABLE,
+        {"email": user.email},
+        "SET available_credits = if_not_exists(available_credits, :initial) - :price, input_tokens = if_not_exists(input_tokens, :zero) + :it, output_tokens = if_not_exists(output_tokens, :zero) + :ot",
         {
-            "email": {"S": user.email},
-            "admin": {"S": str(admin).lower()},
-            "available_credits": {"N": str(available_credits)},
-            "input_tokens": {"N": str(input_tokens)},
-            "output_tokens": {"N": str(output_tokens)},
+            ":price": {"N": str(price)},
+            ":it": {"N": str(input_tokens)},
+            ":ot": {"N": str(output_tokens)},
+            ":initial": {"N": "10"},
+            ":zero": {"N": "0"},
         },
     )
 
@@ -125,8 +112,6 @@ def generate_response(
             if not request.rubber_duck_mode
             else RubberDuckPrompt(query=request.query, expertise=request.expertise)
         )
-
-        print(prompt.system_prompt())
         llm_request = LLMRequest(
             prompt=prompt,
             model=model,
