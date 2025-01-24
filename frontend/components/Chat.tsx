@@ -121,7 +121,7 @@ export interface ChatMessage {
   id: number;
 }
 
-async function updateCurrentUserSettings(access_token: string, settings: SettingsInterface): Promise<Boolean> {
+async function updateCurrentUserSettings(access_token: string, settings: SettingsInterface): Promise<boolean> {
   try {
     const requestOptions = {
       method: "PATCH",
@@ -134,7 +134,7 @@ async function updateCurrentUserSettings(access_token: string, settings: Setting
     }
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user_data/settings`, requestOptions)
     return response.ok
-  } catch (error) {
+  } catch {
     return false;
   }
 }
@@ -237,7 +237,7 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       debouncedUpdateSettings(session.access_token, settings)
       setUserModified(false)
     }
-  }, [settings])
+  }, [settings, debouncedUpdateSettings, initLoad, userModified, session])
 
 
   useEffect(() => {

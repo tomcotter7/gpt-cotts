@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { HideIcon, ShowIcon, RubberDuckIcon } from "@/components/Icons"
-import { useSession } from "next-auth/react"
 
 export interface SettingsInterface {
   rag: boolean;
@@ -20,20 +19,20 @@ export function SettingsDisplay({ settings, onSettingsChange }: SettingsProps) {
 
   const [showSettings, setShowSettings] = useState(false);
 
+  const handleRAGCheckboxChange = useCallback(() => {
+    onSettingsChange({ ...settings, rag: !settings.rag });
+  }, [settings, onSettingsChange]);
+
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "r" && e.altKey) {
         e.preventDefault();
-        handleRAGCheckboxChange()
+        handleRAGCheckboxChange();
       }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [])
-
-  function handleRAGCheckboxChange() {
-    onSettingsChange({ ...settings, rag: !settings.rag })
-  }
+  }, [handleRAGCheckboxChange]);
 
   function handleLLMDropdownChange(event: React.ChangeEvent<HTMLSelectElement>) {
     onSettingsChange({ ...settings, model: event.target.value })
