@@ -273,13 +273,14 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
   }, [valid, updateToasts]);
 
   useEffect(() => {
-
     const clearButton = document.getElementById("clearButton") as HTMLButtonElement;
     const saveButton = document.getElementById("saveButton") as HTMLButtonElement;
+
+    console.log(clearButton.disabled)
     if (chats.length === 0) {
       saveButton.disabled = true;
       clearButton.disabled = true;
-    } else {
+    } else if (!generating) {
       saveButton.disabled = false;
       clearButton.disabled = false;
     }
@@ -320,8 +321,6 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       clearButton.disabled = true;
     } else {
       stopButton.disabled = true;
-      saveButton.disabled = false;
-      clearButton.disabled = false;
     }
   }, [generating]);
 
@@ -500,6 +499,7 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
     username = "User";
   }
 
+
   return (
     <div className="max-h-full flex flex-col">
       <ToastBox />
@@ -508,21 +508,21 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       <div className="flex justify-center mt-2 mb-1">
         <button
           id="stopButton"
-          className="relative inline-flex h-8 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
+          className="disabled relative inline-flex h-8 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
           onClick={() => stop.current = true}
         >
           <b> stop </b>
         </button>
         <button
           id="clearButton"
-          className="relative inline-flex h-8 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
+          className="disabled relative inline-flex h-8 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
           onClick={clearChat}
         >
           <b> clear </b>
         </button>
         <button
           id="saveButton"
-          className="relative inline-flex h-8 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
+          className="disabled relative inline-flex h-8 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
           onClick={saveChatsToServer}
         >
           <b> save </b>
@@ -610,7 +610,7 @@ function ChatForm({ onChatSubmit, settings }: ChatFormProps) {
   return (
     <form className="sticky top-[100vh]">
       <div className="flex justify-center px-5 py-3 w-screen space-x-2">
-        <div className="flex flex-col w-11/12 border">
+        <div className="flex flex-col w-11/12">
           <div className="bg-skyblue rounded-t">
             <span className="text-black p-2">
               Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{settings.model}</b> with <b> {convertSliderToExpertise(settings.expertiseSlider)} </b> expertise{settings.rag ? ` and reranking with` : ""}{settings.rag ? <b> {settings.rerankModel}</b> : ""}.

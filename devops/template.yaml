@@ -27,9 +27,11 @@ Resources:
           Action:
             - secretsmanager:GetSecretValue
             - s3:GetObject
+            - s3:ListBucket
             - dynamodb:Query
             - dynamodb:PutItem
             - dynamodb:GetItem
+            - dynamodb:UpdateItem
           Resource: '*'
       Tracing: Active
     Metadata:
