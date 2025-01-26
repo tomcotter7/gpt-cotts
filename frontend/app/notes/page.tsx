@@ -1,4 +1,3 @@
-import { Suspense } from 'react'
 import { getServerSession } from 'next-auth/next'
 import { authOptions } from '../api/auth/[...nextauth]/authOptions'
 import { redirect } from 'next/navigation'
