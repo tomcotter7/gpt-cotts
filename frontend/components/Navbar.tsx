@@ -11,8 +11,10 @@ const LoginLink = ({ status }: { status: string }) => {
   }
 
   return (
-    <Link className="my-1 text-black bg-tangerine hover:border-tangerine hover:bg-tangerine-dark py-1 px-2 text-center max-h-10 rounded" href="/api/auth/signin/google">
-      <div className="flex flex-col">
+    <Link
+      className="relative inline-flex h-8 m-2 justify-center items-center px-4 mx-1 text-black before:absolute  before:z-1 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
+      href="/api/auth/signin/google">
+      <div className="flex flex-col z-[10]">
         <b>login</b>
       </div>
     </Link>
@@ -26,13 +28,16 @@ const ProfileButton = () => {
     >
       <div className="flex flex-col m-1 p-1">
         <div className="flex flex-row">
-          <Image
-            className="hover:bg-skyblue-dark rounded"
-            src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA5klEQVR4nO2Tvw7BUByFP5FglGBBZw/Bzs5reAbPU5F0QryBXRMGBmaExsJCmpwmzQ0NccXSLzlDf3/OaXNvIcUSDjACAskDGjbND8Dd0FG9rxnJcAzUpYlqQxsBgcxC4whHtfOvA042AjyZTWQcaqqaayOgoQM1D3lvfNVXODrQs+TaNE95SRZoAQOg/KRfUa+p2bcpAH1gF7sxa6ALFKUesIn1t9oJdxOpAb5h7D+5opF8zUTPC6CaFDDT4BJoAxkgr7ebAxdprlpOMx1gpd3wJ3zJTUMlPqek3WvS0N2S/heQgskDvs9xQtZ6LkgAAAAASUVORK5CYII="
-            alt="Profile"
-            width={32}
-            height={32}
-          />
+          <div className="relative inline-flex h-8 justify-center items-center px-4 mx-1 text-black before:absolute  before:z-1 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
+          >
+            <Image
+              className="z-[10]"
+              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAACXBIWXMAAAsTAAALEwEAmpwYAAAA5klEQVR4nO2Tvw7BUByFP5FglGBBZw/Bzs5reAbPU5F0QryBXRMGBmaExsJCmpwmzQ0NccXSLzlDf3/OaXNvIcUSDjACAskDGjbND8Dd0FG9rxnJcAzUpYlqQxsBgcxC4whHtfOvA042AjyZTWQcaqqaayOgoQM1D3lvfNVXODrQs+TaNE95SRZoAQOg/KRfUa+p2bcpAH1gF7sxa6ALFKUesIn1t9oJdxOpAb5h7D+5opF8zUTPC6CaFDDT4BJoAxkgr7ebAxdprlpOMx1gpd3wJ3zJTUMlPqek3WvS0N2S/heQgskDvs9xQtZ6LkgAAAAASUVORK5CYII="
+              alt="Profile"
+              width={16}
+              height={16}
+            />
+          </div>
         </div>
       </div>
     </Link>

@@ -12,7 +12,9 @@ const config: Config = {
         background: "var(--background)",
         foreground: "var(--foreground)",
         gray: {
-          DEFAULT: '#64748b',
+          DEFAULT: '#9e9e9e',
+          300: '#e0e0e0',
+          600: '#757575',
         },
         tangerine: {
           DEFAULT: '#fcbe6a',

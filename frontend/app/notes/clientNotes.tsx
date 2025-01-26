@@ -12,339 +12,332 @@ import { ToastBox } from '@/components/Toast';
 
 
 export interface Note {
-    title: string,
-    content: string
+  title: string,
+  content: string
 }
 
 interface NotesData {
-    note: Note,
-    currentFilename: string,
-    filenames: string[],
-    
+  note: Note,
+  currentFilename: string,
+  filenames: string[],
+
 }
 
 export function NotesContent(
-    { note, currentFilename, filenames}: NotesData
+  { note, currentFilename, filenames }: NotesData
 ) {
-    const { data: session, status } = useSession();
-    void status;
-    
-    const [editMode, setEditMode] = useState(false);
-    const [addNotesModal, setAddNotesModal] = useState(false);
-    const [deleteNotesModal, setDeleteNotesModal] = useState(false);
-    const [notesData, setNotesData] = useState<NotesData>({
-        note,
-        currentFilename,
-        filenames 
-    });
+  const { data: session, status } = useSession();
+  void status;
 
-    const { updateToasts } = useToast();
+  const [editMode, setEditMode] = useState(false);
+  const [addNotesModal, setAddNotesModal] = useState(false);
+  const [deleteNotesModal, setDeleteNotesModal] = useState(false);
+  const [notesData, setNotesData] = useState<NotesData>({
+    note,
+    currentFilename,
+    filenames
+  });
 
-    useEffect(() => {
-        sessionStorage.clear();
-        sessionStorage.setItem('note_for_' + currentFilename, JSON.stringify(note));
-    }, [currentFilename, note]);
+  const { updateToasts } = useToast();
 
-    function openAddNotesModal(e: MouseEvent<HTMLButtonElement>) {
-        e.preventDefault();
-        setAddNotesModal(true);
+  useEffect(() => {
+    sessionStorage.clear();
+    sessionStorage.setItem('note_for_' + currentFilename, JSON.stringify(note));
+  }, [currentFilename, note]);
+
+  function openAddNotesModal(e: MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    setAddNotesModal(true);
+  }
+
+  function openDeleteNotesModal(e: MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    setDeleteNotesModal(true);
+  }
+
+  function closeModal() {
+    setAddNotesModal(false);
+    setDeleteNotesModal(false);
+  }
+
+  function handleFileNameChange(e: ChangeEvent<HTMLSelectElement>) {
+    e.preventDefault();
+    getNotesWithFilename(e.currentTarget.value);
+  }
+
+  function handleEditModeChange(e: MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    setEditMode(!editMode);
+  }
+
+  function handleRefreshCache(e: MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    refreshCache();
+  }
+
+  async function getNotesWithFilename(filename: string, successMessage: string = "") {
+
+    if (!session) {
+      return;
     }
 
-    function openDeleteNotesModal(e: MouseEvent<HTMLButtonElement>) {
-        e.preventDefault();
-        setDeleteNotesModal(true);
+    const cached_notes = sessionStorage.getItem('note_for_' + filename);
+    if (cached_notes) {
+      setNotesData({
+        ...notesData,
+        currentFilename: filename,
+        note: JSON.parse(cached_notes)
+      });
+      return
     }
 
-    function closeModal() {
-        setAddNotesModal(false);
-        setDeleteNotesModal(false);
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({ filename: filename })
     }
 
-    function handleFileNameChange(e: ChangeEvent<HTMLSelectElement>) {
-        e.preventDefault();
-        getNotesWithFilename(e.currentTarget.value);
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get_with_filename`, requestOptions);
+    if (response.ok) {
+      const data = await response.json()
+      const note: Note = data.note
+      sessionStorage.setItem('note_for_' + filename, JSON.stringify(note));
+
+      if (notesData.filenames.includes(filename)) {
+        setNotesData({
+          ...notesData,
+          currentFilename: filename,
+          note: note
+        });
+      } else {
+        setNotesData({
+          ...notesData,
+          currentFilename: filename,
+          note: note,
+          filenames: [...notesData.filenames, filename]
+        });
+      }
+      if (successMessage !== "") { console.log(successMessage); }
+    } else if (response.status == 401) {
+      console.log("Session expired");
+      window.location.href = '/api/auth/signout/google';
+    } else {
+      console.log("Error fetching notes");
     }
 
-    function handleEditModeChange(e: MouseEvent<HTMLButtonElement>) {
-        e.preventDefault();
-        setEditMode(!editMode);
+  }
+
+  async function refreshCache() {
+    if (!session) {
+      return;
     }
 
-    function handleRefreshCache(e: MouseEvent<HTMLButtonElement>) {
-        e.preventDefault();
+    sessionStorage.clear();
+
+    const request_options = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      }
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get`, request_options)
+    const data = await response.json()
+    const note: Note = data.note
+    const filenames = data.filenames
+
+    if (filenames.length == 0) {
+      setNotesData({
+        note: { title: "", content: "" },
+        currentFilename: "",
+        filenames: []
+      });
+    } else {
+      setNotesData({
+        note: note,
+        currentFilename: filenames[0],
+        filenames: filenames
+      });
+    }
+  }
+
+  async function deleteNote() {
+    if (!session) {
+      return;
+    }
+
+    setDeleteNotesModal(false);
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+        'Authorization': `Bearer ${session.access_token}`
+      },
+      body: JSON.stringify({ filename: notesData.currentFilename })
+    }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/delete`, requestOptions);
+
+    if (response.ok) {
+      if (notesData.filenames.length == 1) {
+        setNotesData({
+          note: { title: "", content: "" },
+          currentFilename: "",
+          filenames: []
+        });
+      } else {
         refreshCache();
+      }
+      updateToasts("Note " + notesData.currentFilename + " deleted", true)
+    } else if (response.status == 401) {
+      updateToasts("Your session has expired. Please log in again.", false)
+      window.location.href = '/api/auth/signout/google';
+    } else {
+      updateToasts("Error deleting note", false)
+    }
+  }
+
+
+  async function addNote(newFilename: string) {
+    if (!session) {
+      return;
     }
 
-    async function getNotesWithFilename(filename: string, successMessage: string = "") {
+    setAddNotesModal(false)
 
-        if (!session) {
-            return;
-        }
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/notes/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
 
-        const cached_notes = sessionStorage.getItem('note_for_' + filename);
-        if (cached_notes) {
-            setNotesData({
-                    ...notesData,
-                    currentFilename: filename,
-                    note: JSON.parse(cached_notes)
-                    });
-            return
-        }
+        'accept': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token
+      },
+      body: JSON.stringify({ filename: newFilename })
+    }
+    )
+    newFilename = newFilename.replace(/\s/g, '_').toLowerCase()
+    if (response.ok) {
+      updateToasts("Note " + newFilename + " added", true)
+      await getNotesWithFilename(newFilename)
+    } else if (response.status === 401) {
+      updateToasts("Your session has expired. Please log in again.", false)
+      window.location.href = "/api/auth/signout/google"
+    } else {
+      updateToasts("Error adding note", false)
+    }
+  }
 
-        const requestOptions = {
-method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'accept': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`
-        },
-body: JSON.stringify({ filename: filename })
-        }
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get_with_filename`, requestOptions);
-        if (response.ok) {
-            const data = await response.json()
-            const note: Note = data.note
-            sessionStorage.setItem('note_for_' + filename, JSON.stringify(note));
-
-            if ( notesData.filenames.includes(filename)) {
-                setNotesData({
-                    ...notesData,
-                    currentFilename: filename,
-                    note: note
-                });
-            } else {
-                setNotesData({
-                    ...notesData,
-                    currentFilename: filename,
-                    note: note,
-                    filenames: [...notesData.filenames, filename]
-                });
-            }
-            if (successMessage !== "") { console.log(successMessage); }
-        } else if (response.status == 401) {
-            console.log("Session expired");
-            window.location.href = '/api/auth/signout/google';
-        } else {
-            console.log("Error fetching notes");
-        }
-            
+  async function updateNotesContent(title: string, newContent: string) {
+    if (!session) {
+      return;
     }
 
-    async function refreshCache() {
-        if (!session) {
-            return;
-        }
-
-        sessionStorage.clear();
-
-        const request_options = {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'accept': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`
-            }
-        }
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get`, request_options)
-        const data = await response.json()
-        const note: Note = data.note
-        const filenames = data.filenames
-
-        if (filenames.length == 0) {
-            setNotesData({
-                note: {title: "", content: ""},
-                currentFilename: "",
-                filenames: []
-            });
-        } else {
-            setNotesData({
-                note: note,
-                currentFilename: filenames[0],
-                filenames: filenames
-            });
-        }
+    const newNote: Note = {
+      title: title,
+      content: newContent
     }
+    const requestOptions = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+        'Authorization': 'Bearer ' + session.access_token
+      },
+      body: JSON.stringify({ notes_class: notesData.currentFilename, new_notes: newNote })
+    };
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/notes/update`, requestOptions
+    )
 
-    async function deleteNote() {
-        if (!session) {
-            return;
-        }
-
-        setDeleteNotesModal(false);
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'accept': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`
-            },
-            body: JSON.stringify({ filename: notesData.currentFilename })
-        }
-
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/delete`, requestOptions);
-
-        if (response.ok) {
-            if (notesData.filenames.length == 1) {
-                setNotesData({
-                    note: {title: "", content: ""},
-                    currentFilename: "",
-                    filenames: []
-                });
-            } else {
-                refreshCache();
-            }
-            updateToasts("Note " + notesData.currentFilename + " deleted", true)
-        } else if (response.status == 401) {
-            updateToasts("Your session has expired. Please log in again.", false)
-            window.location.href = '/api/auth/signout/google';
-        } else {
-            updateToasts("Error deleting note", false)
-        }
+    if (response.ok) {
+      updateToasts("Notes for " + title + " updated", true)
+      setNotesData({
+        ...notesData,
+        note: newNote
+      })
+      setEditMode(false)
+    } else if (response.status === 401) {
+      updateToasts("Your session has expired. Please log in again.", false)
+      window.location.href = "/api/auth/signout/google"
+    } else {
+      updateToasts("Error updating notes", false)
+      setEditMode(false)
     }
-
-    
-    async function addNote(newFilename: string) {
-        if (!session) {
-            return;
-        }
-
-        // e.preventDefault();
-
-        // const element: HTMLInputElement = e.currentTarget.elements.namedItem('title') as HTMLInputElement
-        // let newFilename = element.value
-
-        setAddNotesModal(false)
-        // e.preventDefault()
-
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/notes/add`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-
-                    'accept': 'application/json',
-                    'Authorization': 'Bearer ' + session.access_token
-                },
-                body: JSON.stringify({ filename: newFilename })
-            }
-        )
-        newFilename = newFilename.replace(/\s/g, '_').toLowerCase()
-        if (response.ok) {
-            updateToasts("Note " + newFilename + " added", true)
-            await getNotesWithFilename(newFilename)
-        } else if (response.status === 401) {
-            updateToasts("Your session has expired. Please log in again.", false)
-            window.location.href = "/api/auth/signout/google"
-        } else {
-            updateToasts("Error adding note", false)
-        }
-    }
-
-    async function updateNotesContent(title: string, newContent: string) {
-        if (!session) {
-            return;
-        }
-
-        const newNote : Note = {
-            title: title,
-            content: newContent
-        }
-        const requestOptions = {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'accept': 'application/json',
-                'Authorization': 'Bearer ' + session.access_token
-            },
-            body: JSON.stringify({ notes_class: notesData.currentFilename, new_notes: newNote })
-        };
-        const response = await fetch(
-            `${process.env.NEXT_PUBLIC_API_URL}/notes/update`, requestOptions
-        )
-
-        if (response.ok) {
-            updateToasts("Notes for " + title + " updated", true)
-            setNotesData({
-                ...notesData,
-                note: newNote
-            })
-            setEditMode(false)
-        } else if (response.status === 401) {
-            updateToasts("Your session has expired. Please log in again.", false)
-            window.location.href = "/api/auth/signout/google"
-        } else {
-            updateToasts("Error updating notes", false)
-            setEditMode(false)
-        }
-    }
+  }
 
 
+  const buttonTailwind = "relative inline-flex h-10 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
 
-    const buttonTailwind = "bg-tangerine hover:bg-tangerine-dark hover:border hover:border-tangerine rounded shadow-md text-black p-1 ml-1 w-1/12 md:h-4/6 flex justify-center items-center";
+  return (
+    <>
+      <div className="flex flex-col items-center m-2">
+        <ToastBox />
+      </div>
+      <ModalAddNotes open={addNotesModal} onClose={closeModal} onSave={(title) => addNote(title)} />
+      <ModalDeleteConfirmation open={deleteNotesModal} title={notesData.currentFilename} onClose={closeModal} onDelete={deleteNote} />
+      <div className="flex flex-col items-center">
+        <form className="flex flex-row w-full px-8 justify-center md:items-center md:px-12 md:h-12">
+          {notesData.filenames.length > 0 ?
+            <select className="border border-gray text-sm bg-gray rounded shadow-lg block focus:border-skyblue w-3/6 md:w-1/6 h-10" onChange={handleFileNameChange}>
+              <option key={notesData.currentFilename} value={notesData.currentFilename}>{notesData.currentFilename}</option>
+              {notesData.filenames.map((filename) => (
+                (filename !== notesData.currentFilename) && (<option key={filename} value={filename}>{filename}</option>)
+              ))}
+            </select>
+            : null
+          }
+          <button className={buttonTailwind} onClick={handleRefreshCache}>
+            <RefreshIcon width="16" height="16" />
+          </button>
+          {
+            !editMode && notesData.filenames.length > 0 ?
+              <button className={buttonTailwind} onClick={handleEditModeChange}>
+                <EditIcon width="16" height="16" />
+              </button> :
+              <button
+                disabled
+                className="bg-gray-400 rounded shadow-lg text-white p-1 mx-1"
+              >
+                <EditIcon width="16" height="16" />
+              </button>
+          }
+          <button className={buttonTailwind} onClick={openAddNotesModal}>
+            <AddIcon width="16" height="16" />
+          </button>
+          <button className={buttonTailwind} onClick={openDeleteNotesModal}>
+            <DeleteIcon width="16" height="16" />
+          </button>
+        </form>
+        {notesData.filenames.length === 0 || !notesData.note ? (
+          <p className="text-black">
+            No notes found. Click &apos;+&apos; to get started! (Click &apos;refresh&apos; if you think this is in error)
+          </p>
+        ) : (
+          editMode ? (
+            <EditableNotesSection
+              title={notesData.note.title}
+              content={notesData.note.content}
+              save={updateNotesContent}
+              cancel={() => setEditMode(false)}
+            />
+          ) : (
+            <NotesSection
+              title={notesData.note.title}
+              content={notesData.note.content}
+            />
+          )
+        )}
 
-    return (
-        <>  
-            <div className="flex flex-col items-center m-2">
-                <ToastBox />
-            </div>
-            <ModalAddNotes open={addNotesModal} onClose={closeModal} onSave={(title) => addNote(title)} />
-            <ModalDeleteConfirmation open={deleteNotesModal} title={notesData.currentFilename} onClose={closeModal} onDelete={deleteNote} />
-            <div className="flex flex-col items-center">
-                <form className="flex flex-row w-full px-8 justify-center md:items-center md:px-12 md:h-12">
-                    { notesData.filenames.length > 0 ?
-                    <select className="border border-gray text-sm bg-gray rounded shadow-lg block focus:border-skyblue w-3/6 md:w-1/6 md:h-4/6" onChange={handleFileNameChange}>
-                        <option key={notesData.currentFilename} value={notesData.currentFilename}>{notesData.currentFilename}</option>
-                        {notesData.filenames.map((filename) => (
-                            (filename !== notesData.currentFilename) && (<option key={filename} value={filename}>{filename}</option>)
-                        ))}
-                    </select>
-                    : null
-                    }
-                    <button className={buttonTailwind} onClick={handleRefreshCache}>
-                        <RefreshIcon />
-                    </button>
-                    {
-                    !editMode && notesData.filenames.length > 0 ? 
-                        <button className={buttonTailwind} onClick={handleEditModeChange}>
-                            <EditIcon />
-                        </button> :
-                        <button
-                            disabled
-                            className="bg-gray-400 rounded shadow-lg text-white p-1 mx-1"
-                        >
-                            <EditIcon />
-                        </button>
-                    }
-                    <button className={buttonTailwind} onClick={openAddNotesModal}>
-                        <AddIcon />
-                    </button>
-                    <button className={buttonTailwind} onClick={openDeleteNotesModal}>
-                        <DeleteIcon />
-                    </button>
-                </form>
-                { notesData.filenames.length === 0 || !notesData.note  ? (
-                    <p className="text-black">
-                        No notes found. Click &apos;+&apos; to get started! (Click &apos;refresh&apos; if you think this is in error)
-                    </p> 
-                ) : (
-                    editMode ? (
-                        <EditableNotesSection
-                            title={notesData.note.title}
-                            content={notesData.note.content}
-                            save={updateNotesContent}
-                            cancel={() => setEditMode(false)}
-                        />
-                    ) : (
-                        <NotesSection
-                            title={notesData.note.title}
-                            content={notesData.note.content}
-                        />
-                    )
-                )}
-
-            </div>
-        </>
-    );
+      </div>
+    </>
+  );
 }
