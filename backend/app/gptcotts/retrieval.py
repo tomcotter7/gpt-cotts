@@ -30,7 +30,7 @@ def rewrite_query(query: str, history: list[dict]) -> str:
 
     client = anthropic.Anthropic()
     resp = client.messages.create(
-        model="claude-3-haiku-20240307",
+        model="claude-3-5-haiku-20241022",
         system=prompt.system,
         messages=[{"role": "user", "content": str(prompt)}],
         max_tokens=1024,

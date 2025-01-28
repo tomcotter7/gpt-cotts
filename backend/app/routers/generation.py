@@ -5,7 +5,7 @@ import os
 from typing import Annotated
 
 import anthropic
-from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from gptcotts import config as cfg
 from gptcotts.auth_utils import User, verify_google_token
@@ -45,7 +45,7 @@ def filter_history(history):
     history = [
         {k: v for k, v in item.items() if k in ["role", "content"]} for item in history
     ]
-    history = history[-6:]
+    history = history[-8:]
     return history
 
 
@@ -59,7 +59,7 @@ def update_token_count(user: User, model: str, input_tokens: int, output_tokens:
         * cfg.API_PRICING.get(model, cfg.API_PRICING["default"])[
             "output_price_per_one_token"
         ]
-    )
+    ) * cfg.DEFAULT_PRICE_MULTIPLIER
 
     logging.info(
         f"Usage from {user.email} on model {model}: {input_tokens} input tokens, {output_tokens} output tokens, ${price:.10f} total price"
@@ -199,6 +199,11 @@ def generate_claude_response(
 ):
     try:
         messages = request.history + [{"role": "user", "content": str(request.prompt)}]
+        if any(len(msg["content"]) == 0 for msg in messages):
+            raise HTTPException(
+                status_code=422,
+                detail="One or more messages in the conversation history is empty",
+            )
         client = anthropic.Anthropic()
         with client.messages.stream(
             system=request.prompt.system_prompt(),
@@ -236,6 +241,11 @@ def generate_openai_response(
             + request.history
             + [{"role": "user", "content": str(request.prompt)}]
         )
+        if any(len(msg["content"]) == 0 for msg in messages):
+            raise HTTPException(
+                status_code=422,
+                detail="One or more messages in the conversation history is empty",
+            )
         response = client.chat.completions.create(
             model=model,
             messages=messages,  # type: ignore
