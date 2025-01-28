@@ -276,7 +276,6 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
     const clearButton = document.getElementById("clearButton") as HTMLButtonElement;
     const saveButton = document.getElementById("saveButton") as HTMLButtonElement;
 
-    console.log(clearButton.disabled)
     if (chats.length === 0) {
       saveButton.disabled = true;
       clearButton.disabled = true;
@@ -501,7 +500,7 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
 
 
   return (
-    <div className="max-h-full flex flex-col">
+    <div className="max-h-full w-full flex flex-col">
       <ToastBox />
       <SettingsDisplay settings={settings} onSettingsChange={handleSettingsChange} />
       <PreviousConversationsMenu prevConversations={prevConversations} onConversationSelect={handlePrevConversationSelected} onConversationDelete={handlePrevConversationDeleted} />
@@ -655,7 +654,7 @@ function ChatBox({ role, text, context, name }: ChatBoxProps) {
   return (
     <div className={containerClasses}>
       {role === 'user' ? <p className="text-black text-xs"><b>{name}</b> (You)</p> : <p className="text-black text-xs"><b>gpt-cotts</b></p>}
-      <div className="max-w-full min-h-5">
+      <div className="min-h-5">
         <Markdown
           className="text-black markdown-content"
           remarkPlugins={[remarkMath, remarkGfm]}
@@ -671,9 +670,10 @@ function ChatBox({ role, text, context, name }: ChatBoxProps) {
                   PreTag="div"
                   language={match[1]}
                   style={dark}
+                  showLineNumbers={true}
                 >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
               ) : (
-                <code {...rest} className={className} style={{ "whiteSpace": "pre-wrap", "wordWrap": "break-word", "display": "inline-block", "maxWidth": "100%" }}>
+                <code {...rest} className={className}>
                   {children}
                 </code>
               )
@@ -682,7 +682,7 @@ function ChatBox({ role, text, context, name }: ChatBoxProps) {
         >{text}</Markdown>
       </div>
       {context.length > 0 ? <ContextBox context={context} /> : null}
-    </div>
+    </div >
   )
 
 }
@@ -704,7 +704,6 @@ function ContextBox({ context }: ContextBoxProps) {
       </div>
     )
   } else {
-
 
     return (
       <div className="p-1 border-t-4 border-skyblue-dark">
