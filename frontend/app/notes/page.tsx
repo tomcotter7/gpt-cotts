@@ -39,7 +39,7 @@ async function AuthenticatedNotesContent() {
     return response
   }
 
-  let response = await makeRequest(session.access_token)
+  const response = await makeRequest(session.access_token)
 
 
   if (response.status !== 200) {
