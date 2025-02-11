@@ -24,20 +24,27 @@ async function AuthenticatedNotesContent() {
     return redirect('/api/auth/signout/google')
   }
 
-  const request_options = {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'accept': 'application/json',
-      'Authorization': `Bearer ${session.access_token}`
+
+  const makeRequest = async (token: string) => {
+    const request_options = {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'accept': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
     }
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get`, request_options)
+    return response
   }
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get`, request_options)
+  const response = await makeRequest(session.access_token)
 
   if (response.status !== 200) {
-    return redirect('/api/auth/signout/google')
+    return <p> Unable to load notes, try again later </p>
   }
+
 
   const data = await response.json()
   const note: Note = data.note

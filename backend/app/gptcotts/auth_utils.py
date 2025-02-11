@@ -42,6 +42,7 @@ def get_user_info(token: str) -> dict | None:
     response = requests.get(
         "https://www.googleapis.com/oauth2/v3/userinfo", headers=headers
     )
+    logging.debug(response)
     if response.status_code == 200:
         return response.json()
 
