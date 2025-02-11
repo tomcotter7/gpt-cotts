@@ -66,7 +66,7 @@ export default function Home() {
     }
     getValidity()
 
-  }, [session])
+  }, [session, update])
 
   if (status === "loading") {
     return (

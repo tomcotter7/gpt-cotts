@@ -368,7 +368,7 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
     }
 
     try {
-      let response = await sendMessage(request, url);
+      const response = await sendMessage(request, url);
       let value = ""
       const context = response.headers.get('x-relevant-context');
       let parsedContext: Array<ContextItem> = [];
