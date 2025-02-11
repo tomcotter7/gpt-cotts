@@ -10,3 +10,4 @@ boto3==1.34.141
 anthropic==0.47.0
 python-multipart==0.0.18
 pydantic[email]==2.8.2
+google-auth==2.38.0

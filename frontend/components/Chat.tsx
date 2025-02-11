@@ -321,7 +321,6 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       throw new Error("No active session. Something went wrong")
     }
 
-
     const makeRequest = async (token: string) => {
       const rawBody = JSON.stringify(request);
       const requestOptions = {
@@ -375,7 +374,8 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
     }
 
     try {
-      const response = await sendMessage(request, url);
+      let response = await sendMessage(request, url);
+
       let value = ""
       const context = response.headers.get('x-relevant-context');
       let parsedContext: Array<ContextItem> = [];

@@ -54,7 +54,7 @@ async function refreshAccessToken(token: TokenSet): Promise<TokenSet> {
       token.refresh_token = tokensOrError.refresh_token
     }
     return token
-  } catch {
+  } catch (error) {
     return {
       ...token,
       error: "RefreshAccessTokenError",

@@ -68,6 +68,7 @@ export default function Home() {
 
   }, [session, update])
 
+
   if (status === "loading") {
     return (
       <div className="flex justify-center m-4">

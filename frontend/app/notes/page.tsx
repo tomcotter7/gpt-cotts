@@ -39,7 +39,8 @@ async function AuthenticatedNotesContent() {
     return response
   }
 
-  const response = await makeRequest(session.access_token)
+  let response = await makeRequest(session.access_token)
+
 
   if (response.status !== 200) {
     return <p> Unable to load notes, try again later </p>
