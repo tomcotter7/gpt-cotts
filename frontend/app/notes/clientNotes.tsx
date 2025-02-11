@@ -26,7 +26,7 @@ interface NotesData {
 export function NotesContent(
   { note, currentFilename, filenames }: NotesData
 ) {
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   void status;
 
   const [editMode, setEditMode] = useState(false);
@@ -91,50 +91,63 @@ export function NotesContent(
       return
     }
 
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`
-      },
-      body: JSON.stringify({ filename: filename })
-    }
-
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get_with_filename`, requestOptions);
-    if (response.ok) {
-      const data = await response.json()
-      const note: Note = data.note
-      sessionStorage.setItem('note_for_' + filename, JSON.stringify(note));
-
-      if (notesData.filenames.includes(filename)) {
-        setNotesData({
-          ...notesData,
-          currentFilename: filename,
-          note: note
-        });
-      } else {
-        setNotesData({
-          ...notesData,
-          currentFilename: filename,
-          note: note,
-          filenames: [...notesData.filenames, filename]
-        });
+    const makeRequest = async (token: string) => {
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ filename: filename })
       }
-      if (successMessage !== "") { console.log(successMessage); }
-    } else if (response.status == 401) {
-      console.log("Session expired");
-      window.location.href = '/api/auth/signout/google';
-    } else {
-      console.log("Error fetching notes");
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/get_with_filename`, requestOptions);
+      return response
     }
 
+    try {
+      let response = await makeRequest(session.access_token)
+      if (response.status === 401) {
+        const newSession = await update();
+        if (!newSession?.access_token) {
+          throw new Error('Failed to refresh token');
+        }
+        response = await makeRequest(newSession.access_token)
+      }
+      if (response.ok) {
+        const data = await response.json()
+        const note: Note = data.note
+        sessionStorage.setItem('note_for_' + filename, JSON.stringify(note));
+
+        if (notesData.filenames.includes(filename)) {
+          setNotesData({
+            ...notesData,
+            currentFilename: filename,
+            note: note
+          });
+        } else {
+          setNotesData({
+            ...notesData,
+            currentFilename: filename,
+            note: note,
+            filenames: [...notesData.filenames, filename]
+          });
+        }
+        updateToasts(successMessage, true)
+      } else if (response.status === 401) {
+        throw new Error("Failed after token refresh! You need to refresh the page.")
+      } else {
+        throw new Error("There was an error, please try again later!")
+      }
+    } catch (error) {
+      const errorString = error instanceof Error ? error.message : String(error);
+      updateToasts(errorString, false)
+    }
   }
 
   async function refreshCache() {
-    if (!session) {
-      return;
-    }
+    if (!session) return;
 
     sessionStorage.clear();
 
@@ -168,108 +181,149 @@ export function NotesContent(
   }
 
   async function deleteNote() {
-    if (!session) {
-      return;
-    }
+    if (!session) return;
 
     setDeleteNotesModal(false);
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': 'application/json',
-        'Authorization': `Bearer ${session.access_token}`
-      },
-      body: JSON.stringify({ filename: notesData.currentFilename })
+    const makeRequest = async (token: string, filename: string) => {
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ filename: filename })
+      }
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/delete`, requestOptions);
+      return response
     }
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/notes/delete`, requestOptions);
-
-    if (response.ok) {
-      if (notesData.filenames.length == 1) {
-        setNotesData({
-          note: { title: "", content: "" },
-          currentFilename: "",
-          filenames: []
-        });
-      } else {
-        refreshCache();
+    try {
+      let response = await makeRequest(session.access_token, notesData.currentFilename);
+      if (response.status === 401) {
+        const newSession = await update();
+        if (!newSession?.access_token) {
+          throw new Error('Failed to refresh token');
+        }
+        response = await makeRequest(newSession.access_token, notesData.currentFilename)
       }
-      updateToasts("Note " + notesData.currentFilename + " deleted", true)
-    } else if (response.status == 401) {
-      updateToasts("Your session has expired. Please log in again.", false)
-      window.location.href = '/api/auth/signout/google';
-    } else {
-      updateToasts("Error deleting note", false)
+      if (response.ok) {
+        if (notesData.filenames.length == 1) {
+          setNotesData({
+            note: { title: "", content: "" },
+            currentFilename: "",
+            filenames: []
+          });
+        } else {
+          refreshCache();
+        }
+        updateToasts("Note " + notesData.currentFilename + " deleted", true)
+      } else if (response.status === 401) {
+        throw new Error("Failed after token refresh! You must refresh the page!")
+      } else {
+        throw new Error("Error deleting note, try again later")
+      }
+    } catch (error) {
+      const errorString = error instanceof Error ? error.message : String(error);
+      updateToasts(errorString, false)
+
     }
   }
 
 
   async function addNote(newFilename: string) {
-    if (!session) {
-      return;
-    }
+    if (!session) return;
 
     setAddNotesModal(false)
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/notes/add`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    const makeRequest = async (token: string, filename: string) => {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/notes/add`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
 
-        'accept': 'application/json',
-        'Authorization': 'Bearer ' + session.access_token
-      },
-      body: JSON.stringify({ filename: newFilename })
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ filename: filename })
+      })
+      return response
     }
-    )
-    newFilename = newFilename.replace(/\s/g, '_').toLowerCase()
-    if (response.ok) {
-      updateToasts("Note " + newFilename + " added", true)
-      await getNotesWithFilename(newFilename)
-    } else if (response.status === 401) {
-      updateToasts("Your session has expired. Please log in again.", false)
-      window.location.href = "/api/auth/signout/google"
-    } else {
-      updateToasts("Error adding note", false)
+    try {
+      let response = await makeRequest(session.access_token, newFilename);
+      if (response.status === 401) {
+        const newSession = await update();
+        if (!newSession?.access_token) {
+          throw new Error('Failed to refresh token');
+        }
+        response = await makeRequest(newSession.access_token, newFilename)
+      }
+      newFilename = newFilename.replace(/\s/g, '_').toLowerCase()
+      if (response.ok) {
+        updateToasts("Note " + newFilename + " added", true)
+        await getNotesWithFilename(newFilename)
+      } else if (response.status === 401) {
+        throw new Error("Failed after token refresh! You must refresh the page!")
+      } else {
+        throw new Error("Error adding note, try again later")
+      }
+    } catch (error) {
+      const errorString = error instanceof Error ? error.message : String(error);
+      updateToasts(errorString, false)
     }
   }
 
   async function updateNotesContent(title: string, newContent: string) {
-    if (!session) {
-      return;
-    }
-
+    if (!session) return;
     const newNote: Note = {
       title: title,
       content: newContent
     }
-    const requestOptions = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'accept': 'application/json',
-        'Authorization': 'Bearer ' + session.access_token
-      },
-      body: JSON.stringify({ notes_class: notesData.currentFilename, new_notes: newNote })
-    };
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/notes/update`, requestOptions
-    )
+    const makeRequest = async (token: string) => {
 
-    if (response.ok) {
-      updateToasts("Notes for " + title + " updated", true)
-      setNotesData({
-        ...notesData,
-        note: newNote
-      })
-      setEditMode(false)
-    } else if (response.status === 401) {
-      updateToasts("Your session has expired. Please log in again.", false)
-      window.location.href = "/api/auth/signout/google"
-    } else {
-      updateToasts("Error updating notes", false)
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ notes_class: notesData.currentFilename, new_notes: newNote })
+      };
+
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/notes/update`, requestOptions
+      )
+      return response
+
+    }
+
+    try {
+      let response = await makeRequest(session.access_token)
+      if (response.status === 401) {
+        const newSession = await update();
+        if (!newSession?.access_token) {
+          throw new Error('Failed to refresh token');
+        }
+        response = await makeRequest(session.access_token)
+      }
+      if (response.ok) {
+        updateToasts("Notes for " + title + " updated", true)
+        setNotesData({
+          ...notesData,
+          note: newNote
+        })
+        setEditMode(false)
+      } else if (response.status === 401) {
+        throw new Error("Failed after token refresh! You must refresh the page!")
+      } else {
+        throw new Error("Error updating note, try again later")
+      }
+    } catch (error) {
+      const errorString = error instanceof Error ? error.message : String(error);
+      updateToasts(errorString, false)
       setEditMode(false)
     }
   }

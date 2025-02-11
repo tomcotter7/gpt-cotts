@@ -12,7 +12,7 @@ import { ToastProvider } from '@/providers/Toast';
 
 export default function Home() {
 
-  const { data: session, status } = useSession();
+  const { data: session, update, status } = useSession();
   const [adjustedHeight, setAdjustedHeight] = useState('93vh')
   const [valid, setValid] = useState(true)
 
@@ -27,34 +27,46 @@ export default function Home() {
 
   useEffect(() => {
     async function getValidity() {
+      if (!session) return;
 
-      if (!session) {
-        return;
-      }
+      const makeRequest = async (token: string) => {
 
-      const requestOptions = {
-        'method': 'GET',
-        'headers': {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-          'accept': 'application/json'
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user_data/validate`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+            'accept': 'application/json'
+          }
+        });
+        return response;
+      };
+
+      try {
+
+        let response = await makeRequest(session.access_token);
+
+        if (response.status !== 200) {
+          const newSession = await update()
+          if (!newSession?.access_token) {
+            throw new Error('Failed to refresh token');
+          }
+          response = await makeRequest(newSession.access_token)
         }
-      }
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user_data/validate`, requestOptions)
+        if (response.status !== 200) {
+          throw new Error('Failed after token refresh');
+        }
 
-      if (response.status !== 200) {
+        const data = await response.json()
+        if (!data.valid) { setValid(data.valid) }
+      } catch {
         window.location.href = "/api/auth/signout/google"
-        return;
       }
-
-      const data = await response.json()
-      if (!data.valid) { setValid(data.valid) }
     }
-
     getValidity()
 
-  }, [status, session])
+  }, [session])
 
   if (status === "loading") {
     return (

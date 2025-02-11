@@ -26,7 +26,6 @@ export default async function Profile() {
     return redirect("/api/auth/signout/google")
   }
 
-  console.log(username, email)
 
   const requestOptions = {
     method: 'GET',

@@ -62,36 +62,6 @@ async function save(chats: ChatMessage[], id: string | null, title: string | nul
   }
 }
 
-async function sendMessage(request: BackendRequest, url: string, token: string): Promise<Response | string> {
-
-
-  const rawBody = JSON.stringify(request);
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "accept": "application/json",
-      "Authorization": `Bearer ${token}`
-    },
-    body: rawBody
-  };
-
-  const response = await fetch(url, requestOptions);
-  if (response.ok) {
-
-    if (response.body) {
-      return response
-    }
-    return "Error";
-  } else {
-    if (response.status === 401) {
-      return "Unauthorized";
-    } else {
-      return "Error";
-    }
-  }
-}
-
 async function* processStream(stream: ReadableStream<Uint8Array> | null) {
   if (!stream) return;
   const reader = stream.getReader();
@@ -173,7 +143,7 @@ async function getCurrentUserSettings(access_token: string): Promise<SettingsInt
 
 export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMessage[] }) {
 
-  const { data: session, status } = useSession();
+  const { data: session, status, update } = useSession();
   void status;
 
   const contentRef = useRef<HTMLDivElement>(null);
@@ -340,6 +310,47 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
     }
   };
 
+  async function sendMessage(request: BackendRequest, url: string): Promise<Response> {
+    if (!session) {
+      throw new Error("No active session. Something went wrong")
+    }
+
+    const makeRequest = async (token: string) => {
+      const rawBody = JSON.stringify(request);
+      const requestOptions = {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "accept": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: rawBody
+      };
+
+      const response = await fetch(url, requestOptions);
+      return response
+    }
+
+    let response = await makeRequest(session.access_token)
+    if (response.status === 401) {
+      const newSession = await update();
+      if (!newSession?.access_token) {
+        throw new Error('Failed to refresh token');
+      }
+      response = await makeRequest(newSession.access_token)
+    }
+    if (response.ok) {
+      if (response.body) {
+        return response
+      }
+      throw new Error("Something went wrong.")
+    } else if (response.status === 401) {
+      throw new Error("Unable to send message even after token refresh. You might have to refresh the page")
+    } else {
+      throw new Error("Something went wrong.")
+    }
+  }
+
   async function makeLLMRequest(request: BackendRequest, rag: boolean) {
     if (!session) {
       return;
@@ -355,21 +366,11 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
     if (rag) {
       url = `${process.env.NEXT_PUBLIC_API_URL}/generation/rag`;
     }
-    const response = await sendMessage(request, url, session.access_token);
 
-    if (typeof response === "string") {
-      if (response === "Unauthorized") {
-        setChats([])
-        window.location.href = "/api/auth/signout/google"
-      } else if (response === "Error") {
-        setChats([])
-        alert("Error generating response. Please try again.")
-      }
-    } else {
+    try {
+      let response = await sendMessage(request, url);
       let value = ""
-
       const context = response.headers.get('x-relevant-context');
-
       let parsedContext: Array<ContextItem> = [];
       if (context) {
         parsedContext = JSON.parse(atob(context)) as Array<ContextItem>;
@@ -388,7 +389,9 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       }
 
       setGenerating(false);
-
+    } catch (error) {
+      const errorString = error instanceof Error ? error.message : String(error);
+      updateToasts(errorString, false)
     }
   }
 
