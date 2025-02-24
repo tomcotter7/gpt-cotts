@@ -5,6 +5,8 @@ import os
 from typing import Annotated
 
 import anthropic
+from anthropic.lib.streaming._types import ThinkingEvent
+from anthropic.types import ThinkingConfigParam
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from gptcotts import config as cfg
@@ -16,10 +18,16 @@ from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt, RubberDuckP
 from gptcotts.retrieval import search
 from openai import OpenAI
 from openai.types.chat import ChatCompletionChunk
-from pydantic import BaseModel
+from pydantic import AfterValidator, BaseModel
 
 router = APIRouter(prefix="/gptcotts/generation")
 logging.basicConfig(level=logging.INFO)
+
+
+def is_between_0_and_1(value: float) -> float:
+    if value < 0 or value > 1:
+        raise ValueError(f"{value} is between 0 and 1")
+    return value
 
 
 class BaseRequest(BaseModel):
@@ -28,6 +36,8 @@ class BaseRequest(BaseModel):
     history: list
     expertise: str = "normal"
     rubber_duck_mode: bool = False
+    view_reasoning: bool = True
+    reasoning_level: Annotated[float, AfterValidator(is_between_0_and_1)] = 0.0
 
 
 class RAGRequest(BaseRequest):
@@ -38,6 +48,11 @@ class LLMRequest(BaseModel):
     prompt: BasePrompt
     model: str
     history: list
+
+
+class ReasoningLLMRequest(LLMRequest):
+    reasoning_level: float = 0.0
+    view_reasoning: bool = True
 
 
 def filter_history(history):
@@ -112,11 +127,23 @@ def generate_response(
             if not request.rubber_duck_mode
             else RubberDuckPrompt(query=request.query, expertise=request.expertise)
         )
-        llm_request = LLMRequest(
-            prompt=prompt,
-            model=model,
-            history=history,
+
+        llm_request = (
+            LLMRequest(
+                prompt=prompt,
+                model=model,
+                history=history,
+            )
+            if request.reasoning_level == 0
+            else ReasoningLLMRequest(
+                prompt=prompt,
+                model=model,
+                history=history,
+                reasoning_level=request.reasoning_level,
+                view_reasoning=request.view_reasoning,
+            )
         )
+
         if "claude" in model:
             return StreamingResponse(
                 generate_claude_response(
@@ -195,7 +222,9 @@ def generate_rag_response(
 
 
 def generate_claude_response(
-    request: LLMRequest, user: User, background_tasks: BackgroundTasks
+    request: LLMRequest | ReasoningLLMRequest,
+    user: User,
+    background_tasks: BackgroundTasks,
 ):
     try:
         messages = request.history + [{"role": "user", "content": str(request.prompt)}]
@@ -205,14 +234,49 @@ def generate_claude_response(
                 detail="One or more messages in the conversation history is empty",
             )
         client = anthropic.Anthropic()
+        thinking: ThinkingConfigParam = {"type": "disabled"}
+        max_tokens = 2048
+        if isinstance(request, ReasoningLLMRequest):
+            thinking = {
+                "budget_tokens": max(1024, int(request.reasoning_level * max_tokens)),
+                "type": "enabled",
+            }
         with client.messages.stream(
             system=request.prompt.system_prompt(),
-            max_tokens=1024,
+            max_tokens=max_tokens,
             messages=messages,  # type: ignore
             model=request.model,
+            thinking=thinking,
         ) as stream:
-            for chunk in stream.text_stream:
-                yield chunk
+            current_event_type = None
+            if isinstance(request, ReasoningLLMRequest) and request.view_reasoning:
+                yield "<think>"
+            for chunk in stream:
+                if (
+                    isinstance(chunk, ThinkingEvent)
+                    and isinstance(request, ReasoningLLMRequest)
+                    and request.view_reasoning
+                ):
+                    content = chunk.thinking
+                    new_event_type = "think"
+                elif isinstance(chunk, anthropic.TextEvent):
+                    content = chunk.text
+                    new_event_type = "text"
+                else:
+                    continue
+
+                is_transition = (
+                    current_event_type != new_event_type
+                    and current_event_type is not None
+                )
+                current_event_type = new_event_type
+
+                if is_transition:
+                    yield "</think>  \n  \n---  \n  \n"
+                    yield content
+
+                else:
+                    yield content
 
         accum = stream.get_final_message()
         background_tasks.add_task(process_anthropic_accum, accum, user)
@@ -223,7 +287,9 @@ def generate_claude_response(
 
 
 def generate_openai_response(
-    request: LLMRequest, user: User, background_tasks: BackgroundTasks
+    request: LLMRequest | ReasoningLLMRequest,
+    user: User,
+    background_tasks: BackgroundTasks,
 ):
     try:
         if "deepseek" in request.model:

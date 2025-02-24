@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useEffect, useRef, useMemo, CSSProperties } from "react";
 import { useSession } from "next-auth/react";
 
@@ -35,6 +33,8 @@ interface BackendRequest {
   model: string;
   expertise: string;
   rubber_duck_mode: boolean;
+  view_reasoning: boolean;
+  reasoning_level: number;
 }
 
 async function save(chats: ChatMessage[], id: string | null, title: string | null, access_token: string): Promise<{ conversation_id: string, title: string } | null> {
@@ -125,7 +125,9 @@ async function getCurrentUserSettings(access_token: string): Promise<SettingsInt
     expertiseSlider: 50,
     model: "claude-3-5-sonnet-20241022",
     rerankModel: "cohere",
-    autoSave: false
+    autoSave: false,
+    viewReasoning: true,
+    reasoningLevel: 0
   }
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user_data/settings`, requestOptions)
@@ -137,6 +139,8 @@ async function getCurrentUserSettings(access_token: string): Promise<SettingsInt
       rubberDuck: (data.rubberDuck?.toLowerCase() || "") == "true",
       autoSave: (data.autoSave?.toLowerCase() || "") == "true",
       expertiseSlider: parseInt((data.expertiseSlider || "50")),
+      reasoningLevel: parseInt((data.reasoningLevel || "50")),
+      viewReasoning: (data.viewReasoning?.toLowerCase() || "") == "true"
     }
   })
 }
@@ -158,7 +162,9 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       expertiseSlider: 50,
       model: "claude-3-5-sonnet-20241022",
       rerankModel: "cohere",
-      autoSave: false
+      autoSave: false,
+      viewReasoning: true,
+      reasoningLevel: 0,
     });
   const [prevConversations, setPrevConversations] = useState<PrevConversation[]>([]);
   const [currentConv, setCurrentConv] = useState<Conversation>({ title: null, conversation_id: null });
@@ -429,7 +435,9 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
         history: chats,
         model: settings.model,
         expertise: convertSliderToExpertise(settings.expertiseSlider),
-        rubber_duck_mode: settings.rubberDuck
+        rubber_duck_mode: settings.rubberDuck,
+        view_reasoning: settings.viewReasoning,
+        reasoning_level: convertReasoningLevelToFraction(settings.reasoningLevel)
       }, settings.rag);
   }
 
@@ -560,6 +568,10 @@ const sliderToExpertiseMap: Record<number, string> = {
 const convertSliderToExpertise = (slider: number): string => {
   return sliderToExpertiseMap[slider] || "masterful";
 };
+
+const convertReasoningLevelToFraction = (reasoningLevel: number): number => {
+  return (reasoningLevel / 100)
+}
 
 function ChatForm({ onChatSubmit, settings }: ChatFormProps) {
 

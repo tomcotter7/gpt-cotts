@@ -11,6 +11,10 @@ API_PRICING = {
         "input_price_per_one_token": 2.5e-7,
         "output_price_per_one_token": 0.00000125,
     },
+    "claude-3-7-sonnet-20250219": {
+        "input_price_per_one_token": 0.000003,
+        "output_price_per_one_token": 0.000015,
+    },
     "gpt-4o-2024-08-06": {
         "input_price_per_one_token": 0.0000025,
         "output_price_per_one_token": 0.00001,
@@ -22,6 +26,10 @@ API_PRICING = {
     "deepseek-chat": {
         "input_price_per_one_token": 0.00000027,
         "output_price_per_one_token": 0.0000011,
+    },
+    "deepseek-reasoner": {
+        "input_price_per_one_token": 0.00000055,
+        "output_price_per_one_token": 0.00000219,
     },
     "default": {
         "input_price_per_one_token": 0.000003,
