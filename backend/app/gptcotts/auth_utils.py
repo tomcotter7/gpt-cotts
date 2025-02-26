@@ -1,7 +1,7 @@
 import logging
-from functools import lru_cache
 
 import requests
+from cachetools import TTLCache, cached
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from gptcotts.utils import timing
@@ -26,9 +26,11 @@ class UserInDB(User):
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="gptcotts/auth/token")
 
+cache = TTLCache(maxsize=100, ttl=300)
+
 
 @timing
-@lru_cache
+@cached(cache=cache)
 def get_user_info(token: str) -> dict | None:
     """Get user info from Google using the token.
 
@@ -44,9 +46,10 @@ def get_user_info(token: str) -> dict | None:
     )
     logging.debug(response)
     if response.status_code == 200:
+        logging.info(f"Able to log in via Google, response {response.json()}")
         return response.json()
 
-    logging.warning(f"Unable to log in via Google. Reason {response.text}")
+    logging.info(f"Unable to log in via Google. Reason {response.text}")
     return None
 
 
@@ -59,8 +62,10 @@ def verify_google_token(token: str = Depends(oauth2_scheme)) -> User:
     Returns:
         The user.
     """
+    logging.info(f"attempting to verify token: {token}")
     user_info = get_user_info(token)
     if user_info is None:
+        cache.pop((token,), None)
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid Google token",

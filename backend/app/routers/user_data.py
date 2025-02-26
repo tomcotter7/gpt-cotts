@@ -50,9 +50,7 @@ def get_user_settings(current_user: Annotated[User, Depends(verify_google_token)
     if "Item" not in settings_data:
         create_new_user(current_user.email)
         return cfg.DEFAULT_USER_CONFIGURATION
-    print(settings_data)
     settings = settings_data["Item"].get("settings", {"M": {}})["M"]
-    print(settings)
     settings = {k: v["S"] for k, v in settings.items()}
 
     return settings

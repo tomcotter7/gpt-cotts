@@ -5,16 +5,41 @@ import { useEffect, useState } from 'react';
 
 import { ClipLoader } from 'react-spinners';
 
-// import { AlertBanner } from '@/components/AlertBanner';
 import { NotLoggedIn } from '@/components/NotLoggedIn';
 import { Chat, ChatMessage } from '@/components/Chat';
+import { PrevConversation } from '@/components/PreviousConversations';
+import { SettingsInterface } from '@/components/Settings';
 import { ToastProvider } from '@/providers/Toast';
+
+const makeRequest = async (token: string, url: string) => {
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+      'accept': 'application/json'
+    }
+  });
+  return response;
+};
 
 export default function Home() {
 
   const { data: session, update, status } = useSession();
   const [adjustedHeight, setAdjustedHeight] = useState('93vh')
-  const [valid, setValid] = useState(true)
+
+  const [isLoading, setIsLoading] = useState(true);
+  const [prevConversations, setPrevConversations] = useState<PrevConversation[]>([]);
+  const [settings, setSettings] = useState<SettingsInterface>(
+    {
+      rag: false,
+      rubberDuck: false,
+      expertiseSlider: 50,
+      model: "claude-3-5-sonnet-20241022",
+      rerankModel: "cohere",
+      autoSave: false
+    });
 
   useEffect(() => {
     const nav = document.getElementById('nav')
@@ -25,51 +50,66 @@ export default function Home() {
 
   }, [])
 
-  useEffect(() => {
-    async function getValidity() {
-      if (!session) return;
+  async function initializeUserData() {
+    if (!session) return;
 
-      const makeRequest = async (token: string) => {
+    try {
+      let conversationsUrl = `${process.env.NEXT_PUBLIC_API_URL}/chat_data/all`;
+      let settingsUrl = `${process.env.NEXT_PUBLIC_API_URL}/user_data/settings`;
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user_data/validate`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-            'accept': 'application/json'
-          }
-        });
-        return response;
-      };
+      let [conversationsRes, settingsRes] = await Promise.all([
+        makeRequest(session.access_token, conversationsUrl),
+        makeRequest(session.access_token, settingsUrl)
+      ]);
 
-      try {
-
-        let response = await makeRequest(session.access_token);
-
-        if (response.status !== 200) {
-          const newSession = await update()
-          if (!newSession?.access_token) {
-            throw new Error('Failed to refresh token');
-          }
-          response = await makeRequest(newSession.access_token)
+      if (conversationsRes.status === 401 || settingsRes.status === 401) {
+        const newSession = await update();
+        if (!newSession?.access_token) {
+          throw new Error('Failed to refresh token');
         }
-
-        if (response.status !== 200) {
-          throw new Error('Failed after token refresh');
-        }
-
-        const data = await response.json()
-        if (!data.valid) { setValid(data.valid) }
-      } catch {
-        window.location.href = "/api/auth/signout/google"
+        [conversationsRes, settingsRes] = await Promise.all([
+          makeRequest(newSession.access_token, conversationsUrl),
+          makeRequest(newSession.access_token, settingsUrl)
+        ]);
       }
+
+      if (conversationsRes.status !== 200 || settingsRes.status !== 200) {
+        throw new Error('Failed after token refresh');
+      }
+
+      const conversationsData = await conversationsRes.json();
+      const pcs = conversationsData.conversations.map((c: PrevConversation) => ({
+        title: c.title,
+        conversation_id: c.conversation_id
+      }));
+      setPrevConversations(pcs);
+
+      const settingsData = await settingsRes.json();
+      setSettings(prev => ({
+        ...prev,
+        ...settingsData,
+        rag: (settingsData.rag?.toLowerCase() || "") === "true",
+        rubberDuck: (settingsData.rubberDuck?.toLowerCase() || "") === "true",
+        autoSave: (settingsData.autoSave?.toLowerCase() || "") === "true",
+        expertiseSlider: parseInt(settingsData.expertiseSlider || "50"),
+      }));
+
+    } catch (error) {
+      window.location.href = "/api/auth/signout/google";
     }
-    getValidity()
+  }
 
-  }, [session, update])
+  useEffect(() => {
+    async function initialize() {
+      setIsLoading(true);
+      await initializeUserData()
+      setIsLoading(false);
+    }
 
+    initialize()
+  }, [session?.id_token])
 
-  if (status === "loading") {
+  if (status === "loading" || isLoading) {
     return (
       <div className="flex justify-center m-4">
         <ClipLoader color="#fcbe6a" size="10vh" />
@@ -86,8 +126,7 @@ export default function Home() {
     return (
       <ToastProvider>
         <div className="flex justify-center" style={{ height: adjustedHeight }}>
-          { /** <AlertBanner /> **/}
-          <Chat valid={valid} initChats={initChats} />
+          <Chat initPrevConversations={prevConversations} initSettings={settings} initChats={initChats} />
         </div>
       </ToastProvider>
     )
