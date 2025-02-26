@@ -38,7 +38,9 @@ export default function Home() {
       expertiseSlider: 50,
       model: "claude-3-5-sonnet-20241022",
       rerankModel: "cohere",
-      autoSave: false
+      autoSave: false,
+      viewReasoning: true,
+      reasoningLevel: 0,
     });
 
   useEffect(() => {
@@ -54,8 +56,8 @@ export default function Home() {
     if (!session) return;
 
     try {
-      let conversationsUrl = `${process.env.NEXT_PUBLIC_API_URL}/chat_data/all`;
-      let settingsUrl = `${process.env.NEXT_PUBLIC_API_URL}/user_data/settings`;
+      const conversationsUrl = `${process.env.NEXT_PUBLIC_API_URL}/chat_data/all`;
+      const settingsUrl = `${process.env.NEXT_PUBLIC_API_URL}/user_data/settings`;
 
       let [conversationsRes, settingsRes] = await Promise.all([
         makeRequest(session.access_token, conversationsUrl),
@@ -92,9 +94,11 @@ export default function Home() {
         rubberDuck: (settingsData.rubberDuck?.toLowerCase() || "") === "true",
         autoSave: (settingsData.autoSave?.toLowerCase() || "") === "true",
         expertiseSlider: parseInt(settingsData.expertiseSlider || "50"),
+        reasoningLevel: parseInt((settingsData.reasoningLevel || "50")),
+        viewReasoning: (settingsData.viewReasoning?.toLowerCase() || "") == "true"
       }));
 
-    } catch (error) {
+    } catch {
       window.location.href = "/api/auth/signout/google";
     }
   }
