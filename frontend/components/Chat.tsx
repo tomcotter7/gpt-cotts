@@ -321,6 +321,7 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       throw new Error("No active session. Something went wrong")
     }
 
+
     const makeRequest = async (token: string) => {
       const rawBody = JSON.stringify(request);
       const requestOptions = {
@@ -380,6 +381,12 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       let parsedContext: Array<ContextItem> = [];
       if (context) {
         parsedContext = JSON.parse(atob(context)) as Array<ContextItem>;
+      }
+
+      const modelUsed = response.headers.get('x-model-used');
+
+      if (modelUsed != settings.model) {
+        updateToasts(`Error in request, we switched you to: ${modelUsed}`, true)
       }
 
       const stream = response.body;

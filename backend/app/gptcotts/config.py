@@ -49,3 +49,6 @@ DEFAULT_USER_CONFIGURATION = {
     "total_input_tokens": 0,
     "total_output_tokens": 0,
 }
+
+REASONING_MODELS = ["deepseek-reasoner", "claude-3-7-sonnet-20250219"]
+DEFAULT_NON_REASONING_MODEL = "claude-3-5-sonnet-20241022"

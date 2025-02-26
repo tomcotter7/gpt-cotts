@@ -18,7 +18,7 @@ from gptcotts.prompts import BasePrompt, NoContextPrompt, RAGPrompt, RubberDuckP
 from gptcotts.retrieval import search
 from openai import OpenAI
 from openai.types.chat import ChatCompletionChunk
-from pydantic import AfterValidator, BaseModel
+from pydantic import AfterValidator, BaseModel, model_validator
 
 router = APIRouter(prefix="/gptcotts/generation")
 logging.basicConfig(level=logging.INFO)
@@ -53,6 +53,13 @@ class LLMRequest(BaseModel):
 class ReasoningLLMRequest(LLMRequest):
     reasoning_level: float = 0.0
     view_reasoning: bool = True
+
+    @model_validator(mode="after")
+    def validate_reasoning_model(self):
+        if self.model not in cfg.REASONING_MODELS:
+            self.model = cfg.DEFAULT_NON_REASONING_MODEL
+
+        return self
 
 
 def filter_history(history):
@@ -148,13 +155,15 @@ def generate_response(
             return StreamingResponse(
                 generate_claude_response(
                     llm_request, user=current_user, background_tasks=background_tasks
-                )
+                ),
+                headers={"X-Model-Used": llm_request.model},
             )
         else:
             return StreamingResponse(
                 generate_openai_response(
                     llm_request, user=current_user, background_tasks=background_tasks
-                )
+                ),
+                headers={"X-Model-Used": llm_request.model},
             )
     except Exception as e:
         return {"status": "400", "message": str(e)}
@@ -200,6 +209,7 @@ def generate_rag_response(
         encoded_context = base64.b64encode(
             json.dumps(relevant_context).encode()
         ).decode()
+
         if "claude" in model:
             response = StreamingResponse(
                 generate_claude_response(
@@ -207,14 +217,20 @@ def generate_rag_response(
                     user=current_user,
                     background_tasks=background_tasks,
                 ),
-                headers={"X-Relevant-Context": encoded_context},
+                headers={
+                    "X-Relevant-Context": encoded_context,
+                    "X-Model-Used": llm_request.model,
+                },
             )
         else:
             response = StreamingResponse(
                 generate_openai_response(
                     llm_request, user=current_user, background_tasks=background_tasks
                 ),
-                headers={"X-Relevant-Context": encoded_context},
+                headers={
+                    "X-Relevant-Context": encoded_context,
+                    "X-Model-Used": llm_request.model,
+                },
             )
         return response
     except Exception as e:

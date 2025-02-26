@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { HideIcon, ShowIcon, RubberDuckIcon } from "@/components/Icons"
 
+const reasoningModels = ["claude-3-7-sonnet-20250219"]
+
 export interface SettingsInterface {
   rag: boolean;
   rubberDuck: boolean;
@@ -37,7 +39,17 @@ export function SettingsDisplay({ settings, onSettingsChange }: SettingsProps) {
   }, [handleRAGCheckboxChange]);
 
   function handleLLMDropdownChange(event: React.ChangeEvent<HTMLSelectElement>) {
-    onSettingsChange({ ...settings, model: event.target.value })
+    const modelName = event.target.value;
+    if (!reasoningModels.includes(modelName)) {
+      onSettingsChange({
+        ...settings,
+        model: event.target.value,
+        viewReasoning: false,
+        reasoningLevel: 0,
+      })
+    } else {
+      onSettingsChange({ ...settings, model: event.target.value })
+    }
   }
 
   function handleRerankDropdownChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -142,7 +154,7 @@ export function SettingsDisplay({ settings, onSettingsChange }: SettingsProps) {
             onChange={handleCheckboxSettingChange('autoSave')}
           />
         </div>
-        {settings.model == "claude-3-7-sonnet-20250219" ?
+        {reasoningModels.includes(settings.model) ?
           <div className="flex flex-wrap justify-center">
             <label htmlFor="reasoningLevel"><span className="text-black">how much should the model reason?</span></label>
             <input
