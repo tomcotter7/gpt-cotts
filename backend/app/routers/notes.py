@@ -32,6 +32,7 @@ class UpdateNotesRequest(BaseModel):
 @router.get("/get")
 def get_notes(current_user: Annotated[User, Depends(verify_google_token)]):
     """Get the notes for a user and class."""
+
     filenames = get_all_objects_from_directory("gptcotts-notes", current_user.email)
 
     if len(filenames) == 0:

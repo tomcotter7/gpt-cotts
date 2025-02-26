@@ -6,7 +6,7 @@ import Image from 'next/image'
 export default function SignIn() {
   const { data: session, status } = useSession()
 
-  const not_expired = session && new Date(session.expires).getTime() > Date.now()
+  const not_expired = session && Date.now() < session.expires_at
   if (status === "authenticated" && not_expired) {
     window.location.href = "/"
   }

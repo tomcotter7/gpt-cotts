@@ -27,7 +27,8 @@ const config: Config = {
           light: '#d1f8f9'
         },
         spearmint: {
-          DEFAULT: "#96f4a2"
+          DEFAULT: "#96f4a2",
+          dark: '#68aa71'
         },
         red: {
           300: '#fca5a5',

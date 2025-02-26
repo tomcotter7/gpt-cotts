@@ -3,7 +3,7 @@ import { DeleteIcon } from '@/components/Icons';
 
 export interface PrevConversation {
   title: string;
-  id: string;
+  conversation_id: string;
 }
 
 interface PreviousConversationsMenuProps {
@@ -68,11 +68,11 @@ export function PreviousConversationsMenu(
               {prevConversations.map((conversation, idx) => (
                 <li key={idx} className="pb-1 border-b">
                   <div className="flex group">
-                    <button onClick={() => loadConversation(conversation.id, conversation.title)} className="hover:bg-tangerine-dark rounded p-1 mx-2 text-left flex-grow">
+                    <button onClick={() => loadConversation(conversation.conversation_id, conversation.title)} className="hover:bg-tangerine-dark rounded p-1 mx-2 text-left flex-grow">
                       <p className="text-black text-md"> {conversation.title} </p>
                     </button>
                     <button
-                      onClick={() => deleteConversation(conversation.id)}
+                      onClick={() => deleteConversation(conversation.conversation_id)}
                       className="relative inline-flex items-center h-8 cursor-pointer border-0 bg-transparent p-1 before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-red-400 before:shadow hover:before:border-red-400 hover:before:bg-red-500 hover:before:border active:border-t-2 active:border-transparent active:py-1 active:before:shadow-none"
                     >
                       <DeleteIcon />

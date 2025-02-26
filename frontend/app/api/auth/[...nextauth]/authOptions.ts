@@ -31,7 +31,8 @@ async function refreshAccessToken(token: TokenSet): Promise<TokenSet> {
   try {
 
     const { clientId, clientSecret } = validateProcessEnv()
-
+    console.log(clientId, clientSecret)
+    console.log("old access token:", token.access_token)
     const response = await fetch("https://oauth2.googleapis.com/token", {
       method: "POST",
       body: new URLSearchParams({
@@ -45,7 +46,10 @@ async function refreshAccessToken(token: TokenSet): Promise<TokenSet> {
     const tokensOrError = await response.json()
     if (!response.ok) throw tokensOrError
 
+
     token.access_token = tokensOrError.access_token
+
+    console.log("new access token:", token.access_token)
     token.expires_at = Math.floor(
       Date.now() + tokensOrError.expires_in
     )
@@ -99,26 +103,22 @@ export const authOptions = {
         return {
           id_token: account.id_token,
           access_token: account.access_token,
-          expires_at: account.expires_at,
+          expires_at: account.expires_at * 1000,
           refresh_token: account.refresh_token,
           error: "NoError",
           user: user,
         }
       }
-      if (Date.now() < (token.expires_at * 1000)) {
+
+      if (Date.now() < (token.expires_at)) {
         token.error = "NoError"
-        return {
-          ...token,
-        }
+        token.expires_at = Date.now()
+        return token
       }
 
       const refreshedToken = await refreshAccessToken(token)
       return {
-        id_token: refreshedToken.id_token,
-        access_token: refreshedToken.access_token,
-        expires_at: refreshedToken.expires_at,
-        refresh_token: refreshedToken.refresh_token,
-        error: refreshedToken.error,
+        ...refreshedToken,
         user: refreshedToken.user
       }
 
@@ -127,13 +127,15 @@ export const authOptions = {
     // @ts-expect-error, this should be the any type. https://github.com/nextauthjs/next-auth/blob/main/packages/core/src/types.ts
     async session({ session, token }) {
 
+      console.log(token)
+
       if (token) {
         session.user.name = token.user.name
         session.user.email = token.user.email
         session.access_token = token.access_token
         session.id_token = token.id_token
         session.error = token.error
-        session.expires = token.expires_at
+        session.expires_at = token.expires_at
       }
       return session
     },

@@ -109,43 +109,9 @@ async function updateCurrentUserSettings(access_token: string, settings: Setting
   }
 }
 
-async function getCurrentUserSettings(access_token: string): Promise<SettingsInterface> {
-  const requestOptions = {
-    method: "GET",
-    headers: {
-      "Accept": "application/json",
-      "Content-Type": "application/json",
-      "Authorization": `Bearer ${access_token}`
-    },
-  }
 
-  const settings: SettingsInterface = {
-    rag: false,
-    rubberDuck: false,
-    expertiseSlider: 50,
-    model: "claude-3-5-sonnet-20241022",
-    rerankModel: "cohere",
-    autoSave: false,
-    viewReasoning: true,
-    reasoningLevel: 0
-  }
+export function Chat({ initPrevConversations, initSettings, initChats }: { initPrevConversations: PrevConversation[], initSettings: SettingsInterface, initChats: ChatMessage[] }) {
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user_data/settings`, requestOptions)
-  const data = await response.json()
-  return ({
-    ...settings, ...{
-      ...data,
-      rag: (data.rag?.toLowerCase() || "") == "true",
-      rubberDuck: (data.rubberDuck?.toLowerCase() || "") == "true",
-      autoSave: (data.autoSave?.toLowerCase() || "") == "true",
-      expertiseSlider: parseInt((data.expertiseSlider || "50")),
-      reasoningLevel: parseInt((data.reasoningLevel || "50")),
-      viewReasoning: (data.viewReasoning?.toLowerCase() || "") == "true"
-    }
-  })
-}
-
-export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMessage[] }) {
 
   const { data: session, status, update } = useSession();
   void status;
@@ -155,20 +121,9 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
 
   const [chats, setChats] = useState<ChatMessage[]>(initChats);
   const [generating, setGenerating] = useState<boolean>(false);
-  const [settings, setSettings] = useState<SettingsInterface>(
-    {
-      rag: false,
-      rubberDuck: false,
-      expertiseSlider: 50,
-      model: "claude-3-5-sonnet-20241022",
-      rerankModel: "cohere",
-      autoSave: false,
-      viewReasoning: true,
-      reasoningLevel: 0,
-    });
-  const [prevConversations, setPrevConversations] = useState<PrevConversation[]>([]);
+  const [settings, setSettings] = useState<SettingsInterface>(initSettings);
+  const [prevConversations, setPrevConversations] = useState<PrevConversation[]>(initPrevConversations);
   const [currentConv, setCurrentConv] = useState<Conversation>({ title: null, conversation_id: null });
-  const [initLoad, setInitLoad] = useState(true);
   const [userModified, setUserModified] = useState(false);
 
   const { updateToasts } = useToast();
@@ -181,39 +136,11 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
   );
 
   useEffect(() => {
-    async function setUpUser() {
-      if (!session) return;
-
-      const requestOptions = {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "accept": "application/json",
-          "Authorization": `Bearer ${session.access_token}`
-        },
-      }
-
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/chat_data/all`, requestOptions);
-      const data = await response.json();
-      const conversations = data.conversations;
-      const pcs: PrevConversation[] = [];
-      for (let i = 0; i < conversations.length; i++) {
-        pcs.push({ title: conversations[i].title, id: conversations[i].conversation_id });
-      }
-      setPrevConversations(pcs)
-      const settings = await getCurrentUserSettings(session?.access_token)
-      setSettings(settings)
-      setInitLoad(false)
-    }
-    setUpUser();
-  }, [session]);
-
-  useEffect(() => {
-    if (!initLoad && session != null && userModified) {
+    if (session != null && userModified) {
       debouncedUpdateSettings(session.access_token, settings)
       setUserModified(false)
     }
-  }, [settings, debouncedUpdateSettings, initLoad, userModified, session])
+  }, [settings, debouncedUpdateSettings, userModified, session])
 
 
   useEffect(() => {
@@ -240,15 +167,6 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
   }, []);
 
   useEffect(() => {
-    function notifyUser() {
-      if (!valid) {
-        updateToasts("Uhoh! You've ran out of those sweet sweet credits. Please buy some more to continue using the service", false);
-      }
-    }
-    notifyUser();
-  }, [valid, updateToasts]);
-
-  useEffect(() => {
     const clearButton = document.getElementById("clearButton") as HTMLButtonElement;
     const saveButton = document.getElementById("saveButton") as HTMLButtonElement;
 
@@ -271,7 +189,7 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
                 title: data.title
               });
               setPrevConversations((prev) => {
-                return prev.concat({ title: data.title, id: data.conversation_id });
+                return prev.concat({ title: data.title, conversation_id: data.conversation_id });
               })
             }
           });
@@ -321,7 +239,6 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       throw new Error("No active session. Something went wrong")
     }
 
-
     const makeRequest = async (token: string) => {
       const rawBody = JSON.stringify(request);
       const requestOptions = {
@@ -360,12 +277,6 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
 
   async function makeLLMRequest(request: BackendRequest, rag: boolean) {
     if (!session) {
-      return;
-    }
-
-    if (!valid) {
-      updateToasts("Uhoh! You've ran out of those sweet sweet credits. Please buy some more to continue using the service", false);
-      setChats((prev) => [...prev.slice(0, prev.length - 1)])
       return;
     }
 
@@ -419,10 +330,10 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
       updateToasts("Chat saved successfully!", true);
       let oldConvs = prevConversations;
       if (currentConv.conversation_id === data.conversation_id) {
-        oldConvs = oldConvs.filter((conv) => conv.id !== currentConv.conversation_id);
+        oldConvs = oldConvs.filter((conv) => conv.conversation_id !== currentConv.conversation_id);
       }
 
-      oldConvs.push({ title: data.title, id: data.conversation_id });
+      oldConvs.push({ title: data.title, conversation_id: data.conversation_id });
       setPrevConversations(oldConvs);
       setCurrentConv({ conversation_id: data.conversation_id, title: data.title });
     } else {
@@ -479,7 +390,7 @@ export function Chat({ valid, initChats }: { valid: boolean, initChats: ChatMess
   }
 
   async function handlePrevConversationDeleted(conversation_id: string) {
-    setPrevConversations((prev) => prev.filter((conv) => conv.id !== conversation_id));
+    setPrevConversations((prev) => prev.filter((conv) => conv.conversation_id !== conversation_id));
     if (conversation_id === currentConv.conversation_id) {
       setCurrentConv({ title: null, conversation_id: null });
       setChats([]);
