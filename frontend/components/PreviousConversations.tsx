@@ -1,5 +1,8 @@
 import { useRef, useState, useEffect, CSSProperties } from "react";
 import { DeleteIcon } from '@/components/Icons';
+import { FixedSizeList as List } from 'react-window';
+import { ListChildComponentProps } from 'react-window';
+
 
 export interface PrevConversation {
   title: string;
@@ -63,27 +66,37 @@ export function PreviousConversationsMenu(
       >
         <div className="flex flex-col pt-4 h-screen pb-16">
           <h2 className="text-xl font-bold mb-4 text-black border-b-8 border-grey pb-2 pl-4 flex-shrink-0">Previous Conversations</h2>
-          <div style={scrollbarHideStyle} className="flex-1">
+          <div className="flex-1">
             <ul className="space-y-2 px-4">
-              {prevConversations.map((conversation, idx) => (
-                <li key={idx} className="pb-1 border-b">
-                  <div className="flex group">
-                    <button onClick={() => loadConversation(conversation.conversation_id, conversation.title)} className="hover:bg-tangerine-dark rounded p-1 mx-2 text-left flex-grow">
-                      <p className="text-black text-md"> {conversation.title} </p>
-                    </button>
-                    <button
-                      onClick={() => deleteConversation(conversation.conversation_id)}
-                      className="relative inline-flex items-center h-8 cursor-pointer border-0 bg-transparent p-1 before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-red-400 before:shadow hover:before:border-red-400 hover:before:bg-red-500 hover:before:border active:border-t-2 active:border-transparent active:py-1 active:before:shadow-none"
-                    >
-                      <DeleteIcon />
-                    </button>
-                  </div>
-                </li>
-              ))}
+              <List
+                height={1000}
+                width="100%"
+                itemCount={prevConversations.length}
+                itemSize={85}
+                style={scrollbarHideStyle}
+              >
+                {({ index, style }: ListChildComponentProps) => {
+                  return (
+                    <li key={index} className="pb-1 border-b" style={style}>
+                      <div className="flex group">
+                        <button onClick={() => loadConversation(prevConversations[index].conversation_id, prevConversations[index].title)} className="hover:bg-tangerine-dark rounded p-1 mx-2 text-left flex-grow">
+                          <p className="text-black text-md"> {prevConversations[index].title.substring(0, 40)}...</p>
+                        </button>
+                        <button
+                          onClick={() => deleteConversation(prevConversations[index].conversation_id)}
+                          className="relative inline-flex items-center h-8 cursor-pointer border-0 bg-transparent p-1 before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-red-400 before:shadow hover:before:border-red-400 hover:before:bg-red-500 hover:before:border active:border-t-2 active:border-transparent active:py-1 active:before:shadow-none"
+                        >
+                          <DeleteIcon />
+                        </button>
+                      </div>
+                    </li>
+                  )
+                }}
+              </List>
             </ul>
           </div>
         </div>
-      </div>
+      </div >
       <button
         className={`fixed ml-2 top-1/2 transform -translate-y-1/2 text-black rounded-full opacity-50 hover:opacity-100 bg-tangerine px-3 py-1 shadow-lg transition-all duration-300 ease-in-out  ${open ? 'left-64' : 'left-1'}`}
         onClick={() => setOpen(!open)}
