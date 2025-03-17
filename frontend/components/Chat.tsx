@@ -1,8 +1,5 @@
-import { useState, useEffect, useRef, useMemo, CSSProperties } from "react";
+import { useState, useEffect, useRef, CSSProperties } from "react";
 import { useSession } from "next-auth/react";
-
-import debounce from 'lodash/debounce';
-
 
 import Markdown from 'react-markdown'
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
@@ -14,10 +11,10 @@ import 'katex/dist/katex.min.css'
 
 import { SendIcon, RubberDuckIcon } from "./Icons";
 import { SettingsInterface } from "./Settings";
-import { SettingsDisplay } from '@/components/Settings';
 import { useToast } from '@/providers/Toast';
 import { ToastBox } from '@/components/Toast';
 import { PreviousConversationsMenu, PrevConversation } from '@/components/PreviousConversations';
+import { useSettings } from "@/providers/Settings";
 
 interface ContextItem {
   id: number;
@@ -91,26 +88,7 @@ export interface ChatMessage {
   id: number;
 }
 
-async function updateCurrentUserSettings(access_token: string, settings: SettingsInterface): Promise<boolean> {
-  try {
-    const requestOptions = {
-      method: "PATCH",
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${access_token}`
-      },
-      body: JSON.stringify(settings)
-    }
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user_data/settings`, requestOptions)
-    return response.ok
-  } catch {
-    return false;
-  }
-}
-
-
-export function Chat({ initPrevConversations, initSettings, initChats }: { initPrevConversations: PrevConversation[], initSettings: SettingsInterface, initChats: ChatMessage[] }) {
+export function Chat({ initPrevConversations, initChats }: { initPrevConversations: PrevConversation[], initChats: ChatMessage[] }) {
 
 
   const { data: session, status, update } = useSession();
@@ -121,27 +99,13 @@ export function Chat({ initPrevConversations, initSettings, initChats }: { initP
 
   const [chats, setChats] = useState<ChatMessage[]>(initChats);
   const [generating, setGenerating] = useState<boolean>(false);
-  const [settings, setSettings] = useState<SettingsInterface>(initSettings);
   const [prevConversations, setPrevConversations] = useState<PrevConversation[]>(initPrevConversations);
   const [currentConv, setCurrentConv] = useState<Conversation>({ title: null, conversation_id: null });
-  const [userModified, setUserModified] = useState(false);
+  const [thinking, setThinking] = useState(false);
+
+  const { settings } = useSettings();
 
   const { updateToasts } = useToast();
-
-  const debouncedUpdateSettings = useMemo(
-    () => debounce((token: string, settings: SettingsInterface) => {
-      updateCurrentUserSettings(token, settings)
-    }, 5000),
-    []
-  );
-
-  useEffect(() => {
-    if (session != null && userModified) {
-      debouncedUpdateSettings(session.access_token, settings)
-      setUserModified(false)
-    }
-  }, [settings, debouncedUpdateSettings, userModified, session])
-
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -217,11 +181,6 @@ export function Chat({ initPrevConversations, initSettings, initChats }: { initP
     }
   }, [generating]);
 
-  function handleSettingsChange(newSettings: SettingsInterface) {
-    setUserModified(true);
-    setSettings(newSettings)
-  };
-
   function scrollToTop() {
     if (contentRef.current) {
       contentRef.current.scrollTop = 0;
@@ -286,8 +245,11 @@ export function Chat({ initPrevConversations, initSettings, initChats }: { initP
     }
 
     try {
-      const response = await sendMessage(request, url);
       let value = ""
+      setChats((prev) => [...prev, { role: "assistant", content: value, id: Date.now(), context: [] }]);
+      setThinking(true);
+      const response = await sendMessage(request, url);
+
       const context = response.headers.get('x-relevant-context');
       let parsedContext: Array<ContextItem> = [];
       if (context) {
@@ -301,9 +263,13 @@ export function Chat({ initPrevConversations, initSettings, initChats }: { initP
       }
 
       const stream = response.body;
-      setChats((prev) => [...prev, { role: "assistant", content: value, id: Date.now(), context: parsedContext }]);
+      let isFirstChunk = true;
       setGenerating(true);
       for await (const chunk of processStream(stream)) {
+        if (isFirstChunk) {
+          setTimeout(() => setThinking(false), 0);
+          isFirstChunk = false
+        }
         if (stop.current) {
           stop.current = false;
           break;
@@ -413,7 +379,6 @@ export function Chat({ initPrevConversations, initSettings, initChats }: { initP
   }
 
   const scrollbarHideStyle: CSSProperties = {
-    overflowY: 'auto',
     scrollbarWidth: 'none',
     msOverflowStyle: 'none',
   }
@@ -429,9 +394,8 @@ export function Chat({ initPrevConversations, initSettings, initChats }: { initP
 
 
   return (
-    <div className="max-h-full w-full flex flex-col">
+    <div className="w-full flex flex-col h-screen">
       <ToastBox />
-      <SettingsDisplay settings={settings} onSettingsChange={handleSettingsChange} />
       <PreviousConversationsMenu prevConversations={prevConversations} onConversationSelect={handlePrevConversationSelected} onConversationDelete={handlePrevConversationDeleted} />
       <div className="flex justify-center mt-2 mb-1">
         <button
@@ -456,13 +420,15 @@ export function Chat({ initPrevConversations, initSettings, initChats }: { initP
           <b> save </b>
         </button>
       </div>
-      <div className="h-1/4 flex flex-grow w-full">
-        <div ref={contentRef} style={scrollbarHideStyle} className="h-full w-full">
-          {chats.map((chat) => {
+      <div className="flex-1 min-h-0">
+        <div ref={contentRef} style={scrollbarHideStyle} className="w-full sm:h-[calc(100vh-280px)] h-[calc(100vh-240px)] overflow-y-auto">
+          {chats.slice(0, -1).map((chat) => {
             return (
-              <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} />
+              <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} thinking={false} />
             )
           })}
+
+          {chats.length > 0 ? <ChatBox key={chats[chats.length - 1].id} role={chats[chats.length - 1].role} text={chats[chats.length - 1].content} context={chats[chats.length - 1].context} name={username} thinking={thinking} /> : null}
         </div>
       </div>
       <ChatForm settings={settings} onChatSubmit={onChatSubmit} />
@@ -540,11 +506,11 @@ function ChatForm({ onChatSubmit, settings }: ChatFormProps) {
   }
 
   return (
-    <form className="sticky top-[100vh]">
+    <form className="fixed bottom-0 left-0 right-0 w-full bg-grey">
       <div className="flex justify-center px-5 py-3 w-screen space-x-2">
         <div className="flex flex-col w-11/12">
           <div className="bg-skyblue rounded-t">
-            <span className="text-black p-2">
+            <span className="text-black p-1 hidden sm:block text-center">
               Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{settings.model}</b> with <b> {convertSliderToExpertise(settings.expertiseSlider)} </b> expertise{settings.rag ? ` and reranking with` : ""}{settings.rag ? <b> {settings.rerankModel}</b> : ""}.
             </span>
           </div>
@@ -573,15 +539,25 @@ interface ChatBoxProps {
   text: string;
   context: Array<ContextItem>;
   name: string;
+  thinking: boolean;
 }
 
-function ChatBox({ role, text, context, name }: ChatBoxProps) {
+function ChatBox({ role, text, context, name, thinking = false }: ChatBoxProps) {
 
   let containerClasses = `mb-2 w-11/12 p-2 shadow-md m-3`
   if (role === 'user') {
     containerClasses += ` bg-tangerine rounded-e-xl rounded-es-xl`
   } else {
     containerClasses += ` ml-auto bg-skyblue rounded-b-xl rounded-l-xl`
+  }
+
+  if (thinking) {
+    return (
+      <div className={containerClasses}>
+        {role === 'user' ? <p className="text-black text-xs"><b>{name}</b> (You)</p> : <p className="text-black text-xs"><b>gpt-cotts</b></p>}
+        <p className="animate-pulse text-black">thinking...</p>
+      </div>
+    )
   }
 
   return (

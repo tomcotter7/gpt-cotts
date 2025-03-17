@@ -4,7 +4,7 @@ import { ToastType } from '@/components/Toast';
 
 type ToastContextType = {
   toasts: ToastType[];
-  setToasts: React.Dispatch<React.SetStateAction<Array<ToastType>>>;
+  deleteToast: (id: number) => void;
   updateToasts: (message: string, success: boolean) => void;
 };
 
@@ -13,16 +13,20 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 export function ToastProvider({ children }: { children: React.ReactNode }) {
   const [toasts, setToasts] = useState<ToastType[]>([]);
 
-    function updateToasts(message: string, success: boolean) {
-        setToasts((prev) => {
-            const newToast = { id: Date.now(), message, success };
-            const updatedToasts = [newToast, ...prev];
-            return updatedToasts.slice(0, 2);
-        });
-    }
+  function updateToasts(message: string, success: boolean) {
+    setToasts((prev) => {
+      const newToast = { id: Date.now(), message, success };
+      const updatedToasts = [newToast, ...prev];
+      return updatedToasts.slice(0, 2);
+    });
+  }
+
+  function deleteToast(id: number) {
+    setToasts((prev: Array<ToastType>) => prev.filter(t => t.id !== id))
+  }
 
   return (
-    <ToastContext.Provider value={{ toasts, setToasts, updateToasts }}>
+    <ToastContext.Provider value={{ toasts, updateToasts, deleteToast }}>
       {children}
     </ToastContext.Provider>
   );
