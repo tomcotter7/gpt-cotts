@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, CSSProperties } from "react";
+import { useState, useEffect, useRef, CSSProperties, memo } from "react";
 import { useSession } from "next-auth/react";
 
 import Markdown from 'react-markdown'
@@ -10,7 +10,6 @@ import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 
 import { SendIcon, RubberDuckIcon } from "./Icons";
-import { SettingsInterface } from "./Settings";
 import { useToast } from '@/providers/Toast';
 import { ToastBox } from '@/components/Toast';
 import { PreviousConversationsMenu, PrevConversation } from '@/components/PreviousConversations';
@@ -263,6 +262,7 @@ export function Chat({ initPrevConversations, initChats }: { initPrevConversatio
       }
 
       const stream = response.body;
+      let lastUpdateTime = 0;
       let isFirstChunk = true;
       setGenerating(true);
       for await (const chunk of processStream(stream)) {
@@ -275,9 +275,16 @@ export function Chat({ initPrevConversations, initChats }: { initPrevConversatio
           break;
         }
         value += chunk;
-        setChats((prev) => [...prev.slice(0, prev.length - 1), { role: "assistant", content: value, id: Date.now(), context: parsedContext }]);
+
+        const now = Date.now();
+        if (now - lastUpdateTime > 75) {
+          setChats((prev) => [...prev.slice(0, prev.length - 1), { role: "assistant", content: value, id: Date.now(), context: parsedContext }]);
+          lastUpdateTime = now
+        }
       }
 
+
+      setChats((prev) => [...prev.slice(0, prev.length - 1), { role: "assistant", content: value, id: Date.now(), context: parsedContext }]);
       setGenerating(false);
     } catch (error) {
       const errorString = error instanceof Error ? error.message : String(error);
@@ -431,14 +438,13 @@ export function Chat({ initPrevConversations, initChats }: { initPrevConversatio
           {chats.length > 0 ? <ChatBox key={chats[chats.length - 1].id} role={chats[chats.length - 1].role} text={chats[chats.length - 1].content} context={chats[chats.length - 1].context} name={username} thinking={thinking} /> : null}
         </div>
       </div>
-      <ChatForm settings={settings} onChatSubmit={onChatSubmit} />
+      <ChatForm onChatSubmit={onChatSubmit} />
     </div>
   )
 }
 
 interface ChatFormProps {
   onChatSubmit: () => void;
-  settings: SettingsInterface;
 }
 
 const sliderToExpertiseMap: Record<number, string> = {
@@ -457,9 +463,11 @@ const convertReasoningLevelToFraction = (reasoningLevel: number): number => {
   return (reasoningLevel / 100)
 }
 
-function ChatForm({ onChatSubmit, settings }: ChatFormProps) {
+const ChatForm = memo(function ChatForm({ onChatSubmit }: ChatFormProps) {
 
   const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const resizeTimeout = useRef<NodeJS.Timeout | null>(null);
+  const { settings } = useSettings();
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
@@ -486,14 +494,17 @@ function ChatForm({ onChatSubmit, settings }: ChatFormProps) {
       onChatSubmit();
       resetChatInput();
     } else {
-      e.currentTarget.style.height = "auto";
-      const newHeight = Math.min(e.currentTarget.scrollHeight, 200);
-      e.currentTarget.style.height = newHeight + "px";
+      if (!resizeTimeout.current) {
+        resizeTimeout.current = setTimeout(() => {
+          const textarea = e.currentTarget
+          textarea.style.height = "auto";
+          const newHeight = Math.min(textarea.scrollHeight, 200);
+          textarea.style.height = newHeight + "px";
 
-      if (e.currentTarget.scrollHeight > 200) {
-        e.currentTarget.style.overflow = "auto";
-      } else {
-        e.currentTarget.style.overflow = "hidden";
+          textarea.style.overflow = textarea.scrollHeight > 200 ? "auto" : "hidden";
+
+          resizeTimeout.current = null;
+        }, 50);
       }
     }
   }
@@ -532,7 +543,7 @@ function ChatForm({ onChatSubmit, settings }: ChatFormProps) {
       </div>
     </form>
   )
-}
+})
 
 interface ChatBoxProps {
   role: string;
@@ -542,7 +553,7 @@ interface ChatBoxProps {
   thinking: boolean;
 }
 
-function ChatBox({ role, text, context, name, thinking = false }: ChatBoxProps) {
+const ChatBox = memo(function ChatBox({ role, text, context, name, thinking = false }: ChatBoxProps) {
 
   let containerClasses = `mb-2 w-11/12 p-2 shadow-md m-3`
   if (role === 'user') {
@@ -594,7 +605,7 @@ function ChatBox({ role, text, context, name, thinking = false }: ChatBoxProps) 
     </div >
   )
 
-}
+})
 
 
 interface ContextBoxProps {

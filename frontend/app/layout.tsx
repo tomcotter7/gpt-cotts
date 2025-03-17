@@ -21,11 +21,12 @@ export const metadata: Metadata = {
 };
 
 // <head>
-//   <script
-//     crossOrigin="anonymous"
-//     src="//unpkg.com/react-scan/dist/auto.global.js"
-//   />
-// </head>
+//         <script
+//           crossOrigin="anonymous"
+//           src="//unpkg.com/react-scan/dist/auto.global.js"
+//         />
+//       </head>
+
 
 export default function RootLayout({
   children,
