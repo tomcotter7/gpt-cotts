@@ -8,8 +8,9 @@ import { ClipLoader } from 'react-spinners';
 import { NotLoggedIn } from '@/components/NotLoggedIn';
 import { Chat, ChatMessage } from '@/components/Chat';
 import { PrevConversation } from '@/components/PreviousConversations';
-import { SettingsInterface } from '@/components/Settings';
+import { SettingsDisplay, SettingsInterface } from '@/components/Settings';
 import { ToastProvider } from '@/providers/Toast';
+import { SettingsProvider } from '@/providers/Settings';
 
 const makeRequest = async (token: string, url: string) => {
 
@@ -129,9 +130,12 @@ export default function Home() {
     }
     return (
       <ToastProvider>
-        <div className="flex justify-center" style={{ height: adjustedHeight }}>
-          <Chat initPrevConversations={prevConversations} initSettings={settings} initChats={initChats} />
-        </div>
+        <SettingsProvider initialSettings={settings}>
+          <div className="justify-center overflow-hidden" style={{ height: adjustedHeight }}>
+            <SettingsDisplay />
+            <Chat initPrevConversations={prevConversations} initChats={initChats} />
+          </div>
+        </SettingsProvider>
       </ToastProvider>
     )
 

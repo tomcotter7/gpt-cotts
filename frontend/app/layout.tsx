@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   description: "skill issues? use me!",
 };
 
+// <head>
+//   <script
+//     crossOrigin="anonymous"
+//     src="//unpkg.com/react-scan/dist/auto.global.js"
+//   />
+// </head>
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -31,8 +38,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-            <Navbar />
-            {children}
+          <Navbar />
+          {children}
         </Providers>
       </body>
     </html>

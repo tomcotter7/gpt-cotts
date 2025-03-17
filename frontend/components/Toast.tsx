@@ -32,18 +32,18 @@ interface ToastComponentProps {
 
 export function ToastComponent({ toast, timeout = 3000 }: ToastComponentProps) {
 
-  const { setToasts } = useToast();
+  const { deleteToast } = useToast();
 
   function onDelete(id: number) {
-    setToasts((prev: Array<ToastType>) => prev.filter((t: ToastType) => t.id !== id));
+    deleteToast(id);
   }
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setToasts((prev: Array<ToastType>) => prev.filter((t: ToastType) => t.id !== toast.id));
+      deleteToast(toast.id);
     }, timeout)
     return () => clearTimeout(timer)
-  }, [setToasts, toast.id, timeout])
+  }, [deleteToast, toast.id, timeout])
 
   let color = "bg-red-50"
   let border = "border-red-200"
