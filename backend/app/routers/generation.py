@@ -308,14 +308,19 @@ def generate_openai_response(
     background_tasks: BackgroundTasks,
 ):
     try:
-        if "deepseek" in request.model:
+        model = request.model or "gpt-4o-mini-2024-07-18"
+        if "deepseek" in model:
             client = OpenAI(
                 api_key=os.getenv("DEEPSEEK_API_KEY"),
                 base_url="https://api.deepseek.com",
             )
+        elif "gemini" in model:
+            client = OpenAI(
+                api_key=os.getenv("GEMINI_API_KEY"),
+                base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
+            )
         else:
             client = OpenAI()
-        model = request.model or "gpt-4o-mini-2024-07-18"
         logging.info(f">>> Using model: {model}")
         system_prompt = request.prompt.system_prompt()
         messages = (
@@ -337,20 +342,26 @@ def generate_openai_response(
         )
         chunk = None
         for chunk in response:
+            logging.info(chunk)
             choice = chunk.choices[0]
             if choice.finish_reason is not None:
+                if value := choice.delta.content:
+                    yield value
                 break
 
             value = choice.delta.content
             if value:
                 yield value
 
-        if "deepseek" in request.model and chunk is not None:
+        if (
+            "deepseek" in request.model or "gemini" in request.model
+        ) and chunk is not None:
             accum = chunk
+
         else:
             accum = next(response)
         background_tasks.add_task(process_openai_accum, accum, user)
 
     except Exception as e:
-        logging.error(f"OpenAI/Deepseek error: {str(e)}")
+        logging.error(f"OpenAI/Deepseek/Gemini error: {str(e)}")
         yield f"An error occurred while generating the response. See {e}"
