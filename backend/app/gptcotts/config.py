@@ -23,6 +23,14 @@ API_PRICING = {
         "input_price_per_one_token": 1.5e-7,
         "output_price_per_one_token": 6e-7,
     },
+    "gpt-4.1-2025-04-14": {
+        "input_price_per_one_token": 2e-6,
+        "output_price_per_one_token": 8e-6,
+    },
+    "gpt-4.1-mini-2025-04-14": {
+        "input_price_per_one_token": 0.0000004,
+        "output_price_per_one_token": 1.6e-6,
+    },
     "deepseek-chat": {
         "input_price_per_one_token": 0.00000027,
         "output_price_per_one_token": 0.0000011,
@@ -30,6 +38,10 @@ API_PRICING = {
     "deepseek-reasoner": {
         "input_price_per_one_token": 0.00000055,
         "output_price_per_one_token": 0.00000219,
+    },
+    "gemini-2.5-pro-preview-03-25": {
+        "input_price_per_one_token": 1.25e-6,
+        "output_price_per_one_token": 2.5e-6,
     },
     "default": {
         "input_price_per_one_token": 0.000003,
