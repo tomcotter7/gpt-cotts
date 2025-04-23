@@ -75,7 +75,7 @@ export function NotesContent(
     refreshCache();
   }
 
-  async function getNotesWithFilename(filename: string, successMessage: string = "") {
+  async function getNotesWithFilename(filename: string) {
 
     if (!session) {
       return;
@@ -134,7 +134,7 @@ export function NotesContent(
             filenames: [...notesData.filenames, filename]
           });
         }
-        updateToasts(successMessage, true)
+        // updateToasts(successMessage, true)
       } else if (response.status === 401) {
         throw new Error("Failed after token refresh! You need to refresh the page.")
       } else {
@@ -242,8 +242,7 @@ export function NotesContent(
         `${process.env.NEXT_PUBLIC_API_URL}/notes/add`, {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-
+          'Content-Type': "application/json",
           'accept': 'application/json',
           'Authorization': `Bearer ${token}`
         },
@@ -328,8 +327,7 @@ export function NotesContent(
     }
   }
 
-
-  const buttonTailwind = "relative inline-flex h-10 w-1/12 justify-center items-center px-4 mx-1 text-black before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-tangerine-light before:disabled:opacity-50 before:shadow before:shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] hover:before:bg-tangerine hover:before:border hover:before:border-tangerine-dark active:border-t-4 active:border-transparent active:py-1 active:before:shadow-none"
+  const buttonTailwind = "inline-flex h-10 w-1/12 justify-center items-center px-4 mx-1 text-black bg-tangerine-light shadow shadow-[0_4px_3px_0_rgba(236,182,109,0.1),inset_0_-5px_0_0_#ecb66d] rounded disabled:opacity-50 hover:bg-tangerine hover:border hover:border-tangerine-dark active:shadow-none active:translate-y-[0.5px]"
 
   return (
     <>
