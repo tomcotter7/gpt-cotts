@@ -85,7 +85,7 @@ export function ToastComponent({ toast, timeout = 3000 }: ToastComponentProps) {
     }
   }
 
-  const rootClassNames = "relative fixed right-5 pointer-events-auto mx-auto mb-4 w-96 rounded-lg text-sm shadow-md shadow-black text-black opacity-100 " + color + " " + border
+  const rootClassNames = "fixed right-5 pointer-events-auto mx-auto mb-4 w-96 rounded-lg text-sm shadow-md shadow-black text-black " + color + " " + border
 
   return (
     <div
