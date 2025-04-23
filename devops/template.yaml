@@ -28,6 +28,8 @@ Resources:
             - secretsmanager:GetSecretValue
             - s3:GetObject
             - s3:ListBucket
+            - s3:PutObject
+            - s3:DeleteObject
             - dynamodb:Query
             - dynamodb:PutItem
             - dynamodb:GetItem
