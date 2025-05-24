@@ -15,6 +15,14 @@ API_PRICING = {
         "input_price_per_one_token": 0.000003,
         "output_price_per_one_token": 0.000015,
     },
+    "claude-opus-4-20250514": {
+        "input_price_per_one_token": 0.000015,
+        "output_price_per_one_token": 0.000075,
+    },
+    "claude-sonnet-4-20250514": {
+        "input_price_per_one_token": 0.000003,
+        "output_price_per_one_token": 0.000015,
+    },
     "gpt-4o-2024-08-06": {
         "input_price_per_one_token": 0.0000025,
         "output_price_per_one_token": 0.00001,

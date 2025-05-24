@@ -142,6 +142,8 @@ export function SettingsDisplay() {
               <option value="claude-3-5-haiku-20241022">claude3.5-haiku</option>
               <option value="claude-3-5-sonnet-20241022">claude3.5-sonnet</option>
               <option value="claude-3-7-sonnet-20250219">claude3.7-sonnet</option>
+              <option value="claude-sonnet-4-20250514">claude4-sonnet</option>
+              <option value="claude-opus-4-20250514">claude4-opus</option>
             </select>
           </div>
           <div className="flex flex-wrap justify-center items-center">
