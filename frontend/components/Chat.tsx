@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, CSSProperties, memo } from "react";
+import { useState, useEffect, useRef, CSSProperties, memo, useCallback } from "react";
 import { useSession } from "next-auth/react";
 
 import Markdown from 'react-markdown'
@@ -9,9 +9,10 @@ import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 
-import { SendIcon, RubberDuckIcon } from "./Icons";
+import { SendIcon, RubberDuckIcon, DeleteIcon, EditIcon } from "@/components/Icons";
 import { useToast } from '@/providers/Toast';
 import { ToastBox } from '@/components/Toast';
+
 import { PreviousConversationsMenu, PrevConversation } from '@/components/PreviousConversations';
 import { useSettings } from "@/providers/Settings";
 
@@ -192,13 +193,19 @@ export function Chat({ initPrevConversations, initChats }: { initPrevConversatio
     }
   };
 
+  const handleDeleteMessage = useCallback((messageId: number) => {
+    setChats((prevChats) => prevChats.filter((chat) => chat.id !== messageId));
+  }, []);
+
   async function sendMessage(request: BackendRequest, url: string): Promise<Response> {
     if (!session) {
       throw new Error("No active session. Something went wrong")
     }
 
+
     const makeRequest = async (token: string) => {
       const rawBody = JSON.stringify(request);
+      console.log("rawBody:", rawBody)
       const requestOptions = {
         method: "POST",
         headers: {
@@ -320,6 +327,7 @@ export function Chat({ initPrevConversations, initChats }: { initPrevConversatio
     const message = chatInput.value;
     const userChat = { role: "user", content: message, id: Date.now(), context: [] };
     setChats((prev) => [...prev, userChat]);
+    console.log(chats)
     makeLLMRequest(
       {
         query: message,
@@ -330,6 +338,7 @@ export function Chat({ initPrevConversations, initChats }: { initPrevConversatio
         view_reasoning: settings.viewReasoning,
         reasoning_level: convertReasoningLevelToFraction(settings.reasoningLevel)
       }, settings.rag);
+
   }
 
   function clearChat() {
@@ -431,11 +440,11 @@ export function Chat({ initPrevConversations, initChats }: { initPrevConversatio
         <div ref={contentRef} style={scrollbarHideStyle} className="w-full sm:h-[calc(100vh-280px)] h-[calc(100vh-240px)] overflow-y-auto">
           {chats.slice(0, -1).map((chat) => {
             return (
-              <ChatBox key={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} thinking={false} />
+              <ChatBox key={chat.id} id={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} thinking={false} onDelete={handleDeleteMessage} />
             )
           })}
 
-          {chats.length > 0 ? <ChatBox key={chats[chats.length - 1].id} role={chats[chats.length - 1].role} text={chats[chats.length - 1].content} context={chats[chats.length - 1].context} name={username} thinking={thinking} /> : null}
+          {chats.length > 0 ? <ChatBox key={chats[chats.length - 1].id} id={chats[chats.length - 1].id} role={chats[chats.length - 1].role} text={chats[chats.length - 1].content} context={chats[chats.length - 1].context} name={username} thinking={thinking} onDelete={handleDeleteMessage} /> : null}
         </div>
       </div>
       <ChatForm onChatSubmit={onChatSubmit} />
@@ -546,14 +555,16 @@ const ChatForm = memo(function ChatForm({ onChatSubmit }: ChatFormProps) {
 })
 
 interface ChatBoxProps {
+  id: number
   role: string;
   text: string;
   context: Array<ContextItem>;
   name: string;
   thinking: boolean;
+  onDelete: (id: number) => void;
 }
 
-const ChatBox = memo(function ChatBox({ role, text, context, name, thinking = false }: ChatBoxProps) {
+const ChatBox = memo(function ChatBox({ id, role, text, context, name, thinking = false, onDelete }: ChatBoxProps) {
 
   let containerClasses = `mb-2 w-11/12 p-2 shadow-md m-3`
   if (role === 'user') {
@@ -573,7 +584,22 @@ const ChatBox = memo(function ChatBox({ role, text, context, name, thinking = fa
 
   return (
     <div className={containerClasses}>
-      {role === 'user' ? <p className="text-black text-xs"><b>{name}</b> (You)</p> : <p className="text-black text-xs"><b>gpt-cotts</b></p>}
+      <div className="flex group">
+        {role === 'user' ? <p className="text-black text-xs"><b>{name}</b> (You)</p> : <p className="text-black text-xs"><b>gpt-cotts</b></p>}
+        <div className="flex ml-auto">
+          <button
+            className="bg-gray-300 mx-1 p-1 rounded text-black"
+          >
+            <EditIcon />
+          </button>
+          <button
+            className="bg-red-400 mx-1 p-1 rounded"
+            onClick={() => onDelete(id)}
+          >
+            <DeleteIcon />
+          </button>
+        </div>
+      </div>
       <div className="min-h-5">
         <Markdown
           className="text-black markdown-content"

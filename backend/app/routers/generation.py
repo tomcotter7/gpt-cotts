@@ -26,14 +26,27 @@ logging.basicConfig(level=logging.INFO)
 
 def is_between_0_and_1(value: float) -> float:
     if value < 0 or value > 1:
-        raise ValueError(f"{value} is between 0 and 1")
+        raise ValueError(f"{value} is not between 0 and 1")
     return value
+
+
+class Context(BaseModel):
+    id: int
+    text: str
+    metadata: dict[str, str]
+
+
+class Chat(BaseModel):
+    id: int
+    role: str
+    content: str
+    context: list[Context] = []
 
 
 class BaseRequest(BaseModel):
     query: str
     model: str
-    history: list
+    history: list[Chat] = []
     expertise: str = "normal"
     rubber_duck_mode: bool = False
     view_reasoning: bool = True
@@ -47,7 +60,7 @@ class RAGRequest(BaseRequest):
 class LLMRequest(BaseModel):
     prompt: BasePrompt
     model: str
-    history: list
+    history: list[dict[str, str]]
 
 
 class ReasoningLLMRequest(LLMRequest):
@@ -62,13 +75,41 @@ class ReasoningLLMRequest(LLMRequest):
         return self
 
 
-def filter_history(history):
-    history = sorted(history, key=lambda x: x["id"])
-    history = [
-        {k: v for k, v in item.items() if k in ["role", "content"]} for item in history
-    ]
-    history = history[-8:]
-    return history
+def add_context(chat: Chat) -> Chat:
+    def context_to_str(context: Context) -> str:
+        return context.text + str(context.metadata)
+
+    if chat.context:
+        additional_context = " ".join(
+            context_to_str(context) for context in chat.context
+        )
+        chat.content = (
+            chat.content + "\n Additional Context Retrieved: " + additional_context
+        )
+
+    return chat
+
+
+def combine_history_and_add_context(history: list[Chat]) -> list[Chat]:
+    processed_history = [add_context(chat) for chat in history]
+
+    if not processed_history:
+        return []
+
+    combined_history = [processed_history[0]]
+    for chat in processed_history[1:]:
+        if chat.role == combined_history[-1].role:
+            combined_history[-1].content += "\n\n" + chat.content
+        else:
+            combined_history.append(chat)
+
+    return combined_history
+
+
+def filter_history(history: list[Chat]) -> list[dict[str, str]]:
+    history = sorted(history, key=lambda x: x.id)
+    history = combine_history_and_add_context(history)
+    return [{"role": chat.role, "content": chat.content} for chat in history[-8:]]
 
 
 def update_token_count(user: User, model: str, input_tokens: int, output_tokens: int):

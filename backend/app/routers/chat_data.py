@@ -115,8 +115,10 @@ def save_chat_data(
             "title": {"S": title},
             "chats": {"L": chats},
         }
+        logging.info(f"Uploading {chat_data} to {cfg.CHAT_TABLE}")
         put_table_item(cfg.CHAT_TABLE, item)
     else:
+        logging.info(f"{chat_data} already exists in {cfg.CHAT_TABLE}, updating item")
         update_table_item(
             cfg.CHAT_TABLE,
             {"email": current_user.email, "conversation_id": chat_data.conversation_id},

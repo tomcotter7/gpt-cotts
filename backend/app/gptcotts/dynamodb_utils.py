@@ -1,3 +1,5 @@
+import logging
+
 import boto3
 
 from . import config as cfg
@@ -46,12 +48,16 @@ def update_table_item(
         UpdateExpression=update_expression,
         ExpressionAttributeValues=expression_attribute_values,
     )
+    logging.info(
+        f"Updated {key} in {table_name} using {update_expression}. Response: {response}"
+    )
     return response
 
 
 @timing
 def put_table_item(table_name: str, item: dict) -> dict:
     response = client.put_item(TableName=table_name, Item=item)
+    logging.info(f"Put {item} into {table_name}. Reponse: {response}")
     return response
 
 

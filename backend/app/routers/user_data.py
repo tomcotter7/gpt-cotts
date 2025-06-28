@@ -10,12 +10,16 @@ router = APIRouter(prefix="/gptcotts/user_data")
 
 
 @router.get("/me")
-def get_user_data(current_user: Annotated[User, Depends(verify_google_token)]):
+def get_user_data(
+    current_user: Annotated[User, Depends(verify_google_token)],
+) -> dict[str, Any]:
     return current_user.model_dump()
 
 
 @router.get("/validate")
-def validate_user_credits(current_user: Annotated[User, Depends(verify_google_token)]):
+def validate_user_credits(
+    current_user: Annotated[User, Depends(verify_google_token)],
+) -> dict[str, bool]:
     return {"valid": validate_credits(current_user.email)}
 
 
@@ -44,7 +48,9 @@ def get_usage_data(current_user: Annotated[User, Depends(verify_google_token)]):
 
 
 @router.get("/settings")
-def get_user_settings(current_user: Annotated[User, Depends(verify_google_token)]):
+def get_user_settings(
+    current_user: Annotated[User, Depends(verify_google_token)],
+) -> dict[str, Any]:
     settings_data = get_table_item(cfg.USER_TABLE, {"email": current_user.email})
 
     if "Item" not in settings_data:
@@ -60,7 +66,7 @@ def get_user_settings(current_user: Annotated[User, Depends(verify_google_token)
 def update_user_settings(
     current_user: Annotated[User, Depends(verify_google_token)],
     settings: dict[str, Any],
-):
+) -> None:
     f_settings = {key: {"S": str(value).lower()} for key, value in settings.items()}
 
     update_table_item(

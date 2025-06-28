@@ -21,6 +21,7 @@ export function PreviousConversationsMenu(
   const [open, setOpen] = useState(false);
   const windowRef = useRef<HTMLDivElement>(null);
 
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (windowRef.current && !windowRef.current.contains(event.target as Node) && open) {
@@ -57,11 +58,15 @@ export function PreviousConversationsMenu(
     msOverflowStyle: 'none',
   }
 
+  const itemSize = 80;
+  const maxHeight = window.innerHeight * 0.8;
+
+
   return (
     <>
       <div
         ref={windowRef}
-        className={`fixed h-screen w-64 bg-tangerine shadow-lg z-50 transform transition-transform duration-75 ease-in-out ${open ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed h-screen w-64 bg-tangerine shadow-lg z-50 transform transition-transform duration-75 ease-in-out ${open ? '-translate-x-0' : '-translate-x-full'
           }`}
       >
         <div className="flex flex-col pt-4 h-screen pb-16">
@@ -69,10 +74,10 @@ export function PreviousConversationsMenu(
           <div className="flex-1">
             <ul className="space-y-2 px-4">
               <List
-                height={1000}
+                height={Math.min(prevConversations.length * itemSize, maxHeight)}
                 width="100%"
                 itemCount={prevConversations.length}
-                itemSize={85}
+                itemSize={itemSize}
                 style={scrollbarHideStyle}
               >
                 {({ index, style }: ListChildComponentProps) => {
@@ -84,7 +89,7 @@ export function PreviousConversationsMenu(
                         </button>
                         <button
                           onClick={() => deleteConversation(prevConversations[index].conversation_id)}
-                          className="relative inline-flex items-center h-8 cursor-pointer border-0 bg-transparent p-1 before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-red-400 before:shadow hover:before:border-red-400 hover:before:bg-red-500 hover:before:border active:border-t-2 active:border-transparent active:py-1 active:before:shadow-none"
+                          className="relative inline-flex items-center h-8 mt-1 cursor-pointer border-0 bg-transparent p-1 before:absolute before:-z-10 before:inset-0 before:block before:rounded before:bg-red-400 before:shadow hover:before:border-red-400 hover:before:bg-red-500 hover:before:border active:border-t-2 active:border-transparent active:py-1 active:before:shadow-none"
                         >
                           <DeleteIcon />
                         </button>
