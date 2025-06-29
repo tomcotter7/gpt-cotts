@@ -9,7 +9,7 @@ import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 
-import { SendIcon, RubberDuckIcon, DeleteIcon, EditIcon } from "@/components/Icons";
+import { SendIcon, RubberDuckIcon, DeleteIcon } from "@/components/Icons";
 import { useToast } from '@/providers/Toast';
 import { ToastBox } from '@/components/Toast';
 
