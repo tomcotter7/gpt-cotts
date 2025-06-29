@@ -198,11 +198,15 @@ export function Chat({ initPrevConversations, initChats }: { initPrevConversatio
   }, []);
 
   const handleEditMessage = useCallback((messageId: number, newContent: string) => {
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat.id === messageId ? { ...chat, content: newContent } : chat
-      )
-    );
+    if (newContent.trim() === "") {
+      setChats((prevChats) => prevChats.filter((chat) => chat.id !== messageId));
+    } else {
+      setChats((prevChats) =>
+        prevChats.map((chat) =>
+          chat.id === messageId ? { ...chat, content: newContent } : chat
+        )
+      );
+    }
   }, []);
 
   async function sendMessage(request: BackendRequest, url: string): Promise<Response> {
