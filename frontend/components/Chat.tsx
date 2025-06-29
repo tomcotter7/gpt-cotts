@@ -588,11 +588,6 @@ const ChatBox = memo(function ChatBox({ id, role, text, context, name, thinking 
         {role === 'user' ? <p className="text-black text-xs"><b>{name}</b> (You)</p> : <p className="text-black text-xs"><b>gpt-cotts</b></p>}
         <div className="flex ml-auto">
           <button
-            className="bg-gray-300 mx-1 p-1 rounded text-black"
-          >
-            <EditIcon />
-          </button>
-          <button
             className="bg-red-400 mx-1 p-1 rounded"
             onClick={() => onDelete(id)}
           >

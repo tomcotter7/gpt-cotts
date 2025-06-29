@@ -91,7 +91,9 @@ def add_context(chat: Chat) -> Chat:
 
 
 def combine_history_and_add_context(history: list[Chat]) -> list[Chat]:
-    processed_history = [add_context(chat) for chat in history]
+    processed_history = [
+        add_context(chat) for chat in history if len(chat.content.strip()) > 0
+    ]
 
     if not processed_history:
         return []
