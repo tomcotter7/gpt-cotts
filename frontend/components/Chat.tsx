@@ -9,7 +9,7 @@ import remarkGfm from 'remark-gfm'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 
-import { SendIcon, RubberDuckIcon, DeleteIcon } from "@/components/Icons";
+import { SendIcon, RubberDuckIcon, DeleteIcon, EditIcon, SaveIcon, CancelIcon } from "@/components/Icons";
 import { useToast } from '@/providers/Toast';
 import { ToastBox } from '@/components/Toast';
 
@@ -195,6 +195,14 @@ export function Chat({ initPrevConversations, initChats }: { initPrevConversatio
 
   const handleDeleteMessage = useCallback((messageId: number) => {
     setChats((prevChats) => prevChats.filter((chat) => chat.id !== messageId));
+  }, []);
+
+  const handleEditMessage = useCallback((messageId: number, newContent: string) => {
+    setChats((prevChats) =>
+      prevChats.map((chat) =>
+        chat.id === messageId ? { ...chat, content: newContent } : chat
+      )
+    );
   }, []);
 
   async function sendMessage(request: BackendRequest, url: string): Promise<Response> {
@@ -440,11 +448,11 @@ export function Chat({ initPrevConversations, initChats }: { initPrevConversatio
         <div ref={contentRef} style={scrollbarHideStyle} className="w-full sm:h-[calc(100vh-280px)] h-[calc(100vh-240px)] overflow-y-auto">
           {chats.slice(0, -1).map((chat) => {
             return (
-              <ChatBox key={chat.id} id={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} thinking={false} onDelete={handleDeleteMessage} />
+              <ChatBox key={chat.id} id={chat.id} role={chat.role} text={chat.content} context={chat.context} name={username} thinking={false} onDelete={handleDeleteMessage} onEdit={handleEditMessage} />
             )
           })}
 
-          {chats.length > 0 ? <ChatBox key={chats[chats.length - 1].id} id={chats[chats.length - 1].id} role={chats[chats.length - 1].role} text={chats[chats.length - 1].content} context={chats[chats.length - 1].context} name={username} thinking={thinking} onDelete={handleDeleteMessage} /> : null}
+          {chats.length > 0 ? <ChatBox key={chats[chats.length - 1].id} id={chats[chats.length - 1].id} role={chats[chats.length - 1].role} text={chats[chats.length - 1].content} context={chats[chats.length - 1].context} name={username} thinking={thinking} onDelete={handleDeleteMessage} onEdit={handleEditMessage} /> : null}
         </div>
       </div>
       <ChatForm onChatSubmit={onChatSubmit} />
@@ -503,9 +511,9 @@ const ChatForm = memo(function ChatForm({ onChatSubmit }: ChatFormProps) {
       onChatSubmit();
       resetChatInput();
     } else {
+      const textarea = e.currentTarget
       if (!resizeTimeout.current) {
         resizeTimeout.current = setTimeout(() => {
-          const textarea = e.currentTarget
           textarea.style.height = "auto";
           const newHeight = Math.min(textarea.scrollHeight, 200);
           textarea.style.height = newHeight + "px";
@@ -530,9 +538,13 @@ const ChatForm = memo(function ChatForm({ onChatSubmit }: ChatFormProps) {
       <div className="flex justify-center px-5 py-3 w-screen space-x-2">
         <div className="flex flex-col w-11/12">
           <div className="bg-skyblue rounded-t">
-            <span className="text-black p-1 hidden sm:block text-center">
+            <span className="text-black pt-1 hidden sm:block text-center">
               Currently using <b>{settings.rag ? "rag" : "no rag"}</b> with <b>{settings.model}</b> with <b> {convertSliderToExpertise(settings.expertiseSlider)} </b> expertise{settings.rag ? ` and reranking with` : ""}{settings.rag ? <b> {settings.rerankModel}</b> : ""}.
             </span>
+            <p className="text-xs text-center text-black pb-1">
+              gpt-cotts does not take responsibility for generations.
+            </p>
+
           </div>
           <textarea
             placeholder="Type your message here..."
@@ -562,9 +574,23 @@ interface ChatBoxProps {
   name: string;
   thinking: boolean;
   onDelete: (id: number) => void;
+  onEdit: (id: number, content: string) => void;
 }
 
-const ChatBox = memo(function ChatBox({ id, role, text, context, name, thinking = false, onDelete }: ChatBoxProps) {
+const ChatBox = memo(function ChatBox({ id, role, text, context, name, thinking = false, onDelete, onEdit }: ChatBoxProps) {
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedText, setEditedText] = useState(text);
+
+  const handleSave = () => {
+    onEdit(id, editedText)
+    setIsEditing(false)
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false)
+    setEditedText(text)
+  };
 
   let containerClasses = `mb-2 w-11/12 p-2 shadow-md m-3`
   if (role === 'user') {
@@ -587,40 +613,74 @@ const ChatBox = memo(function ChatBox({ id, role, text, context, name, thinking 
       <div className="flex group">
         {role === 'user' ? <p className="text-black text-xs"><b>{name}</b> (You)</p> : <p className="text-black text-xs"><b>gpt-cotts</b></p>}
         <div className="flex ml-auto">
-          <button
-            className="bg-red-400 mx-1 p-1 rounded"
-            onClick={() => onDelete(id)}
-          >
-            <DeleteIcon />
-          </button>
+          {isEditing ? (
+            <>
+              <button
+                className="bg-spearmint mx-1 p-1 rounded text-black"
+                onClick={handleSave}
+              >
+                <SaveIcon />
+              </button>
+              <button
+                className="bg-gray-300 mx-1 p-1 rounded text-black"
+                onClick={handleCancel}
+              >
+                <CancelIcon />
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="bg-gray-300 mx-1 p-1 rounded text-black"
+                onClick={() => setIsEditing(true)}
+              >
+                <EditIcon />
+              </button>
+              <button
+                className="bg-red-400 mx-1 p-1 rounded"
+                onClick={() => onDelete(id)}
+              >
+                <DeleteIcon />
+              </button>
+            </>
+          )}
         </div>
       </div>
       <div className="min-h-5">
-        <Markdown
-          className="text-black markdown-content"
-          remarkPlugins={[remarkMath, remarkGfm]}
-          rehypePlugins={[rehypeKatex]}
-          components={{
-            code(props) {
-              const { children, className, ...rest } = props;
-              const match = /language-(\w+)/.exec(className || '')
-              return match ? (
-                // @ts-expect-error This follows the documentation - https://github.com/remarkjs/react-markdown.
-                <SyntaxHighlighter
-                  {...rest}
-                  PreTag="div"
-                  language={match[1]}
-                  style={dark}
-                  showLineNumbers={true}
-                >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
-              ) : (
-                <code {...rest} className={className}>
-                  {children}
-                </code>
-              )
-            }
-          }}
-        >{text}</Markdown>
+        {isEditing ? (
+          <textarea
+            className="w-full p-2 rounded text-black bg-white/80 resize-y my-1"
+            value={editedText}
+            onChange={(e) => setEditedText(e.target.value)}
+            rows={4}
+          />
+        ) : (
+          <Markdown
+            className="text-black markdown-content"
+            remarkPlugins={[remarkMath, remarkGfm]}
+            rehypePlugins={[rehypeKatex]}
+            components={{
+              code(props) {
+                const { children, className, ...rest } = props;
+                const match = /language-(\w+)/.exec(className || '')
+                return match ? (
+                  // @ts-expect-error This follows the documentation - https://github.com/remarkjs/react-markdown.
+                  <SyntaxHighlighter
+                    {...rest}
+                    PreTag="div"
+                    language={match[1]}
+                    style={dark}
+                    showLineNumbers={true}
+                  >{String(children).replace(/\n$/, '')}</SyntaxHighlighter>
+                ) : (
+                  <code {...rest} className={className}>
+                    {children}
+                  </code>
+                )
+              }
+            }}
+          >{text}</Markdown>
+        )}
       </div>
       {context.length > 0 ? <ContextBox context={context} /> : null}
     </div >
