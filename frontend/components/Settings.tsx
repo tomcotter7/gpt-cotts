@@ -135,8 +135,9 @@ export function SettingsDisplay() {
               onChange={handleLLMDropdownChange}
               className={selectTailwind}
             >
-              <option value="gpt-4.1-2025-04-14">gpt-4.1-mini</option>
-              <option value="gpt-4.1-2025-04-14">gpt-4.1</option>
+              <option value="gpt-5-nano-2025-08-07">gpt-5-nano</option>
+              <option value="gpt-5-mini-2025-08-07">gpt-5-mini</option>
+              <option value="gpt-5-2025-08-07">gpt-5</option>
               <option value="gemini-2.5-pro-preview-03-25">gemini-2.5-pro</option>
               <option value="deepseek-chat">deepseek-chat</option>
               <option value="claude-3-5-haiku-20241022">claude3.5-haiku</option>

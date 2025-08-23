@@ -23,6 +23,18 @@ API_PRICING = {
         "input_price_per_one_token": 0.000003,
         "output_price_per_one_token": 0.000015,
     },
+    "gpt-5-2025-08-07": {
+        "input_price_per_one_token": 0.00000125,
+        "output_price_per_one_token": 0.00001,
+    },
+    "gpt-5-mini-2025-08-07": {
+        "input_price_per_one_token": 0.00000025,
+        "output_price_per_one_token": 0.000002,
+    },
+    "gpt-5-nano-2025-08-07": {
+        "input_price_per_one_token": 0.00000005,
+        "output_price_per_one_token": 0.0000004,
+    },
     "gpt-4o-2024-08-06": {
         "input_price_per_one_token": 0.0000025,
         "output_price_per_one_token": 0.00001,
